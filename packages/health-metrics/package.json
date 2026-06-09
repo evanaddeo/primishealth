@@ -1,0 +1,20 @@
+{
+  "name": "@primis/health-metrics",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@primis/core-types": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.1"
+  }
+}

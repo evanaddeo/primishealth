@@ -46,6 +46,16 @@ importers:
         specifier: ^1.6.1
         version: 1.6.1(@types/node@20.19.42)
 
+  packages/health-metrics:
+    dependencies:
+      '@primis/core-types':
+        specifier: workspace:*
+        version: link:../core-types
+    devDependencies:
+      vitest:
+        specifier: ^1.6.1
+        version: 1.6.1(@types/node@20.19.42)
+
 packages:
 
   '@esbuild/aix-ppc64@0.21.5':
