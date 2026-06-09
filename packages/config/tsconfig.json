@@ -1,0 +1,7 @@
+{
+  // NOTE: tsconfig.base.json uses "moduleResolution": "bundler" for Expo/Vite/Vitest
+  // compatibility. If this package is ever consumed in a Node.js runtime without a bundler,
+  // override with "node16" or "nodenext" in that service's own tsconfig.json.
+  "extends": "../../tsconfig.base.json",
+  "include": ["src/**/*"]
+}

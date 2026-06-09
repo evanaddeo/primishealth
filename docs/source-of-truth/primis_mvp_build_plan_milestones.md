@@ -49,14 +49,14 @@ Coding agents MUST NOT start by randomly scaffolding screens, models, or endpoin
 
 This document uses the following phase names:
 
-| Phase | Name | Meaning |
-|---|---|---|
-| P0 | Foundation + Validation | Repo, tooling, AWS foundation, provider/API feasibility spikes, design system foundation. |
-| P1 | Private Daily-Use MVP | Usable by founder daily with Google/Fitbit data, core dashboards, core scores, basic AI, and manual inputs. |
-| P2 | Intelligence Expansion | Better algorithms, correlations, nutrition v1.5, richer summaries, more robust AI context. |
-| P3 | iOS Health Enrichment | HealthKit integration, Apple Health enrichment, likely Hume scale data through Apple Health. |
-| P4 | Public-Beta Hardening | Compliance, security, privacy, OAuth verification prep, app store production hardening, subscriptions. |
-| P5 | Multi-Provider / Universal Health OS | Android Health Connect, additional direct providers, broader public product. |
+| Phase | Name                                 | Meaning                                                                                                     |
+| ----- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| P0    | Foundation + Validation              | Repo, tooling, AWS foundation, provider/API feasibility spikes, design system foundation.                   |
+| P1    | Private Daily-Use MVP                | Usable by founder daily with Google/Fitbit data, core dashboards, core scores, basic AI, and manual inputs. |
+| P2    | Intelligence Expansion               | Better algorithms, correlations, nutrition v1.5, richer summaries, more robust AI context.                  |
+| P3    | iOS Health Enrichment                | HealthKit integration, Apple Health enrichment, likely Hume scale data through Apple Health.                |
+| P4    | Public-Beta Hardening                | Compliance, security, privacy, OAuth verification prep, app store production hardening, subscriptions.      |
+| P5    | Multi-Provider / Universal Health OS | Android Health Connect, additional direct providers, broader public product.                                |
 
 ### 0.4 MVP definition
 
@@ -302,17 +302,17 @@ A milestone is not complete until its acceptance criteria and tests are satisfie
 
 Primis should be built with a small number of focused workstreams:
 
-| Workstream | Purpose |
-|---|---|
-| Product + Planning | Keep requirements, docs, acceptance criteria, and tradeoffs aligned. |
-| Mobile App | React Native UI, navigation, local cache, native integrations. |
-| Backend API | Auth integration, API Gateway/Lambda/ECS endpoints, DTOs. |
-| Data Platform | Postgres schema, migrations, raw payload storage, provider sync, summaries. |
-| Scoring Engine | Baselines, sleep/recovery/readiness/activity/nutrition/bedtime algorithms. |
-| AI Engine | Context packets, retrieval, model abstraction, structured outputs. |
-| Design System | Tokens, components, motion, charts, accessibility. |
-| Security/Compliance | OAuth, encryption, deletion, disclosures, audit logs. |
-| QA/Observability | Tests, fixtures, Sentry/CloudWatch, performance checks. |
+| Workstream          | Purpose                                                                     |
+| ------------------- | --------------------------------------------------------------------------- |
+| Product + Planning  | Keep requirements, docs, acceptance criteria, and tradeoffs aligned.        |
+| Mobile App          | React Native UI, navigation, local cache, native integrations.              |
+| Backend API         | Auth integration, API Gateway/Lambda/ECS endpoints, DTOs.                   |
+| Data Platform       | Postgres schema, migrations, raw payload storage, provider sync, summaries. |
+| Scoring Engine      | Baselines, sleep/recovery/readiness/activity/nutrition/bedtime algorithms.  |
+| AI Engine           | Context packets, retrieval, model abstraction, structured outputs.          |
+| Design System       | Tokens, components, motion, charts, accessibility.                          |
+| Security/Compliance | OAuth, encryption, deletion, disclosures, audit logs.                       |
+| QA/Observability    | Tests, fixtures, Sentry/CloudWatch, performance checks.                     |
 
 ### 4.3 Avoid parallelizing too early
 
@@ -331,13 +331,13 @@ First create shared contracts, then parallelize implementation.
 
 The MVP has five non-negotiable gates:
 
-| Gate | Meaning |
-|---|---|
-| G1: Provider Data Gate | Google Health API data availability is validated against a real account/device path. |
-| G2: Data Model Gate | Core normalized schema, metric registry, raw payload archival, and summary generation work. |
-| G3: Scoring Gate | Sleep/recovery/readiness/activity/bedtime scores generate from real or fixture data with explainable components. |
-| G4: UX Gate | Home, Sleep, Recovery, Activity, AI Coach, and Inputs feel fast and premium on iOS. |
-| G5: Private Beta Gate | Auth, sync, deletion, logs, crash reporting, privacy disclosure, and TestFlight build are ready for limited users. |
+| Gate                   | Meaning                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| G1: Provider Data Gate | Google Health API data availability is validated against a real account/device path.                               |
+| G2: Data Model Gate    | Core normalized schema, metric registry, raw payload archival, and summary generation work.                        |
+| G3: Scoring Gate       | Sleep/recovery/readiness/activity/bedtime scores generate from real or fixture data with explainable components.   |
+| G4: UX Gate            | Home, Sleep, Recovery, Activity, AI Coach, and Inputs feel fast and premium on iOS.                                |
+| G5: Private Beta Gate  | Auth, sync, deletion, logs, crash reporting, privacy disclosure, and TestFlight build are ready for limited users. |
 
 No public-facing work should begin until G1-G4 are passed.
 
@@ -347,25 +347,25 @@ No public-facing work should begin until G1-G4 are passed.
 
 ### 5.1 Milestone table
 
-| Milestone | Phase | Name | Main Output | Hard Gate? |
-|---|---|---|---|---|
-| M0 | P0 | Project Setup + Repo Foundation | Monorepo, tooling, environments, CI baseline | Yes |
-| M1 | P0 | External API/Data Validation | Google Health API validation plan and metric availability matrix | Yes |
-| M2 | P0 | AWS Foundation + Auth | Cognito, base API, env separation, secret management | Yes |
-| M3 | P0/P1 | Data Model + Migration Foundation | Postgres schema, metric registry, seed fixtures | Yes |
-| M4 | P1 | Provider Sync Pipeline | Google connector, raw ingestion, normalization, sync jobs | Yes |
-| M5 | P1 | Scoring + Summary Engine | baselines, daily summaries, core scores, bedtime planner engine | Yes |
-| M6 | P1 | Mobile App Shell + Design System | React Native app, navigation, theme, core components | Yes |
-| M7 | P1 | Premium Home Dashboard | local-first home, widgets, goal progress, score cards | Yes |
-| M8 | P1 | Sleep + Bedtime Planner UX | sleep page, sleep details, suggested bedtimes | Yes |
-| M9 | P1 | Recovery + Activity + Vitals UX | recovery, readiness, training load, vitals pages | Yes |
-| M10 | P1 | Manual Inputs + Nutrition v1 | check-ins, water, caffeine, alcohol, macros, tags, bowel entries | No |
-| M11 | P1 | AI Context Engine + Chat | model abstraction, context builder, AI chat, summaries | Yes |
-| M12 | P1 | Private Beta Hardening | observability, deletion, security checks, TestFlight | Yes |
-| M13 | P2 | Correlation Engine + Insight Expansion | behavior correlations, weekly report, better coaching | No |
-| M14 | P2 | Nutrition v1.5 | FoodData Central import/search, user foods | No |
-| M15 | P3 | HealthKit + Hume Path | Apple Health read/sync, smart-scale body comp enrichment | No |
-| M16 | P4 | Public-Beta Readiness | app review prep, Google verification prep, subscriptions | Yes for public |
+| Milestone | Phase | Name                                   | Main Output                                                      | Hard Gate?     |
+| --------- | ----- | -------------------------------------- | ---------------------------------------------------------------- | -------------- |
+| M0        | P0    | Project Setup + Repo Foundation        | Monorepo, tooling, environments, CI baseline                     | Yes            |
+| M1        | P0    | External API/Data Validation           | Google Health API validation plan and metric availability matrix | Yes            |
+| M2        | P0    | AWS Foundation + Auth                  | Cognito, base API, env separation, secret management             | Yes            |
+| M3        | P0/P1 | Data Model + Migration Foundation      | Postgres schema, metric registry, seed fixtures                  | Yes            |
+| M4        | P1    | Provider Sync Pipeline                 | Google connector, raw ingestion, normalization, sync jobs        | Yes            |
+| M5        | P1    | Scoring + Summary Engine               | baselines, daily summaries, core scores, bedtime planner engine  | Yes            |
+| M6        | P1    | Mobile App Shell + Design System       | React Native app, navigation, theme, core components             | Yes            |
+| M7        | P1    | Premium Home Dashboard                 | local-first home, widgets, goal progress, score cards            | Yes            |
+| M8        | P1    | Sleep + Bedtime Planner UX             | sleep page, sleep details, suggested bedtimes                    | Yes            |
+| M9        | P1    | Recovery + Activity + Vitals UX        | recovery, readiness, training load, vitals pages                 | Yes            |
+| M10       | P1    | Manual Inputs + Nutrition v1           | check-ins, water, caffeine, alcohol, macros, tags, bowel entries | No             |
+| M11       | P1    | AI Context Engine + Chat               | model abstraction, context builder, AI chat, summaries           | Yes            |
+| M12       | P1    | Private Beta Hardening                 | observability, deletion, security checks, TestFlight             | Yes            |
+| M13       | P2    | Correlation Engine + Insight Expansion | behavior correlations, weekly report, better coaching            | No             |
+| M14       | P2    | Nutrition v1.5                         | FoodData Central import/search, user foods                       | No             |
+| M15       | P3    | HealthKit + Hume Path                  | Apple Health read/sync, smart-scale body comp enrichment         | No             |
+| M16       | P4    | Public-Beta Readiness                  | app review prep, Google verification prep, subscriptions         | Yes for public |
 
 ### 5.2 MVP release target
 
@@ -429,17 +429,17 @@ primis/
 
 ### 6.4 Technical decisions
 
-| Decision | Requirement |
-|---|---|
-| Language | TypeScript-first for mobile/backend/shared contracts. |
-| Mobile | React Native + Expo Dev Client. |
-| Backend | AWS-native. Lambda first; ECS/Fargate only when needed. |
-| Infra | Prefer AWS CDK in TypeScript unless there is a clear reason to use Terraform. |
-| Database | RDS Postgres. |
-| Tests | Vitest/Jest for TypeScript packages; integration tests for API/data jobs. |
-| CI | GitHub Actions. |
-| Formatting | Prettier. |
-| Linting | ESLint. |
+| Decision   | Requirement                                                                   |
+| ---------- | ----------------------------------------------------------------------------- |
+| Language   | TypeScript-first for mobile/backend/shared contracts.                         |
+| Mobile     | React Native + Expo Dev Client.                                               |
+| Backend    | AWS-native. Lambda first; ECS/Fargate only when needed.                       |
+| Infra      | Prefer AWS CDK in TypeScript unless there is a clear reason to use Terraform. |
+| Database   | RDS Postgres.                                                                 |
+| Tests      | Vitest/Jest for TypeScript packages; integration tests for API/data jobs.     |
+| CI         | GitHub Actions.                                                               |
+| Formatting | Prettier.                                                                     |
+| Linting    | ESLint.                                                                       |
 
 ### 6.5 Work items
 
@@ -516,15 +516,15 @@ M1 does not include:
 
 ### 7.4 Critical questions M1 must answer
 
-| Question | Required answer |
-|---|---|
-| Can a test user connect Google Health API with needed scopes? | Yes/no + setup notes. |
-| Which Fitbit Air metrics are available through Google Health API? | Availability matrix. |
-| Are Google app scores exposed? | Confirm whether sleep score/readiness/cardio load are exposed or must be derived. |
-| How fresh is the data after device sync? | Observed freshness notes. |
-| Are webhooks available and useful for target data types? | Yes/no per data type. |
-| What historical range is practically retrievable? | Observed backfill behavior. |
-| What data types have dailyRollup vs list/reconcile only? | Matrix. |
+| Question                                                          | Required answer                                                                   |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Can a test user connect Google Health API with needed scopes?     | Yes/no + setup notes.                                                             |
+| Which Fitbit Air metrics are available through Google Health API? | Availability matrix.                                                              |
+| Are Google app scores exposed?                                    | Confirm whether sleep score/readiness/cardio load are exposed or must be derived. |
+| How fresh is the data after device sync?                          | Observed freshness notes.                                                         |
+| Are webhooks available and useful for target data types?          | Yes/no per data type.                                                             |
+| What historical range is practically retrievable?                 | Observed backfill behavior.                                                       |
+| What data types have dailyRollup vs list/reconcile only?          | Matrix.                                                                           |
 
 ### 7.5 Metric availability matrix
 
@@ -536,28 +536,28 @@ docs/decisions/google-health-api-metric-availability.md
 
 Required columns:
 
-| Canonical metric | Google data type | Scope | Operation | Available? | Sample payload saved? | Notes |
-|---|---|---|---|---|---|---|
-| steps | `steps` | activity_and_fitness | dailyRollup/list/reconcile | TBD | TBD | TBD |
-| active_energy_burned | `active-energy-burned` | activity_and_fitness | dailyRollup | TBD | TBD | TBD |
-| total_calories | `total-calories` | activity_and_fitness | dailyRollup | TBD | TBD | TBD |
-| active_zone_minutes | `active-zone-minutes` | activity_and_fitness | dailyRollup | TBD | TBD | TBD |
-| floors | `floors` | activity_and_fitness | dailyRollup | TBD | TBD | TBD |
-| heart_rate | `heart-rate` | health_metrics_and_measurements | list/reconcile | TBD | TBD | TBD |
-| daily_hrv | `daily-heart-rate-variability` | health_metrics_and_measurements | list/reconcile | TBD | TBD | TBD |
-| daily_resting_hr | `daily-resting-heart-rate` | health_metrics_and_measurements | list/reconcile | TBD | TBD | TBD |
-| daily_spo2 | `daily-oxygen-saturation` | health_metrics_and_measurements | list/reconcile | TBD | TBD | TBD |
-| daily_respiratory_rate | `daily-respiratory-rate` | health_metrics_and_measurements | list/reconcile | TBD | TBD | TBD |
-| sleep_sessions | `sleep` | sleep | list/reconcile | TBD | TBD | TBD |
-| exercise | `exercise` | activity_and_fitness | list/reconcile | TBD | TBD | TBD |
-| vo2_max | `vo2-max` or equivalent | activity/health scope | TBD | TBD | TBD | TBD |
-| weight | `weight` | health_metrics_and_measurements | list/reconcile | TBD | TBD | TBD |
-| body_fat | `body-fat` | health_metrics_and_measurements | list/reconcile/create/update | TBD | TBD | TBD |
-| food | `food` | nutrition | list/reconcile | TBD | TBD | TBD |
-| hydration | `hydration-log` or equivalent | nutrition | TBD | TBD | TBD | TBD |
-| provider_sleep_score | TBD | TBD | TBD | TBD | TBD | likely not guaranteed |
-| provider_readiness_score | TBD | TBD | TBD | TBD | TBD | likely not guaranteed |
-| provider_cardio_load | TBD | TBD | TBD | TBD | TBD | validate |
+| Canonical metric         | Google data type               | Scope                           | Operation                    | Available? | Sample payload saved? | Notes                 |
+| ------------------------ | ------------------------------ | ------------------------------- | ---------------------------- | ---------- | --------------------- | --------------------- |
+| steps                    | `steps`                        | activity_and_fitness            | dailyRollup/list/reconcile   | TBD        | TBD                   | TBD                   |
+| active_energy_burned     | `active-energy-burned`         | activity_and_fitness            | dailyRollup                  | TBD        | TBD                   | TBD                   |
+| total_calories           | `total-calories`               | activity_and_fitness            | dailyRollup                  | TBD        | TBD                   | TBD                   |
+| active_zone_minutes      | `active-zone-minutes`          | activity_and_fitness            | dailyRollup                  | TBD        | TBD                   | TBD                   |
+| floors                   | `floors`                       | activity_and_fitness            | dailyRollup                  | TBD        | TBD                   | TBD                   |
+| heart_rate               | `heart-rate`                   | health_metrics_and_measurements | list/reconcile               | TBD        | TBD                   | TBD                   |
+| daily_hrv                | `daily-heart-rate-variability` | health_metrics_and_measurements | list/reconcile               | TBD        | TBD                   | TBD                   |
+| daily_resting_hr         | `daily-resting-heart-rate`     | health_metrics_and_measurements | list/reconcile               | TBD        | TBD                   | TBD                   |
+| daily_spo2               | `daily-oxygen-saturation`      | health_metrics_and_measurements | list/reconcile               | TBD        | TBD                   | TBD                   |
+| daily_respiratory_rate   | `daily-respiratory-rate`       | health_metrics_and_measurements | list/reconcile               | TBD        | TBD                   | TBD                   |
+| sleep_sessions           | `sleep`                        | sleep                           | list/reconcile               | TBD        | TBD                   | TBD                   |
+| exercise                 | `exercise`                     | activity_and_fitness            | list/reconcile               | TBD        | TBD                   | TBD                   |
+| vo2_max                  | `vo2-max` or equivalent        | activity/health scope           | TBD                          | TBD        | TBD                   | TBD                   |
+| weight                   | `weight`                       | health_metrics_and_measurements | list/reconcile               | TBD        | TBD                   | TBD                   |
+| body_fat                 | `body-fat`                     | health_metrics_and_measurements | list/reconcile/create/update | TBD        | TBD                   | TBD                   |
+| food                     | `food`                         | nutrition                       | list/reconcile               | TBD        | TBD                   | TBD                   |
+| hydration                | `hydration-log` or equivalent  | nutrition                       | TBD                          | TBD        | TBD                   | TBD                   |
+| provider_sleep_score     | TBD                            | TBD                             | TBD                          | TBD        | TBD                   | likely not guaranteed |
+| provider_readiness_score | TBD                            | TBD                             | TBD                          | TBD        | TBD                   | likely not guaranteed |
+| provider_cardio_load     | TBD                            | TBD                             | TBD                          | TBD        | TBD                   | validate              |
 
 ### 7.6 Sample payload policy
 
@@ -1946,31 +1946,31 @@ Notes:
 
 ## 24. MVP Feature Matrix
 
-| Feature | P0 | P1 | P2 | P3 | P4 |
-|---|---:|---:|---:|---:|---:|
-| Account auth | foundation | complete | improve | complete | production harden |
-| Google sign-in | foundation | complete | complete | complete | complete |
-| Apple sign-in | foundation | complete if feasible | complete | complete | complete |
-| Facebook sign-in | foundation | complete if feasible | complete | complete | complete |
-| Google Health API data | validate | core | improve | complete | verified prep |
-| HealthKit | spike optional | deferred | optional | core | harden |
-| Hume via Apple Health | deferred | deferred | optional | core if available | harden |
-| Health Connect | architecture only | deferred | deferred | optional | later |
-| Home dashboard | fixture | core | improve | complete | public polish |
-| Sleep page | fixture | core | improve | complete | public polish |
-| Bedtime planner | algorithm + fixture | core | improve | complete | public polish |
-| Recovery score | algorithm | core | improve | complete | public polish |
-| Training readiness | algorithm | core | improve | complete | public polish |
-| Activity page | fixture | core | improve | complete | public polish |
-| Vitals page | fixture | core | improve | complete | public polish |
-| Manual check-in | schema | core | improve | complete | public polish |
-| Water/caffeine/alcohol | schema | core | correlation | complete | public polish |
-| Bowel/digestion | schema | core optional | correlation | complete | public polish |
-| Macro logging | schema | basic | improve | complete | public polish |
-| FoodData Central | research | deferred | core | complete | public polish |
-| AI chat | architecture | core | improve | complete | production harden |
-| AI summaries | architecture | core | improve | complete | production harden |
-| Subscriptions | deferred | deferred | optional | optional | core if public |
+| Feature                |                  P0 |                   P1 |          P2 |                P3 |                P4 |
+| ---------------------- | ------------------: | -------------------: | ----------: | ----------------: | ----------------: |
+| Account auth           |          foundation |             complete |     improve |          complete | production harden |
+| Google sign-in         |          foundation |             complete |    complete |          complete |          complete |
+| Apple sign-in          |          foundation | complete if feasible |    complete |          complete |          complete |
+| Facebook sign-in       |          foundation | complete if feasible |    complete |          complete |          complete |
+| Google Health API data |            validate |                 core |     improve |          complete |     verified prep |
+| HealthKit              |      spike optional |             deferred |    optional |              core |            harden |
+| Hume via Apple Health  |            deferred |             deferred |    optional | core if available |            harden |
+| Health Connect         |   architecture only |             deferred |    deferred |          optional |             later |
+| Home dashboard         |             fixture |                 core |     improve |          complete |     public polish |
+| Sleep page             |             fixture |                 core |     improve |          complete |     public polish |
+| Bedtime planner        | algorithm + fixture |                 core |     improve |          complete |     public polish |
+| Recovery score         |           algorithm |                 core |     improve |          complete |     public polish |
+| Training readiness     |           algorithm |                 core |     improve |          complete |     public polish |
+| Activity page          |             fixture |                 core |     improve |          complete |     public polish |
+| Vitals page            |             fixture |                 core |     improve |          complete |     public polish |
+| Manual check-in        |              schema |                 core |     improve |          complete |     public polish |
+| Water/caffeine/alcohol |              schema |                 core | correlation |          complete |     public polish |
+| Bowel/digestion        |              schema |        core optional | correlation |          complete |     public polish |
+| Macro logging          |              schema |                basic |     improve |          complete |     public polish |
+| FoodData Central       |            research |             deferred |        core |          complete |     public polish |
+| AI chat                |        architecture |                 core |     improve |          complete | production harden |
+| AI summaries           |        architecture |                 core |     improve |          complete | production harden |
+| Subscriptions          |            deferred |             deferred |    optional |          optional |    core if public |
 
 ---
 
@@ -2040,16 +2040,16 @@ AI tickets must satisfy:
 
 ### 26.1 Test layers
 
-| Layer | Required tests |
-|---|---|
-| Unit | pure functions, score calculations, DTO transforms, utility functions |
-| Integration | database migrations, API endpoints, sync workers, provider normalization |
-| Fixture | Google Health sample payloads, generated normalized records, score outputs |
-| Contract | mobile/backend API contracts, AI context/output schemas |
-| E2E smoke | login, connect provider, load dashboard, view sleep/recovery, chat with AI |
-| Visual QA | home/sleep/recovery/activity screens in dark/light themes |
-| Performance | home render, API response times, sync duration, AI latency budgets |
-| Security | auth checks, token encryption, deletion flow, no public S3, log redaction |
+| Layer       | Required tests                                                             |
+| ----------- | -------------------------------------------------------------------------- |
+| Unit        | pure functions, score calculations, DTO transforms, utility functions      |
+| Integration | database migrations, API endpoints, sync workers, provider normalization   |
+| Fixture     | Google Health sample payloads, generated normalized records, score outputs |
+| Contract    | mobile/backend API contracts, AI context/output schemas                    |
+| E2E smoke   | login, connect provider, load dashboard, view sleep/recovery, chat with AI |
+| Visual QA   | home/sleep/recovery/activity screens in dark/light themes                  |
+| Performance | home render, API response times, sync duration, AI latency budgets         |
+| Security    | auth checks, token encryption, deletion flow, no public S3, log redaction  |
 
 ### 26.2 Required fixtures
 
@@ -2105,26 +2105,26 @@ Test cases:
 
 Targets for P1:
 
-| Interaction | Target |
-|---|---:|
-| App opens to cached Home | under 1 second perceived load after app shell starts |
-| Tab transition | no visible jank |
-| Home refresh API response | ideally under 500ms backend processing excluding network when precomputed |
-| Chart interaction | smooth enough for premium feel; no heavy recalculation during gesture |
+| Interaction                   |                                                                                            Target |
+| ----------------------------- | ------------------------------------------------------------------------------------------------: |
+| App opens to cached Home      |                                              under 1 second perceived load after app shell starts |
+| Tab transition                |                                                                                   no visible jank |
+| Home refresh API response     |                         ideally under 500ms backend processing excluding network when precomputed |
+| Chart interaction             |                             smooth enough for premium feel; no heavy recalculation during gesture |
 | AI first token/first response | use cached summaries where possible; chat may take longer but should show polished progress state |
 
 ### 27.2 Backend/API performance
 
 Targets for P1:
 
-| Endpoint/job | Target |
-|---|---:|
-| `/dashboard/today` | precomputed, compact response |
-| `/sleep/today` | precomputed summaries/charts |
-| `/recovery/today` | precomputed score/components |
-| score recomputation | async job, not user-blocking |
-| initial backfill | async, progress state visible |
-| manual refresh | rate-limited and async if heavy |
+| Endpoint/job        |                          Target |
+| ------------------- | ------------------------------: |
+| `/dashboard/today`  |   precomputed, compact response |
+| `/sleep/today`      |    precomputed summaries/charts |
+| `/recovery/today`   |    precomputed score/components |
+| score recomputation |    async job, not user-blocking |
+| initial backfill    |   async, progress state visible |
+| manual refresh      | rate-limited and async if heavy |
 
 ### 27.3 AI cost/latency controls
 
@@ -2222,16 +2222,16 @@ For private beta:
 
 ### 30.1 Recommended agent roles
 
-| Agent role | Responsibilities |
-|---|---|
-| Architect agent | Reads docs, creates implementation plan, checks contracts. |
-| Backend agent | APIs, workers, AWS integrations, provider connectors. |
-| Data agent | schema, migrations, normalization, fixtures. |
-| Scoring agent | pure algorithm package, tests, fixtures. |
-| Mobile agent | React Native screens/components, cache, navigation. |
-| Design-system agent | tokens, primitives, charts, motion, UI polish. |
-| AI engine agent | model abstraction, context packets, prompts, safety. |
-| QA agent | regression tests, fixture checks, acceptance criteria audit. |
+| Agent role          | Responsibilities                                             |
+| ------------------- | ------------------------------------------------------------ |
+| Architect agent     | Reads docs, creates implementation plan, checks contracts.   |
+| Backend agent       | APIs, workers, AWS integrations, provider connectors.        |
+| Data agent          | schema, migrations, normalization, fixtures.                 |
+| Scoring agent       | pure algorithm package, tests, fixtures.                     |
+| Mobile agent        | React Native screens/components, cache, navigation.          |
+| Design-system agent | tokens, primitives, charts, motion, UI polish.               |
+| AI engine agent     | model abstraction, context packets, prompts, safety.         |
+| QA agent            | regression tests, fixture checks, acceptance criteria audit. |
 
 For a solo builder, these can be prompt personas rather than separate people.
 
@@ -2310,15 +2310,15 @@ Review every AI-generated change for:
 
 ### 31.1 Release stages
 
-| Stage | Audience | Criteria |
-|---|---|---|
-| Local dev | founder only | app runs locally with fixtures |
-| Device dev | founder only | app runs on iPhone dev build |
-| Data-connected dev | founder only | Google Health connection works |
-| Private alpha | founder only | daily dashboard works with real data |
-| Private beta | founder + friend | TestFlight/internal build, stable auth/sync |
-| Controlled beta | under allowed verification threshold | privacy/deletion/observability in place |
-| Public beta | broader users | Google verification/public readiness satisfied |
+| Stage              | Audience                             | Criteria                                       |
+| ------------------ | ------------------------------------ | ---------------------------------------------- |
+| Local dev          | founder only                         | app runs locally with fixtures                 |
+| Device dev         | founder only                         | app runs on iPhone dev build                   |
+| Data-connected dev | founder only                         | Google Health connection works                 |
+| Private alpha      | founder only                         | daily dashboard works with real data           |
+| Private beta       | founder + friend                     | TestFlight/internal build, stable auth/sync    |
+| Controlled beta    | under allowed verification threshold | privacy/deletion/observability in place        |
+| Public beta        | broader users                        | Google verification/public readiness satisfied |
 
 ### 31.2 Private beta acceptance criteria
 
@@ -2345,62 +2345,62 @@ Private beta requires:
 
 For the founder/friend stage:
 
-| Metric | Meaning |
-|---|---|
-| Daily open rate | Does Primis become part of morning routine? |
-| Home usefulness | Does Home answer “how am I doing today?” quickly? |
+| Metric                 | Meaning                                                  |
+| ---------------------- | -------------------------------------------------------- |
+| Daily open rate        | Does Primis become part of morning routine?              |
+| Home usefulness        | Does Home answer “how am I doing today?” quickly?        |
 | Sleep page replacement | Does user prefer Primis over Google/Fitbit sleep screen? |
-| AI usefulness | Does AI answer actually use personal data? |
-| Manual input friction | Can check-in happen quickly enough to maintain use? |
-| Score trust | Do scores feel explainable and not random? |
-| App feel | Does the app feel premium and fast? |
+| AI usefulness          | Does AI answer actually use personal data?               |
+| Manual input friction  | Can check-in happen quickly enough to maintain use?      |
+| Score trust            | Do scores feel explainable and not random?               |
+| App feel               | Does the app feel premium and fast?                      |
 
 ### 32.2 Engineering success metrics
 
-| Metric | Target direction |
-|---|---|
-| Sync job success rate | high |
-| Sync latency | low enough for daily usefulness |
-| Dashboard API payload size | compact |
-| Mobile crash-free sessions | high |
-| AI cost per active user | controlled |
-| Score recomputation errors | near zero |
-| Missing-data user confusion | low |
+| Metric                      | Target direction                |
+| --------------------------- | ------------------------------- |
+| Sync job success rate       | high                            |
+| Sync latency                | low enough for daily usefulness |
+| Dashboard API payload size  | compact                         |
+| Mobile crash-free sessions  | high                            |
+| AI cost per active user     | controlled                      |
+| Score recomputation errors  | near zero                       |
+| Missing-data user confusion | low                             |
 
 ---
 
 ## 33. Risk Register
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| Google Health API does not expose expected metrics | High | M1 validation gate; derive scores from available metrics; document missing data. |
-| Google official scores unavailable | Medium | Primis score engine is core asset; provider scores optional. |
-| OAuth verification blocks public launch | High | Private beta under allowed constraints; prepare verification later. |
-| React Native UI feels generic | High | Strong design system, motion rules, component QA, physical-device testing. |
-| AI gives generic answers | High | Structured context packets, deterministic insight candidates, evidence requirements. |
-| Nutrition scope explodes | Medium | P1 manual basics; FoodData Central in P2; no MyFitnessPal dependency. |
-| Manual inputs are too slow | Medium | Fast common path; optional advanced fields. |
-| Raw data storage costs grow | Medium | S3 lifecycle policies; normalized summaries; user-selectable retention. |
-| Scoring feels fake | High | Transparent components, confidence, missing-data handling, baseline testing. |
-| Health data privacy concerns | High | encryption, disclosure, deletion, least privilege, no ads/data selling. |
-| AI agent codebase drift | High | source-of-truth docs, tickets, review checklist, shared contracts. |
+| Risk                                               | Impact | Mitigation                                                                           |
+| -------------------------------------------------- | ------ | ------------------------------------------------------------------------------------ |
+| Google Health API does not expose expected metrics | High   | M1 validation gate; derive scores from available metrics; document missing data.     |
+| Google official scores unavailable                 | Medium | Primis score engine is core asset; provider scores optional.                         |
+| OAuth verification blocks public launch            | High   | Private beta under allowed constraints; prepare verification later.                  |
+| React Native UI feels generic                      | High   | Strong design system, motion rules, component QA, physical-device testing.           |
+| AI gives generic answers                           | High   | Structured context packets, deterministic insight candidates, evidence requirements. |
+| Nutrition scope explodes                           | Medium | P1 manual basics; FoodData Central in P2; no MyFitnessPal dependency.                |
+| Manual inputs are too slow                         | Medium | Fast common path; optional advanced fields.                                          |
+| Raw data storage costs grow                        | Medium | S3 lifecycle policies; normalized summaries; user-selectable retention.              |
+| Scoring feels fake                                 | High   | Transparent components, confidence, missing-data handling, baseline testing.         |
+| Health data privacy concerns                       | High   | encryption, disclosure, deletion, least privilege, no ads/data selling.              |
+| AI agent codebase drift                            | High   | source-of-truth docs, tickets, review checklist, shared contracts.                   |
 
 ---
 
 ## 34. Decision Log
 
-| Decision | Status | Rationale |
-|---|---|---|
-| Product name is Primis | Locked | User selected name. |
-| Google/Fitbit first | Locked | Founder bought Fitbit Air and dislikes Google Health app. |
-| iOS first | Locked | Founder uses iOS. |
-| React Native + Expo Dev Client | Locked unless major issue | Enables iOS + Android path while preserving development speed. |
-| AWS-native mature backend | Locked | Prioritize quality/security/scale; control costs where possible. |
-| GPT first, model abstraction from day one | Locked | Quality first but provider-independent backend. |
-| AI is native but not analytical core | Locked | Deterministic scoring/context prevents hallucinated analytics. |
-| Nutrition v1 basic, FoodData Central later | Locked | Full food logging is large scope; MyFitnessPal is private API. |
-| HealthKit after core Google path | Tentative | iOS is important, but Google/Fitbit data validation is first gate. |
-| Store raw data if cost reasonable | Locked with lifecycle option | Enables reprocessing as algorithms improve. |
+| Decision                                   | Status                       | Rationale                                                          |
+| ------------------------------------------ | ---------------------------- | ------------------------------------------------------------------ |
+| Product name is Primis                     | Locked                       | User selected name.                                                |
+| Google/Fitbit first                        | Locked                       | Founder bought Fitbit Air and dislikes Google Health app.          |
+| iOS first                                  | Locked                       | Founder uses iOS.                                                  |
+| React Native + Expo Dev Client             | Locked unless major issue    | Enables iOS + Android path while preserving development speed.     |
+| AWS-native mature backend                  | Locked                       | Prioritize quality/security/scale; control costs where possible.   |
+| GPT first, model abstraction from day one  | Locked                       | Quality first but provider-independent backend.                    |
+| AI is native but not analytical core       | Locked                       | Deterministic scoring/context prevents hallucinated analytics.     |
+| Nutrition v1 basic, FoodData Central later | Locked                       | Full food logging is large scope; MyFitnessPal is private API.     |
+| HealthKit after core Google path           | Tentative                    | iOS is important, but Google/Fitbit data validation is first gate. |
+| Store raw data if cost reasonable          | Locked with lifecycle option | Enables reprocessing as algorithms improve.                        |
 
 ---
 
@@ -2604,16 +2604,16 @@ The build plan should be treated as a living execution contract. Update it only 
 
 Add this gate before G1:
 
-| Gate | Meaning |
-|---|---|
+| Gate                                               | Meaning                                                                                                                                                                                               |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | G0: Google Health API Documentation + Payload Gate | Official endpoint/schema references have been converted into a feature parity matrix, synthetic schema fixtures exist, and real-account redacted fixtures are scheduled/required before private beta. |
 
 G0 has two sub-states:
 
-| State | Meaning |
-|---|---|
+| State                         | Meaning                                                                                             |
+| ----------------------------- | --------------------------------------------------------------------------------------------------- |
 | `documented_schema_validated` | Official Google docs prove endpoint/schema support and synthetic fixtures match documented schemas. |
-| `real_payload_validated` | The founder/test account has produced redacted real payload fixtures from the Google Health API. |
+| `real_payload_validated`      | The founder/test account has produced redacted real payload fixtures from the Google Health API.    |
 
 Downstream implementation may use `documented_schema_validated` for local development but private beta requires `real_payload_validated` for sleep-critical features.
 
@@ -2646,21 +2646,21 @@ database/fixtures/provider/google_health/redacted_real/
 
 M1 must answer these sleep-specific questions:
 
-| Question | Required output |
-|---|---|
-| Does the real account return `sleep.type=STAGES` or only `CLASSIC`? | payload + matrix classification |
-| Are `stages[]` populated with AWAKE/LIGHT/DEEP/REM? | payload + count |
+| Question                                                                                              | Required output                 |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Does the real account return `sleep.type=STAGES` or only `CLASSIC`?                                   | payload + matrix classification |
+| Are `stages[]` populated with AWAKE/LIGHT/DEEP/REM?                                                   | payload + count                 |
 | Are `summary.minutesToFallAsleep`, `minutesAsleep`, `minutesAwake`, `minutesInSleepPeriod` populated? | payload + matrix classification |
-| Is `metadata.processed` true? | payload + status |
-| What `metadata.stagesStatus` values appear? | payload + notes |
-| Are out-of-bed segments populated? | payload + notes |
-| Are daily HRV fields populated, including average HRV and deep-sleep RMSSD? | payload + notes |
-| Is RHR populated and what calculation method appears? | payload + notes |
-| Are respiratory and SpO2 sleep/daily values available? | payload + notes |
-| Is paired-device battery/sync/version/features available? | payload + notes |
-| Is Google Sleep Score directly exposed anywhere? | yes/no + proof |
-| Is Google Readiness directly exposed anywhere? | yes/no + proof |
-| Is Google Cardio Load directly exposed anywhere? | yes/no + proof |
+| Is `metadata.processed` true?                                                                         | payload + status                |
+| What `metadata.stagesStatus` values appear?                                                           | payload + notes                 |
+| Are out-of-bed segments populated?                                                                    | payload + notes                 |
+| Are daily HRV fields populated, including average HRV and deep-sleep RMSSD?                           | payload + notes                 |
+| Is RHR populated and what calculation method appears?                                                 | payload + notes                 |
+| Are respiratory and SpO2 sleep/daily values available?                                                | payload + notes                 |
+| Is paired-device battery/sync/version/features available?                                             | payload + notes                 |
+| Is Google Sleep Score directly exposed anywhere?                                                      | yes/no + proof                  |
+| Is Google Readiness directly exposed anywhere?                                                        | yes/no + proof                  |
+| Is Google Cardio Load directly exposed anywhere?                                                      | yes/no + proof                  |
 
 ### 30.4 Hard rule for sleep UI work
 
@@ -2680,7 +2680,6 @@ docs/decisions/google_health_api_validated_payloads.md
 ```
 
 If those files do not exist yet, the commit must create/update them or must not implement data-dependent assumptions.
-
 
 ### V1.1 source references added by this amendment
 

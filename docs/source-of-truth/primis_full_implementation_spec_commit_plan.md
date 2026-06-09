@@ -1,4 +1,3 @@
-
 # Primis Full Implementation Spec — Commit-Unit Build Plan
 
 **Document type:** Full implementation specification / commit-unit execution plan  
@@ -7,7 +6,7 @@
 **Status:** Source-of-truth implementation plan draft  
 **Prepared for:** Evan / Primis private beta  
 **Last updated:** 2026-06-07  
-**Primary audience:** AI coding agents, founder/developer, future engineers, QA reviewers  
+**Primary audience:** AI coding agents, founder/developer, future engineers, QA reviewers
 
 ---
 
@@ -25,15 +24,15 @@ Primis is a React Native + Expo Dev Client mobile app with an AWS-native backend
 
 Before implementing any commit unit, the coding agent must read the relevant sections of these seven docs:
 
-| Doc | Filename | Primary authority |
-|---|---|---|
-| Product Requirements Document | `docs/source-of-truth/primis_product_requirements_document.md` | Product scope, user journeys, requirements, phase boundaries |
-| Technical Architecture Document | `docs/source-of-truth/primis_technical_architecture_document.md` | AWS architecture, repository structure, provider architecture, performance architecture |
-| Data Model / Health Metric Schema | `docs/source-of-truth/primis_data_model_health_metric_schema.md` | Tables, metric codes, enums, units, provider mappings, data quality |
-| Scoring & Algorithms Spec | `docs/source-of-truth/primis_scoring_algorithms_spec.md` | Baselines, scores, component formulas, confidence, bedtime planner |
-| AI Context Engine Spec | `docs/source-of-truth/primis_ai_context_engine_spec.md` | AI gateway, intent classification, context packets, safety, prompts, structured outputs |
-| UI/UX Design System Spec | `docs/source-of-truth/primis_ui_ux_design_system_spec.md` | Design tokens, navigation, components, motion, loading states, accessibility |
-| MVP Build Plan / Milestones | `docs/source-of-truth/primis_mvp_build_plan_milestones.md` | High-level milestone sequencing and build gates |
+| Doc                               | Filename                                                         | Primary authority                                                                       |
+| --------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Product Requirements Document     | `docs/source-of-truth/primis_product_requirements_document.md`   | Product scope, user journeys, requirements, phase boundaries                            |
+| Technical Architecture Document   | `docs/source-of-truth/primis_technical_architecture_document.md` | AWS architecture, repository structure, provider architecture, performance architecture |
+| Data Model / Health Metric Schema | `docs/source-of-truth/primis_data_model_health_metric_schema.md` | Tables, metric codes, enums, units, provider mappings, data quality                     |
+| Scoring & Algorithms Spec         | `docs/source-of-truth/primis_scoring_algorithms_spec.md`         | Baselines, scores, component formulas, confidence, bedtime planner                      |
+| AI Context Engine Spec            | `docs/source-of-truth/primis_ai_context_engine_spec.md`          | AI gateway, intent classification, context packets, safety, prompts, structured outputs |
+| UI/UX Design System Spec          | `docs/source-of-truth/primis_ui_ux_design_system_spec.md`        | Design tokens, navigation, components, motion, loading states, accessibility            |
+| MVP Build Plan / Milestones       | `docs/source-of-truth/primis_mvp_build_plan_milestones.md`       | High-level milestone sequencing and build gates                                         |
 
 If this implementation spec conflicts with a prior doc, use this order:
 
@@ -315,20 +314,20 @@ Do not deploy real AWS stacks or wire real provider secrets until Phase Z. All e
 
 ## 5. Phase Overview
 
-| Phase | Name | Purpose |
-|---|---|---|
-| Phase A | Repo and Tooling Foundation | Create AI-agent-safe monorepo, tooling, docs, contracts shell. |
-| Phase B | Shared Contracts and Health Model Foundations | Define provider enums, metric registry, units, score types, API envelopes. |
-| Phase C | Mobile Shell and Design System | Build Expo app shell, navigation, tokens, components, cache, mock mode. |
-| Phase D | Backend Local Foundation and Database | Build local API, DB, migrations, core schema, repositories. |
-| Phase E | Provider Validation and Sync Infrastructure | Build Google Health connector structure, spike scripts, normalization, raw payload handling. |
-| Phase F | Summary, Baseline, Scoring, Bedtime Engine | Build deterministic scoring and algorithm layer. |
-| Phase G | Core App Surfaces | Build Home, Sleep, Bedtime Planner, Recovery, Activity, Vitals. |
-| Phase H | Manual Inputs and Nutrition v1 | Build check-ins, hydration, caffeine, alcohol, macros, tags, bowel entries. |
-| Phase I | AI Context Engine and AI Coach | Build AI gateway, context builders, prompts, chat, summaries. |
-| Phase J | Private Beta Quality Hardening | Performance, accessibility, privacy controls, observability, TestFlight readiness. |
-| Phase K | Post-MVP Expansion Stubs | Correlations, FoodData Central, HealthKit/Hume path scaffolding. |
-| Phase Z | Manual Setup and Live Validation | AWS/Google/Apple/Facebook/AI keys, deployments, TestFlight, real device validation. |
+| Phase   | Name                                          | Purpose                                                                                      |
+| ------- | --------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Phase A | Repo and Tooling Foundation                   | Create AI-agent-safe monorepo, tooling, docs, contracts shell.                               |
+| Phase B | Shared Contracts and Health Model Foundations | Define provider enums, metric registry, units, score types, API envelopes.                   |
+| Phase C | Mobile Shell and Design System                | Build Expo app shell, navigation, tokens, components, cache, mock mode.                      |
+| Phase D | Backend Local Foundation and Database         | Build local API, DB, migrations, core schema, repositories.                                  |
+| Phase E | Provider Validation and Sync Infrastructure   | Build Google Health connector structure, spike scripts, normalization, raw payload handling. |
+| Phase F | Summary, Baseline, Scoring, Bedtime Engine    | Build deterministic scoring and algorithm layer.                                             |
+| Phase G | Core App Surfaces                             | Build Home, Sleep, Bedtime Planner, Recovery, Activity, Vitals.                              |
+| Phase H | Manual Inputs and Nutrition v1                | Build check-ins, hydration, caffeine, alcohol, macros, tags, bowel entries.                  |
+| Phase I | AI Context Engine and AI Coach                | Build AI gateway, context builders, prompts, chat, summaries.                                |
+| Phase J | Private Beta Quality Hardening                | Performance, accessibility, privacy controls, observability, TestFlight readiness.           |
+| Phase K | Post-MVP Expansion Stubs                      | Correlations, FoodData Central, HealthKit/Hume path scaffolding.                             |
+| Phase Z | Manual Setup and Live Validation              | AWS/Google/Apple/Facebook/AI keys, deployments, TestFlight, real device validation.          |
 
 ---
 
@@ -4184,7 +4183,6 @@ Acceptance criteria:
 [ ] Sleep page fallback behavior updated for actual payload reality
 [ ] scoring confidence rules reflect actual payload availability
 ```
-
 
 ### V1.1 source references added by this amendment
 
