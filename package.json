@@ -4,9 +4,8 @@
   "private": true,
   "description": "Primis — health data aggregation, deterministic scoring, and AI-native coaching platform",
   "scripts": {
-    "install": "pnpm install",
     "lint": "echo \"not implemented — configure in CU-004\"",
-    "typecheck": "echo \"not implemented — configure in CU-003\"",
+    "typecheck": "pnpm -r typecheck",
     "test": "echo \"not implemented — configure in CU-005\"",
     "format": "echo \"not implemented — configure in CU-004\"",
     "format:check": "echo \"not implemented — configure in CU-004\"",
@@ -16,5 +15,8 @@
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@9.0.0",
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
 }
