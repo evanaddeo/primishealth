@@ -29,12 +29,12 @@ pnpm --filter @primis/<package-name> test
 
 ## 2. Test File Naming and Location
 
-| Convention | Rule |
-| --- | --- |
-| Co-located unit tests | `src/foo.test.ts` (same directory as `src/foo.ts`) |
-| Isolated test directory | `test/foo.test.ts` or `tests/foo.test.ts` inside the package |
+| Convention                 | Rule                                                         |
+| -------------------------- | ------------------------------------------------------------ |
+| Co-located unit tests      | `src/foo.test.ts` (same directory as `src/foo.ts`)           |
+| Isolated test directory    | `test/foo.test.ts` or `tests/foo.test.ts` inside the package |
 | Integration test directory | `tests/integration/` (Phase D+; requires a running database) |
-| File extension | Always `.test.ts`; never `.spec.ts` |
+| File extension             | Always `.test.ts`; never `.spec.ts`                          |
 
 ---
 
@@ -63,13 +63,13 @@ pnpm --filter @primis/<package-name> test
 Tests that exercise health-data logic must respect the sensitivity levels defined in
 `docs/source-of-truth/primis_data_model_health_metric_schema.md §5.4`:
 
-| Level | Label | Examples | Test rule |
-| --- | --- | --- | --- |
-| S0 | Public/reference | FoodData Central records | Allowed verbatim |
-| S1 | User preferences | Theme, widget layout | Synthetic values only |
-| S2 | Personal wellness | Steps, sleep, calories | Synthetic or redacted fixtures |
-| S3 | Sensitive health data | HRV, SpO2, body composition, bowel entries, AI conversations | Synthetic values only; never log in test output |
-| S4 | Secrets/credentials | OAuth tokens, API keys | Never in tests; use `PLACEHOLDER` strings |
+| Level | Label                 | Examples                                                     | Test rule                                       |
+| ----- | --------------------- | ------------------------------------------------------------ | ----------------------------------------------- |
+| S0    | Public/reference      | FoodData Central records                                     | Allowed verbatim                                |
+| S1    | User preferences      | Theme, widget layout                                         | Synthetic values only                           |
+| S2    | Personal wellness     | Steps, sleep, calories                                       | Synthetic or redacted fixtures                  |
+| S3    | Sensitive health data | HRV, SpO2, body composition, bowel entries, AI conversations | Synthetic values only; never log in test output |
+| S4    | Secrets/credentials   | OAuth tokens, API keys                                       | Never in tests; use `PLACEHOLDER` strings       |
 
 ---
 

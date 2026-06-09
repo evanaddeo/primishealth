@@ -12,13 +12,13 @@ no-secrets mandate for all fixture files committed to this repository.
 All fixture data must comply with the sensitivity levels defined in
 `docs/source-of-truth/primis_data_model_health_metric_schema.md §5.4`:
 
-| Level | Label | Examples | Fixture rule |
-| --- | --- | --- | --- |
-| S0 | Public/reference | FoodData Central public food records | May be committed verbatim with attribution |
-| S1 | User preferences/settings | Theme, widget layout, coaching tone | Use synthetic values only |
-| S2 | Personal wellness data | Steps, sleep duration, calories, workouts, manual check-ins | Synthetic or fully redacted identifiers; realistic value structure |
-| S3 | Sensitive health data | HRV, heart rate, SpO2, respiratory rate, body composition, bowel entries, AI health conversations | Synthetic values only; must not reproduce any real person's data |
-| S4 | Secrets / credentials | OAuth refresh tokens, API keys, AWS credentials | **Never committed** — use `.env.example` placeholder strings only |
+| Level | Label                     | Examples                                                                                          | Fixture rule                                                       |
+| ----- | ------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| S0    | Public/reference          | FoodData Central public food records                                                              | May be committed verbatim with attribution                         |
+| S1    | User preferences/settings | Theme, widget layout, coaching tone                                                               | Use synthetic values only                                          |
+| S2    | Personal wellness data    | Steps, sleep duration, calories, workouts, manual check-ins                                       | Synthetic or fully redacted identifiers; realistic value structure |
+| S3    | Sensitive health data     | HRV, heart rate, SpO2, respiratory rate, body composition, bowel entries, AI health conversations | Synthetic values only; must not reproduce any real person's data   |
+| S4    | Secrets / credentials     | OAuth refresh tokens, API keys, AWS credentials                                                   | **Never committed** — use `.env.example` placeholder strings only  |
 
 ---
 
