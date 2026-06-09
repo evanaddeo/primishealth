@@ -1,0 +1,17 @@
+{
+  "name": "@primis/core-types",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.1"
+  }
+}
