@@ -106,14 +106,14 @@ raw data dump -> LLM guesses scores/advice
 
 AI in Primis is a first-class product surface, not a decorative chatbot. It should act as:
 
-| Role | Description | Example |
-|---|---|---|
-| Analyst | Explains what changed and why. | "Your HRV is 12% below baseline and sleep debt is 2.1 hours." |
-| Coach | Suggests what to do next. | "Use moderate training today rather than a max-effort lower-body session." |
-| Translator | Turns complex health analytics into plain English. | "Your recovery is being dragged down mostly by short sleep and elevated resting HR." |
-| Personalization layer | Adapts communication to user goals and tone. | Strict vs encouraging vs concise. |
-| Context collector | Asks lightweight follow-up questions when missing data blocks a better answer. | "Did you drink alcohol last night or train late?" |
-| Summarizer | Produces sleep, workout, weekly, and nutrition summaries. | "This week, your best sleep followed earlier caffeine cutoff." |
+| Role                  | Description                                                                    | Example                                                                              |
+| --------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| Analyst               | Explains what changed and why.                                                 | "Your HRV is 12% below baseline and sleep debt is 2.1 hours."                        |
+| Coach                 | Suggests what to do next.                                                      | "Use moderate training today rather than a max-effort lower-body session."           |
+| Translator            | Turns complex health analytics into plain English.                             | "Your recovery is being dragged down mostly by short sleep and elevated resting HR." |
+| Personalization layer | Adapts communication to user goals and tone.                                   | Strict vs encouraging vs concise.                                                    |
+| Context collector     | Asks lightweight follow-up questions when missing data blocks a better answer. | "Did you drink alcohol last night or train late?"                                    |
+| Summarizer            | Produces sleep, workout, weekly, and nutrition summaries.                      | "This week, your best sleep followed earlier caffeine cutoff."                       |
 
 ### 2.2 AI is not the analytical core
 
@@ -230,32 +230,32 @@ Mobile App
 
 ### 4.2 Service ownership
 
-| Component | Responsibility | Owns deterministic logic? | Owns generation? |
-|---|---|---:|---:|
-| `AiRequestController` | API entrypoint for chat/summaries | No | No |
-| `IntentClassifier` | Classifies user request / summary task | Limited | Maybe, for fallback only |
-| `ContextOrchestrator` | Builds compact context packets | Yes | No |
-| `PromptComposer` | Creates provider-neutral prompt request | No | No |
-| `SafetyPolicyEngine` | Applies health/performance guardrails | Yes | No |
-| `AiGateway` | Routes to configured model provider | No | Yes via adapter |
-| `ResponseValidator` | Validates JSON/schema/claims/evidence | Yes | No |
-| `ResponsePostProcessor` | Formats and stores AI output | Limited | No |
-| `ScoreEngine` | Computes scores | Yes | No |
-| `InsightEngine` | Computes deterministic insight candidates | Yes | No |
+| Component               | Responsibility                            | Owns deterministic logic? |         Owns generation? |
+| ----------------------- | ----------------------------------------- | ------------------------: | -----------------------: |
+| `AiRequestController`   | API entrypoint for chat/summaries         |                        No |                       No |
+| `IntentClassifier`      | Classifies user request / summary task    |                   Limited | Maybe, for fallback only |
+| `ContextOrchestrator`   | Builds compact context packets            |                       Yes |                       No |
+| `PromptComposer`        | Creates provider-neutral prompt request   |                        No |                       No |
+| `SafetyPolicyEngine`    | Applies health/performance guardrails     |                       Yes |                       No |
+| `AiGateway`             | Routes to configured model provider       |                        No |          Yes via adapter |
+| `ResponseValidator`     | Validates JSON/schema/claims/evidence     |                       Yes |                       No |
+| `ResponsePostProcessor` | Formats and stores AI output              |                   Limited |                       No |
+| `ScoreEngine`           | Computes scores                           |                       Yes |                       No |
+| `InsightEngine`         | Computes deterministic insight candidates |                       Yes |                       No |
 
 ### 4.3 Requirement IDs
 
-| ID | Requirement |
-|---|---|
-| AI-ARCH-001 | AI calls MUST route through `AiGateway`; product services MUST NOT call provider SDKs directly. |
-| AI-ARCH-002 | AI requests MUST pass through `ContextOrchestrator` unless the request is a simple non-health app help message. |
-| AI-ARCH-003 | AI prompts MUST be composed from structured context packets, not direct SQL dumps or raw provider payloads. |
-| AI-ARCH-004 | Core scores MUST be calculated before AI explanation whenever possible. |
-| AI-ARCH-005 | AI answers MUST include evidence references derived from context packet evidence IDs. |
-| AI-ARCH-006 | Model provider, model name, max tokens, temperature, and timeout MUST be externally configurable. |
-| AI-ARCH-007 | The mobile app MUST be able to show cached/precomputed summaries without waiting for live AI generation. |
-| AI-ARCH-008 | The system MUST support streaming responses for chat-style interactions. |
-| AI-ARCH-009 | The system MUST support asynchronous background generation for weekly/monthly summaries. |
+| ID          | Requirement                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| AI-ARCH-001 | AI calls MUST route through `AiGateway`; product services MUST NOT call provider SDKs directly.                                |
+| AI-ARCH-002 | AI requests MUST pass through `ContextOrchestrator` unless the request is a simple non-health app help message.                |
+| AI-ARCH-003 | AI prompts MUST be composed from structured context packets, not direct SQL dumps or raw provider payloads.                    |
+| AI-ARCH-004 | Core scores MUST be calculated before AI explanation whenever possible.                                                        |
+| AI-ARCH-005 | AI answers MUST include evidence references derived from context packet evidence IDs.                                          |
+| AI-ARCH-006 | Model provider, model name, max tokens, temperature, and timeout MUST be externally configurable.                              |
+| AI-ARCH-007 | The mobile app MUST be able to show cached/precomputed summaries without waiting for live AI generation.                       |
+| AI-ARCH-008 | The system MUST support streaming responses for chat-style interactions.                                                       |
+| AI-ARCH-009 | The system MUST support asynchronous background generation for weekly/monthly summaries.                                       |
 | AI-ARCH-010 | The system MUST store AI response metadata for debugging and evaluation without storing sensitive raw prompts in general logs. |
 
 ---
@@ -264,17 +264,17 @@ Mobile App
 
 ### 5.1 Primary surfaces
 
-| Surface | Phase | Trigger | Latency expectation | Blocking? |
-|---|---:|---|---:|---:|
-| AI Coach Chat | Phase 1/2 | User opens Coach tab and asks question | Streaming start < 2s target | No critical UI blocking |
-| Sleep Summary | Phase 1/2 | After main sleep session processed | Precomputed/cached | No |
-| Recovery Explanation | Phase 1/2 | After daily scores processed | Precomputed/cached | No |
-| Workout Summary | Phase 2 | After workout sync/entry | Async or on-demand | No |
-| Nutrition Coaching | Phase 2/3 | User logs food/macros/water/caffeine/alcohol | Async/on-demand | No |
-| Bedtime Planner Explanation | Phase 2 | User selects wake time | Mostly deterministic + optional AI explanation | No |
-| Weekly Review | Phase 2/3 | Scheduled weekly job | Async | No |
-| Smart Missing-Data Questions | Phase 2 | AI detects missing context | Inline | No |
-| Custom Insight Cards | Phase 2/3 | Insight engine emits candidate | Precomputed AI copy optional | No |
+| Surface                      |     Phase | Trigger                                      |                            Latency expectation |               Blocking? |
+| ---------------------------- | --------: | -------------------------------------------- | ---------------------------------------------: | ----------------------: |
+| AI Coach Chat                | Phase 1/2 | User opens Coach tab and asks question       |                    Streaming start < 2s target | No critical UI blocking |
+| Sleep Summary                | Phase 1/2 | After main sleep session processed           |                             Precomputed/cached |                      No |
+| Recovery Explanation         | Phase 1/2 | After daily scores processed                 |                             Precomputed/cached |                      No |
+| Workout Summary              |   Phase 2 | After workout sync/entry                     |                             Async or on-demand |                      No |
+| Nutrition Coaching           | Phase 2/3 | User logs food/macros/water/caffeine/alcohol |                                Async/on-demand |                      No |
+| Bedtime Planner Explanation  |   Phase 2 | User selects wake time                       | Mostly deterministic + optional AI explanation |                      No |
+| Weekly Review                | Phase 2/3 | Scheduled weekly job                         |                                          Async |                      No |
+| Smart Missing-Data Questions |   Phase 2 | AI detects missing context                   |                                         Inline |                      No |
+| Custom Insight Cards         | Phase 2/3 | Insight engine emits candidate               |                   Precomputed AI copy optional |                      No |
 
 ### 5.2 AI Coach Chat
 
@@ -494,16 +494,16 @@ export type AiIntent =
 
 ### 7.3 Intent classification rules
 
-| Input pattern | Likely intent | Required context |
-|---|---|---|
-| "Should I lift/train/run today?" | `training_recommendation` | latest scores, recovery, training load, soreness, goal |
-| "Why is my recovery low?" | `recovery_analysis` | recovery score, components, baselines, sleep, training, manual inputs |
-| "How did I sleep?" | `sleep_analysis` | latest sleep session, Sleep Score, sleep debt, stages |
-| "When should I go to bed?" | `bedtime_planning` | target wake time, latency, sleep need, debt, circadian profile |
-| "How is caffeine affecting me?" | `hydration_caffeine_alcohol` or `correlation_query` | caffeine logs, sleep/recovery trends, correlation insights |
-| "What should I eat?" | `nutrition_coaching` | nutrition goals, macros, activity, recovery, preferences |
-| "What happened this week?" | `weekly_review` | weekly summaries, score trends, insights |
-| "Am I sick?" | `unsupported_medical_request` or performance-safe answer | recent deviations, safety template |
+| Input pattern                    | Likely intent                                            | Required context                                                      |
+| -------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------- |
+| "Should I lift/train/run today?" | `training_recommendation`                                | latest scores, recovery, training load, soreness, goal                |
+| "Why is my recovery low?"        | `recovery_analysis`                                      | recovery score, components, baselines, sleep, training, manual inputs |
+| "How did I sleep?"               | `sleep_analysis`                                         | latest sleep session, Sleep Score, sleep debt, stages                 |
+| "When should I go to bed?"       | `bedtime_planning`                                       | target wake time, latency, sleep need, debt, circadian profile        |
+| "How is caffeine affecting me?"  | `hydration_caffeine_alcohol` or `correlation_query`      | caffeine logs, sleep/recovery trends, correlation insights            |
+| "What should I eat?"             | `nutrition_coaching`                                     | nutrition goals, macros, activity, recovery, preferences              |
+| "What happened this week?"       | `weekly_review`                                          | weekly summaries, score trends, insights                              |
+| "Am I sick?"                     | `unsupported_medical_request` or performance-safe answer | recent deviations, safety template                                    |
 
 ### 7.4 Intent output schema
 
@@ -524,12 +524,12 @@ export interface IntentClassificationResult {
 
 Examples:
 
-| Intent | Missing slot | User prompt |
-|---|---|---|
-| `bedtime_planning` | target wake time | "What time do you need to wake up tomorrow?" |
-| `nutrition_coaching` | goal / calories / protein target | "Are you aiming for fat loss, muscle gain, maintenance, or performance?" |
-| `training_recommendation` | workout type | "Are you considering lifting, cardio, basketball, or something else?" |
-| `correlation_query` | variable | "Which input should I compare: caffeine, alcohol, water, soreness, or a custom tag?" |
+| Intent                    | Missing slot                     | User prompt                                                                          |
+| ------------------------- | -------------------------------- | ------------------------------------------------------------------------------------ |
+| `bedtime_planning`        | target wake time                 | "What time do you need to wake up tomorrow?"                                         |
+| `nutrition_coaching`      | goal / calories / protein target | "Are you aiming for fat loss, muscle gain, maintenance, or performance?"             |
+| `training_recommendation` | workout type                     | "Are you considering lifting, cardio, basketball, or something else?"                |
+| `correlation_query`       | variable                         | "Which input should I compare: caffeine, alcohol, water, soreness, or a custom tag?" |
 
 Missing-slot questions must be short and only asked when needed. If enough data exists to give a useful partial answer, AI should answer with caveats instead of over-questioning.
 
@@ -569,31 +569,31 @@ export type ContextDomain =
 
 ### 8.2 Domain-source mapping
 
-| Domain | Primary data sources |
-|---|---|
-| `user_profile` | users, user_settings, user_preferences |
-| `user_goals` | user_goals, onboarding responses |
-| `coach_preferences` | coach_preferences, summary_preferences |
-| `latest_scores` | score_snapshots |
-| `score_components` | score_component_snapshots |
-| `baselines` | metric_baselines |
-| `daily_summaries` | daily_metric_summaries |
-| `sleep` | sleep_sessions, sleep_stage_segments, Sleep Score snapshots |
-| `recovery` | recovery score snapshots, HRV/RHR/respiratory/SpO2 baselines |
-| `training` | workout_sessions, training_load_snapshots, manual soreness/fatigue |
-| `activity` | daily summaries, steps, active calories, zone minutes |
-| `nutrition` | nutrition_entries, food_entries, macro summaries, FoodData Central catalog |
-| `hydration` | hydration_entries, daily hydration summaries |
-| `caffeine` | caffeine_entries, custom tags, nutrition logs |
-| `alcohol` | alcohol_entries, custom tags, nutrition logs |
-| `manual_inputs` | manual_checkins, mood/energy/stress/soreness entries |
-| `custom_tags` | custom_tags, tagged_events |
-| `body_composition` | body_composition_measurements, HealthKit/Hume-derived records |
-| `gut_digestion` | bowel_entries, digestion symptom entries, custom tags |
-| `bedtime_planner` | bedtime recommendation snapshots, sleep latency, chronotype/circadian profile |
-| `insights` | deterministic insight_candidates |
-| `correlations` | correlation_snapshots |
-| `data_availability` | provider_connections, provider_metric_availability |
+| Domain              | Primary data sources                                                          |
+| ------------------- | ----------------------------------------------------------------------------- |
+| `user_profile`      | users, user_settings, user_preferences                                        |
+| `user_goals`        | user_goals, onboarding responses                                              |
+| `coach_preferences` | coach_preferences, summary_preferences                                        |
+| `latest_scores`     | score_snapshots                                                               |
+| `score_components`  | score_component_snapshots                                                     |
+| `baselines`         | metric_baselines                                                              |
+| `daily_summaries`   | daily_metric_summaries                                                        |
+| `sleep`             | sleep_sessions, sleep_stage_segments, Sleep Score snapshots                   |
+| `recovery`          | recovery score snapshots, HRV/RHR/respiratory/SpO2 baselines                  |
+| `training`          | workout_sessions, training_load_snapshots, manual soreness/fatigue            |
+| `activity`          | daily summaries, steps, active calories, zone minutes                         |
+| `nutrition`         | nutrition_entries, food_entries, macro summaries, FoodData Central catalog    |
+| `hydration`         | hydration_entries, daily hydration summaries                                  |
+| `caffeine`          | caffeine_entries, custom tags, nutrition logs                                 |
+| `alcohol`           | alcohol_entries, custom tags, nutrition logs                                  |
+| `manual_inputs`     | manual_checkins, mood/energy/stress/soreness entries                          |
+| `custom_tags`       | custom_tags, tagged_events                                                    |
+| `body_composition`  | body_composition_measurements, HealthKit/Hume-derived records                 |
+| `gut_digestion`     | bowel_entries, digestion symptom entries, custom tags                         |
+| `bedtime_planner`   | bedtime recommendation snapshots, sleep latency, chronotype/circadian profile |
+| `insights`          | deterministic insight_candidates                                              |
+| `correlations`      | correlation_snapshots                                                         |
+| `data_availability` | provider_connections, provider_metric_availability                            |
 
 ---
 
@@ -663,7 +663,13 @@ export interface AiUserProfileContext {
   ageRange?: string; // optional, avoid exact DOB unless needed
   timezone: string;
   primaryPlatform: 'ios' | 'android' | 'unknown';
-  primaryWearableProvider?: 'google_health' | 'healthkit' | 'health_connect' | 'fitbit_legacy' | 'manual' | 'unknown';
+  primaryWearableProvider?:
+    | 'google_health'
+    | 'healthkit'
+    | 'health_connect'
+    | 'fitbit_legacy'
+    | 'manual'
+    | 'unknown';
   rankedGoals: RankedGoal[];
   nutritionPhilosophy?: NutritionPhilosophyContext;
   coachStyle: CoachStyle;
@@ -730,12 +736,7 @@ export type CoachStyle =
 ### 9.8 Summary style enum
 
 ```typescript
-export type SummaryStyle =
-  | 'concise'
-  | 'detailed'
-  | 'data_heavy'
-  | 'plain_english'
-  | 'action_only';
+export type SummaryStyle = 'concise' | 'detailed' | 'data_heavy' | 'plain_english' | 'action_only';
 ```
 
 ### 9.9 Safety context
@@ -798,7 +799,12 @@ export interface AiEvidence {
   delta?: number | string;
   direction?: 'up' | 'down' | 'stable' | 'mixed' | 'unknown';
   confidence: 'high' | 'medium' | 'low' | 'not_enough_data';
-  source: 'deterministic_engine' | 'normalized_metric' | 'manual_input' | 'provider' | 'ai_prior_summary';
+  source:
+    | 'deterministic_engine'
+    | 'normalized_metric'
+    | 'manual_input'
+    | 'provider'
+    | 'ai_prior_summary';
   observedAt?: string;
   rangeStart?: string;
   rangeEnd?: string;
@@ -1452,17 +1458,17 @@ export type AiTaskType =
 
 ### 14.6 Model routing recommendations
 
-| Task | Preferred tier | Streaming | Notes |
-|---|---|---:|---|
-| Intent classification | `classification` or rules | No | Use rules first; cheap model fallback. |
-| Sleep summary | `fast_low_cost` or `standard` | No | Precompute after score. |
-| Recovery summary | `fast_low_cost` or `standard` | No | Precompute daily. |
-| Chat health query | `standard` or `high_reasoning` | Yes | Route based on complexity. |
-| Complex correlation question | `high_reasoning` | Yes | Requires richer context. |
-| Bedtime explanation | `fast_low_cost` | No/optional | Deterministic engine does math. |
-| Weekly review | `standard` | No | Async background job. |
-| Food estimation | `standard` or vision-capable model if image | Optional | Mark estimates clearly. |
-| App help | `fast_low_cost` | Yes/no | No health context needed. |
+| Task                         | Preferred tier                              |   Streaming | Notes                                  |
+| ---------------------------- | ------------------------------------------- | ----------: | -------------------------------------- |
+| Intent classification        | `classification` or rules                   |          No | Use rules first; cheap model fallback. |
+| Sleep summary                | `fast_low_cost` or `standard`               |          No | Precompute after score.                |
+| Recovery summary             | `fast_low_cost` or `standard`               |          No | Precompute daily.                      |
+| Chat health query            | `standard` or `high_reasoning`              |         Yes | Route based on complexity.             |
+| Complex correlation question | `high_reasoning`                            |         Yes | Requires richer context.               |
+| Bedtime explanation          | `fast_low_cost`                             | No/optional | Deterministic engine does math.        |
+| Weekly review                | `standard`                                  |          No | Async background job.                  |
+| Food estimation              | `standard` or vision-capable model if image |    Optional | Mark estimates clearly.                |
+| App help                     | `fast_low_cost`                             |      Yes/no | No health context needed.              |
 
 ### 14.7 Configuration
 
@@ -1706,16 +1712,16 @@ AI must avoid:
 
 ### 17.7 Safety requirement IDs
 
-| ID | Requirement |
-|---|---|
-| AI-SAFE-001 | AI MUST use performance/wellness framing and avoid diagnosis/treatment claims. |
-| AI-SAFE-002 | AI MUST disclose missing or low-confidence data when relevant. |
-| AI-SAFE-003 | AI MUST NOT claim exact sleep-cycle certainty. |
-| AI-SAFE-004 | AI MUST NOT override deterministic recommendation bands toward riskier advice. |
-| AI-SAFE-005 | AI MUST route emergency or urgent symptom language to a safety response. |
+| ID          | Requirement                                                                         |
+| ----------- | ----------------------------------------------------------------------------------- |
+| AI-SAFE-001 | AI MUST use performance/wellness framing and avoid diagnosis/treatment claims.      |
+| AI-SAFE-002 | AI MUST disclose missing or low-confidence data when relevant.                      |
+| AI-SAFE-003 | AI MUST NOT claim exact sleep-cycle certainty.                                      |
+| AI-SAFE-004 | AI MUST NOT override deterministic recommendation bands toward riskier advice.      |
+| AI-SAFE-005 | AI MUST route emergency or urgent symptom language to a safety response.            |
 | AI-SAFE-006 | AI MUST avoid raw unsupported claims about hormones, cortisol, illness, or disease. |
-| AI-SAFE-007 | AI MUST mark AI-estimated nutrition as an estimate. |
-| AI-SAFE-008 | AI MUST keep manual inputs as context, not dominant objective score inputs. |
+| AI-SAFE-007 | AI MUST mark AI-estimated nutrition as an estimate.                                 |
+| AI-SAFE-008 | AI MUST keep manual inputs as context, not dominant objective score inputs.         |
 
 ---
 
@@ -1723,15 +1729,15 @@ AI must avoid:
 
 ### 18.1 Latency targets
 
-| Interaction | Target |
-|---|---:|
-| Home screen load | local/cached immediately; no AI wait |
-| Cached sleep/recovery summary | < 500 ms from local/backend cache |
-| Chat first token | < 2 seconds target where possible |
-| Chat complete answer | < 10 seconds for standard requests |
-| Deep correlation answer | < 20 seconds acceptable with streaming |
-| Weekly review generation | async; no user wait required |
-| Bedtime deterministic recommendation | < 500 ms once sleep profile is loaded |
+| Interaction                          |                                 Target |
+| ------------------------------------ | -------------------------------------: |
+| Home screen load                     |   local/cached immediately; no AI wait |
+| Cached sleep/recovery summary        |      < 500 ms from local/backend cache |
+| Chat first token                     |      < 2 seconds target where possible |
+| Chat complete answer                 |     < 10 seconds for standard requests |
+| Deep correlation answer              | < 20 seconds acceptable with streaming |
+| Weekly review generation             |           async; no user wait required |
+| Bedtime deterministic recommendation |  < 500 ms once sleep profile is loaded |
 
 ### 18.2 Precompute strategy
 
@@ -2179,33 +2185,33 @@ Build:
 
 ### 25.1 System-level acceptance criteria
 
-| ID | Acceptance criterion |
-|---|---|
-| AI-AC-001 | AI health chat requests route through `AiGateway` and do not call provider SDKs directly from controllers. |
-| AI-AC-002 | AI responses for health-data questions include structured evidence usage. |
-| AI-AC-003 | AI does not compute Sleep/Recovery/Readiness scores from scratch. It explains provided scores. |
-| AI-AC-004 | Missing HRV/sleep/nutrition data is disclosed rather than hallucinated. |
-| AI-AC-005 | Chat supports streaming. |
-| AI-AC-006 | Sleep and recovery summaries can be served from cache without live AI generation. |
-| AI-AC-007 | Coach style and summary style affect wording but not deterministic recommendation band. |
-| AI-AC-008 | Bedtime Planner uses deterministic windows and AI only explains them. |
-| AI-AC-009 | AI-estimated nutrition is labeled as estimated. |
-| AI-AC-010 | Unsupported medical diagnosis requests are redirected to safe performance/wellness framing. |
+| ID        | Acceptance criterion                                                                                                    |
+| --------- | ----------------------------------------------------------------------------------------------------------------------- |
+| AI-AC-001 | AI health chat requests route through `AiGateway` and do not call provider SDKs directly from controllers.              |
+| AI-AC-002 | AI responses for health-data questions include structured evidence usage.                                               |
+| AI-AC-003 | AI does not compute Sleep/Recovery/Readiness scores from scratch. It explains provided scores.                          |
+| AI-AC-004 | Missing HRV/sleep/nutrition data is disclosed rather than hallucinated.                                                 |
+| AI-AC-005 | Chat supports streaming.                                                                                                |
+| AI-AC-006 | Sleep and recovery summaries can be served from cache without live AI generation.                                       |
+| AI-AC-007 | Coach style and summary style affect wording but not deterministic recommendation band.                                 |
+| AI-AC-008 | Bedtime Planner uses deterministic windows and AI only explains them.                                                   |
+| AI-AC-009 | AI-estimated nutrition is labeled as estimated.                                                                         |
+| AI-AC-010 | Unsupported medical diagnosis requests are redirected to safe performance/wellness framing.                             |
 | AI-AC-011 | AI request logs do not contain raw OAuth tokens, raw provider payloads, or unrestricted health context in general logs. |
-| AI-AC-012 | Model provider can be switched by config without rewriting product services. |
-| AI-AC-013 | Schema validation fails closed: invalid AI JSON does not crash mobile UI. |
-| AI-AC-014 | Golden tests exist for the core AI surfaces before public beta. |
+| AI-AC-012 | Model provider can be switched by config without rewriting product services.                                            |
+| AI-AC-013 | Schema validation fails closed: invalid AI JSON does not crash mobile UI.                                               |
+| AI-AC-014 | Golden tests exist for the core AI surfaces before public beta.                                                         |
 
 ### 25.2 User-experience acceptance criteria
 
-| ID | Acceptance criterion |
-|---|---|
+| ID           | Acceptance criterion                                                                                                        |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | AI-UX-AC-001 | User can ask "Should I train today?" and receive a grounded answer using recovery, sleep, training load, and manual inputs. |
-| AI-UX-AC-002 | User can ask "Why is my recovery low?" and receive score-component explanation. |
-| AI-UX-AC-003 | User can specify wake time and receive AI-explained bedtime windows. |
-| AI-UX-AC-004 | User can choose coach style and see noticeably different phrasing. |
-| AI-UX-AC-005 | User sees cached summaries even when live AI generation fails. |
-| AI-UX-AC-006 | User can see when data is stale or missing. |
+| AI-UX-AC-002 | User can ask "Why is my recovery low?" and receive score-component explanation.                                             |
+| AI-UX-AC-003 | User can specify wake time and receive AI-explained bedtime windows.                                                        |
+| AI-UX-AC-004 | User can choose coach style and see noticeably different phrasing.                                                          |
+| AI-UX-AC-005 | User sees cached summaries even when live AI generation fails.                                                              |
+| AI-UX-AC-006 | User can see when data is stale or missing.                                                                                 |
 
 ---
 
@@ -2230,16 +2236,16 @@ Primis AI v1 MUST NOT implement:
 
 These do not block initial implementation.
 
-| Question | Current stance |
-|---|---|
-| Should public users be able to disable AI entirely? | Product default is AI-enabled; public trust/review may require controls. |
-| Should chat be available on free plan? | Likely limited; premium unlocks full AI analytics. |
-| Which exact GPT model launches first? | Config-driven; decide at implementation time. |
-| Which exact Anthropic model launches second? | Config-driven; add after OpenAI adapter. |
-| Should AI summaries be stored indefinitely? | Private beta can store; public retention should be configurable/minimized. |
-| Should AI write to HealthKit/Health Connect? | Not in v1; writes require explicit confirmation and scope. |
-| Should nutrition philosophy default reflect founder preferences? | Yes for founder/private beta; public users should choose/customize. |
-| Should raw user notes be used in AI context? | Only if relevant and bounded/summarized. |
+| Question                                                         | Current stance                                                             |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Should public users be able to disable AI entirely?              | Product default is AI-enabled; public trust/review may require controls.   |
+| Should chat be available on free plan?                           | Likely limited; premium unlocks full AI analytics.                         |
+| Which exact GPT model launches first?                            | Config-driven; decide at implementation time.                              |
+| Which exact Anthropic model launches second?                     | Config-driven; add after OpenAI adapter.                                   |
+| Should AI summaries be stored indefinitely?                      | Private beta can store; public retention should be configurable/minimized. |
+| Should AI write to HealthKit/Health Connect?                     | Not in v1; writes require explicit confirmation and scope.                 |
+| Should nutrition philosophy default reflect founder preferences? | Yes for founder/private beta; public users should choose/customize.        |
+| Should raw user notes be used in AI context?                     | Only if relevant and bounded/summarized.                                   |
 
 ---
 
@@ -2364,7 +2370,17 @@ This simplified schema can be used for early implementation.
 ```json
 {
   "type": "object",
-  "required": ["responseVersion", "intent", "title", "summary", "answer", "evidenceUsed", "caveats", "confidence", "safetyFlags"],
+  "required": [
+    "responseVersion",
+    "intent",
+    "title",
+    "summary",
+    "answer",
+    "evidenceUsed",
+    "caveats",
+    "confidence",
+    "safetyFlags"
+  ],
   "properties": {
     "responseVersion": { "type": "string", "enum": ["1.0"] },
     "intent": { "type": "string" },
@@ -2402,7 +2418,7 @@ export class AiGateway {
   constructor(
     private readonly config: AiModelRoutingConfig,
     private readonly providers: Record<AiProviderCode, AiProviderAdapter>,
-    private readonly usageLogger: AiUsageLogger
+    private readonly usageLogger: AiUsageLogger,
   ) {}
 
   async generate(request: AiProviderRequest): Promise<AiProviderResponse> {
@@ -2421,8 +2437,8 @@ export class AiGateway {
         modelTier: route.tier,
         metadata: {
           ...request.metadata,
-          routeId: route.id
-        }
+          routeId: route.id,
+        },
       });
 
       await this.usageLogger.logSuccess(request, response, Date.now() - startedAt);
@@ -2449,31 +2465,33 @@ export class ContextOrchestrator {
   constructor(
     private readonly builders: ContextBuilder<unknown>[],
     private readonly dataAvailabilityService: DataAvailabilityService,
-    private readonly safetyService: SafetyPolicyEngine
+    private readonly safetyService: SafetyPolicyEngine,
   ) {}
 
   async buildContext(input: BuildAiContextInput): Promise<AiContextPacket> {
     const availability = await this.dataAvailabilityService.getForUser(input.userId);
     const safety = await this.safetyService.evaluateRequest(input);
 
-    const selectedBuilders = this.builders.filter(builder =>
-      input.requiredDomains.includes(builder.domain)
+    const selectedBuilders = this.builders.filter((builder) =>
+      input.requiredDomains.includes(builder.domain),
     );
 
     const results = await Promise.all(
-      selectedBuilders.map(builder => builder.build({
-        userId: input.userId,
-        intent: input.intent,
-        timeRange: input.timeRange,
-        requiredDepth: input.requiredDepth,
-        requestText: input.requestText,
-        missingDataPolicy: 'include_limitations'
-      }))
+      selectedBuilders.map((builder) =>
+        builder.build({
+          userId: input.userId,
+          intent: input.intent,
+          timeRange: input.timeRange,
+          requiredDepth: input.requiredDepth,
+          requestText: input.requestText,
+          missingDataPolicy: 'include_limitations',
+        }),
+      ),
     );
 
-    const evidence = results.flatMap(r => r.evidence);
-    const payload = Object.fromEntries(results.map(r => [r.domain, r.payload]));
-    const limitations = results.flatMap(r => r.limitations);
+    const evidence = results.flatMap((r) => r.evidence);
+    const payload = Object.fromEntries(results.map((r) => [r.domain, r.payload]));
+    const limitations = results.flatMap((r) => r.limitations);
 
     return {
       packetVersion: '1.0',
@@ -2489,12 +2507,12 @@ export class ContextOrchestrator {
       safety,
       dataAvailability: {
         ...availability,
-        limitations
+        limitations,
       },
       contextDomains: input.requiredDomains,
       evidence,
       payload,
-      outputContract: input.outputContract
+      outputContract: input.outputContract,
     };
   }
 }
@@ -2739,7 +2757,6 @@ Why did I wake up tired despite 8 hours?
 ```
 
 Each prompt MUST route to `sleep_analysis`, `bedtime_planning`, or `correlation_query` and retrieve sleep context, not generic health advice alone.
-
 
 ### V1.1 source references added by this amendment
 

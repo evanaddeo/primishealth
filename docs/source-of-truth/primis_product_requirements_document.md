@@ -34,14 +34,14 @@ This document is intended to be used directly by AI coding agents and human engi
 
 ### 0.3 Phase definitions
 
-| Phase | Name | Purpose |
-|---|---|---|
-| Phase 0 | Technical Validation | Verify Google Health/Fitbit data access, core backend patterns, basic app shell. |
-| Phase 1 | Private Daily-Use MVP | Build a polished app usable daily by the founder and one friend. |
-| Phase 2 | Intelligence Expansion | Add deeper scoring, correlations, AI context, manual inputs, and basic nutrition. |
-| Phase 3 | iOS Health Enrichment | Add HealthKit, Hume-via-Apple-Health, and local iOS data enrichment. |
-| Phase 4 | Public-Beta Readiness | Verification, privacy/legal hardening, subscriptions, onboarding, and App Store polish. |
-| Phase 5 | Android / Health Connect Expansion | Add Android-native health aggregation and broader cross-platform support. |
+| Phase   | Name                               | Purpose                                                                                 |
+| ------- | ---------------------------------- | --------------------------------------------------------------------------------------- |
+| Phase 0 | Technical Validation               | Verify Google Health/Fitbit data access, core backend patterns, basic app shell.        |
+| Phase 1 | Private Daily-Use MVP              | Build a polished app usable daily by the founder and one friend.                        |
+| Phase 2 | Intelligence Expansion             | Add deeper scoring, correlations, AI context, manual inputs, and basic nutrition.       |
+| Phase 3 | iOS Health Enrichment              | Add HealthKit, Hume-via-Apple-Health, and local iOS data enrichment.                    |
+| Phase 4 | Public-Beta Readiness              | Verification, privacy/legal hardening, subscriptions, onboarding, and App Store polish. |
+| Phase 5 | Android / Health Connect Expansion | Add Android-native health aggregation and broader cross-platform support.               |
 
 ---
 
@@ -232,40 +232,40 @@ Primis MUST NOT say:
 
 ### 4.1 Product goals
 
-| ID | Goal |
-|---|---|
-| PRD-GOAL-001 | Build a daily-use health dashboard for the founder and a small private beta. |
-| PRD-GOAL-002 | Provide Google/Fitbit users with a superior, customizable, premium experience. |
+| ID           | Goal                                                                                            |
+| ------------ | ----------------------------------------------------------------------------------------------- |
+| PRD-GOAL-001 | Build a daily-use health dashboard for the founder and a small private beta.                    |
+| PRD-GOAL-002 | Provide Google/Fitbit users with a superior, customizable, premium experience.                  |
 | PRD-GOAL-003 | Compute proprietary sleep, recovery, readiness, strain/load, nutrition, and wellbeing insights. |
-| PRD-GOAL-004 | Make AI useful across the app without making AI the sole analytical engine. |
-| PRD-GOAL-005 | Support fast, low-latency mobile interactions and premium transitions. |
-| PRD-GOAL-006 | Store and model user data in a way that supports future reprocessing and better algorithms. |
-| PRD-GOAL-007 | Build with AWS-native maturity while controlling unnecessary cost. |
-| PRD-GOAL-008 | Prepare for eventual B2C expansion if private beta proves strong. |
+| PRD-GOAL-004 | Make AI useful across the app without making AI the sole analytical engine.                     |
+| PRD-GOAL-005 | Support fast, low-latency mobile interactions and premium transitions.                          |
+| PRD-GOAL-006 | Store and model user data in a way that supports future reprocessing and better algorithms.     |
+| PRD-GOAL-007 | Build with AWS-native maturity while controlling unnecessary cost.                              |
+| PRD-GOAL-008 | Prepare for eventual B2C expansion if private beta proves strong.                               |
 
 ### 4.2 Business goals
 
-| ID | Goal |
-|---|---|
-| PRD-BIZ-001 | Start as a private portfolio/product experiment. |
-| PRD-BIZ-002 | Build as if it could become a real consumer company. |
-| PRD-BIZ-003 | Keep initial usage under public OAuth verification thresholds where possible. |
-| PRD-BIZ-004 | Validate whether users open Primis several times per week. |
+| ID          | Goal                                                                            |
+| ----------- | ------------------------------------------------------------------------------- |
+| PRD-BIZ-001 | Start as a private portfolio/product experiment.                                |
+| PRD-BIZ-002 | Build as if it could become a real consumer company.                            |
+| PRD-BIZ-003 | Keep initial usage under public OAuth verification thresholds where possible.   |
+| PRD-BIZ-004 | Validate whether users open Primis several times per week.                      |
 | PRD-BIZ-005 | Validate whether users trust and value Primis’ proprietary scores and insights. |
-| PRD-BIZ-006 | Support a future freemium + premium subscription model. |
+| PRD-BIZ-006 | Support a future freemium + premium subscription model.                         |
 
 ### 4.3 Non-goals for early phases
 
-| ID | Non-goal |
-|---|---|
-| PRD-NONGOAL-001 | Do not build a full MyFitnessPal clone in Phase 1. |
-| PRD-NONGOAL-002 | Do not support every health provider in Phase 1. |
-| PRD-NONGOAL-003 | Do not build social/community features in Phase 1. |
+| ID              | Non-goal                                                                         |
+| --------------- | -------------------------------------------------------------------------------- |
+| PRD-NONGOAL-001 | Do not build a full MyFitnessPal clone in Phase 1.                               |
+| PRD-NONGOAL-002 | Do not support every health provider in Phase 1.                                 |
+| PRD-NONGOAL-003 | Do not build social/community features in Phase 1.                               |
 | PRD-NONGOAL-004 | Do not build medical diagnosis, disease detection, or treatment recommendations. |
-| PRD-NONGOAL-005 | Do not make public launch readiness the Phase 1 blocker. |
-| PRD-NONGOAL-006 | Do not implement complex ML models before enough data exists. |
-| PRD-NONGOAL-007 | Do not require users to manually log everything for the app to work. |
-| PRD-NONGOAL-008 | Do not depend on MyFitnessPal API access for MVP. |
+| PRD-NONGOAL-005 | Do not make public launch readiness the Phase 1 blocker.                         |
+| PRD-NONGOAL-006 | Do not implement complex ML models before enough data exists.                    |
+| PRD-NONGOAL-007 | Do not require users to manually log everything for the app to work.             |
+| PRD-NONGOAL-008 | Do not depend on MyFitnessPal API access for MVP.                                |
 
 ---
 
@@ -610,16 +610,16 @@ Flow:
 
 ## 10.1 Authentication and Account Management
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-AUTH-001 | Primis MUST support account creation and sign-in. | P0 | 1 |
-| PRD-FR-AUTH-002 | Primis MUST support email/password authentication. | P0 | 1 |
-| PRD-FR-AUTH-003 | Primis MUST support Google sign-in. | P0 | 1 |
-| PRD-FR-AUTH-004 | Primis SHOULD support Apple sign-in for iOS. | P1 | 1 |
-| PRD-FR-AUTH-005 | Primis SHOULD support Facebook sign-in. | P2 | 2/4 |
-| PRD-FR-AUTH-006 | Primis MUST treat app auth and Google Health authorization as separate concepts. | P0 | 1 |
-| PRD-FR-AUTH-007 | Primis MUST support sign-out. | P0 | 1 |
-| PRD-FR-AUTH-008 | Primis SHOULD support account deletion before public beta. | P0 | 4 |
+| ID              | Requirement                                                                      | Priority | Phase |
+| --------------- | -------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-AUTH-001 | Primis MUST support account creation and sign-in.                                |       P0 |     1 |
+| PRD-FR-AUTH-002 | Primis MUST support email/password authentication.                               |       P0 |     1 |
+| PRD-FR-AUTH-003 | Primis MUST support Google sign-in.                                              |       P0 |     1 |
+| PRD-FR-AUTH-004 | Primis SHOULD support Apple sign-in for iOS.                                     |       P1 |     1 |
+| PRD-FR-AUTH-005 | Primis SHOULD support Facebook sign-in.                                          |       P2 |   2/4 |
+| PRD-FR-AUTH-006 | Primis MUST treat app auth and Google Health authorization as separate concepts. |       P0 |     1 |
+| PRD-FR-AUTH-007 | Primis MUST support sign-out.                                                    |       P0 |     1 |
+| PRD-FR-AUTH-008 | Primis SHOULD support account deletion before public beta.                       |       P0 |     4 |
 
 ### Acceptance criteria
 
@@ -632,16 +632,16 @@ Flow:
 
 ## 10.2 Onboarding and Personalization
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-ONB-001 | User MUST select one or more goals during onboarding. | P0 | 1 |
-| PRD-FR-ONB-002 | User SHOULD be able to rank selected goals. | P1 | 1 |
-| PRD-FR-ONB-003 | Supported initial goals SHOULD include athletic performance, sleep, recovery, body composition, fat loss, muscle gain, longevity/general health, and nutrition. | P1 | 1 |
-| PRD-FR-ONB-004 | User MUST select coach style or accept default. | P1 | 1 |
-| PRD-FR-ONB-005 | User MUST select summary style or accept default. | P1 | 1 |
-| PRD-FR-ONB-006 | User SHOULD be able to choose light/dark/system theme. | P1 | 1 |
-| PRD-FR-ONB-007 | User SHOULD be able to select an accent color. | P1 | 1 |
-| PRD-FR-ONB-008 | Onboarding MUST explain that insights improve with more synced history and manual context. | P0 | 1 |
+| ID             | Requirement                                                                                                                                                     | Priority | Phase |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-ONB-001 | User MUST select one or more goals during onboarding.                                                                                                           |       P0 |     1 |
+| PRD-FR-ONB-002 | User SHOULD be able to rank selected goals.                                                                                                                     |       P1 |     1 |
+| PRD-FR-ONB-003 | Supported initial goals SHOULD include athletic performance, sleep, recovery, body composition, fat loss, muscle gain, longevity/general health, and nutrition. |       P1 |     1 |
+| PRD-FR-ONB-004 | User MUST select coach style or accept default.                                                                                                                 |       P1 |     1 |
+| PRD-FR-ONB-005 | User MUST select summary style or accept default.                                                                                                               |       P1 |     1 |
+| PRD-FR-ONB-006 | User SHOULD be able to choose light/dark/system theme.                                                                                                          |       P1 |     1 |
+| PRD-FR-ONB-007 | User SHOULD be able to select an accent color.                                                                                                                  |       P1 |     1 |
+| PRD-FR-ONB-008 | Onboarding MUST explain that insights improve with more synced history and manual context.                                                                      |       P0 |     1 |
 
 ### Acceptance criteria
 
@@ -653,17 +653,17 @@ Flow:
 
 ## 10.3 Google Health Connection and Sync
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-GH-001 | Primis MUST support Google Health authorization through Google OAuth. | P0 | 0/1 |
-| PRD-FR-GH-002 | Primis MUST request only necessary scopes for implemented features. | P0 | 1 |
-| PRD-FR-GH-003 | Primis MUST sync available Google Health data for supported data types. | P0 | 1 |
-| PRD-FR-GH-004 | Primis MUST store provider source metadata for each ingested metric. | P0 | 1 |
-| PRD-FR-GH-005 | Primis MUST track last successful sync time. | P0 | 1 |
-| PRD-FR-GH-006 | Primis SHOULD support incremental syncs after initial backfill. | P0 | 1 |
-| PRD-FR-GH-007 | Primis SHOULD use webhooks where appropriate after technical validation. | P1 | 2 |
-| PRD-FR-GH-008 | Primis MUST gracefully handle missing/partial data. | P0 | 1 |
-| PRD-FR-GH-009 | Primis MUST NOT assume proprietary provider scores are available until validated. | P0 | 0 |
+| ID            | Requirement                                                                       | Priority | Phase |
+| ------------- | --------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-GH-001 | Primis MUST support Google Health authorization through Google OAuth.             |       P0 |   0/1 |
+| PRD-FR-GH-002 | Primis MUST request only necessary scopes for implemented features.               |       P0 |     1 |
+| PRD-FR-GH-003 | Primis MUST sync available Google Health data for supported data types.           |       P0 |     1 |
+| PRD-FR-GH-004 | Primis MUST store provider source metadata for each ingested metric.              |       P0 |     1 |
+| PRD-FR-GH-005 | Primis MUST track last successful sync time.                                      |       P0 |     1 |
+| PRD-FR-GH-006 | Primis SHOULD support incremental syncs after initial backfill.                   |       P0 |     1 |
+| PRD-FR-GH-007 | Primis SHOULD use webhooks where appropriate after technical validation.          |       P1 |     2 |
+| PRD-FR-GH-008 | Primis MUST gracefully handle missing/partial data.                               |       P0 |     1 |
+| PRD-FR-GH-009 | Primis MUST NOT assume proprietary provider scores are available until validated. |       P0 |     0 |
 
 ### Initial Google Health data targets
 
@@ -701,14 +701,14 @@ Flow:
 
 ## 10.4 Technical Validation Spike: Google/Fitbit Data Availability
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-SPIKE-001 | Before building score-dependent UI, Primis MUST produce a data availability matrix from a real Google/Fitbit account. | P0 | 0 |
-| PRD-FR-SPIKE-002 | Matrix MUST include data type, endpoint/method, permission scope, sample payload, resolution, sync lag, and whether data is present for Fitbit Air. | P0 | 0 |
-| PRD-FR-SPIKE-003 | Spike MUST confirm whether sleep stages are available and how they are represented. | P0 | 0 |
-| PRD-FR-SPIKE-004 | Spike MUST confirm whether HRV, resting HR, SpO2, respiratory rate, and VO2 max are available. | P0 | 0 |
-| PRD-FR-SPIKE-005 | Spike SHOULD confirm whether provider sleep/readiness/cardio-load style scores are exposed. | P1 | 0 |
-| PRD-FR-SPIKE-006 | Spike MUST document sync latency behavior. | P0 | 0 |
+| ID               | Requirement                                                                                                                                         | Priority | Phase |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-SPIKE-001 | Before building score-dependent UI, Primis MUST produce a data availability matrix from a real Google/Fitbit account.                               |       P0 |     0 |
+| PRD-FR-SPIKE-002 | Matrix MUST include data type, endpoint/method, permission scope, sample payload, resolution, sync lag, and whether data is present for Fitbit Air. |       P0 |     0 |
+| PRD-FR-SPIKE-003 | Spike MUST confirm whether sleep stages are available and how they are represented.                                                                 |       P0 |     0 |
+| PRD-FR-SPIKE-004 | Spike MUST confirm whether HRV, resting HR, SpO2, respiratory rate, and VO2 max are available.                                                      |       P0 |     0 |
+| PRD-FR-SPIKE-005 | Spike SHOULD confirm whether provider sleep/readiness/cardio-load style scores are exposed.                                                         |       P1 |     0 |
+| PRD-FR-SPIKE-006 | Spike MUST document sync latency behavior.                                                                                                          |       P0 |     0 |
 
 ### Deliverable
 
@@ -724,20 +724,20 @@ Flow:
 
 ## 10.5 Home Dashboard
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-HOME-001 | Home MUST load quickly from local cached dashboard data. | P0 | 1 |
-| PRD-FR-HOME-002 | Home MUST show Recovery Score. | P0 | 1 |
-| PRD-FR-HOME-003 | Home MUST show Sleep Score. | P0 | 1 |
-| PRD-FR-HOME-004 | Home MUST show Sleep Debt. | P0 | 1 |
-| PRD-FR-HOME-005 | Home MUST show Steps. | P0 | 1 |
-| PRD-FR-HOME-006 | Home MUST show Calories Burned. | P0 | 1 |
-| PRD-FR-HOME-007 | Home SHOULD show Training Readiness. | P1 | 1/2 |
-| PRD-FR-HOME-008 | Home SHOULD show HRV trend. | P1 | 1 |
-| PRD-FR-HOME-009 | Home SHOULD show Today’s Recommendation. | P1 | 1/2 |
-| PRD-FR-HOME-010 | Home SHOULD show Bedtime Recommendation when relevant. | P1 | 1/2 |
-| PRD-FR-HOME-011 | User SHOULD be able to hide/show/reorder home widgets. | P1 | 1 |
-| PRD-FR-HOME-012 | Home MAY include a Wellbeing Score widget. | P2 | 2 |
+| ID              | Requirement                                              | Priority | Phase |
+| --------------- | -------------------------------------------------------- | -------: | ----: |
+| PRD-FR-HOME-001 | Home MUST load quickly from local cached dashboard data. |       P0 |     1 |
+| PRD-FR-HOME-002 | Home MUST show Recovery Score.                           |       P0 |     1 |
+| PRD-FR-HOME-003 | Home MUST show Sleep Score.                              |       P0 |     1 |
+| PRD-FR-HOME-004 | Home MUST show Sleep Debt.                               |       P0 |     1 |
+| PRD-FR-HOME-005 | Home MUST show Steps.                                    |       P0 |     1 |
+| PRD-FR-HOME-006 | Home MUST show Calories Burned.                          |       P0 |     1 |
+| PRD-FR-HOME-007 | Home SHOULD show Training Readiness.                     |       P1 |   1/2 |
+| PRD-FR-HOME-008 | Home SHOULD show HRV trend.                              |       P1 |     1 |
+| PRD-FR-HOME-009 | Home SHOULD show Today’s Recommendation.                 |       P1 |   1/2 |
+| PRD-FR-HOME-010 | Home SHOULD show Bedtime Recommendation when relevant.   |       P1 |   1/2 |
+| PRD-FR-HOME-011 | User SHOULD be able to hide/show/reorder home widgets.   |       P1 |     1 |
+| PRD-FR-HOME-012 | Home MAY include a Wellbeing Score widget.               |       P2 |     2 |
 
 ### Default Phase 1 home cards
 
@@ -760,18 +760,18 @@ Flow:
 
 ## 10.6 Sleep Page
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-SLEEP-001 | Sleep page MUST show Sleep Score. | P0 | 1 |
-| PRD-FR-SLEEP-002 | Sleep page MUST show total sleep duration. | P0 | 1 |
-| PRD-FR-SLEEP-003 | Sleep page MUST show sleep debt. | P0 | 1 |
-| PRD-FR-SLEEP-004 | Sleep page SHOULD show sleep stages if available. | P1 | 1 |
-| PRD-FR-SLEEP-005 | Sleep page SHOULD show sleep efficiency if computable. | P1 | 1 |
-| PRD-FR-SLEEP-006 | Sleep page SHOULD show sleep consistency. | P1 | 1/2 |
-| PRD-FR-SLEEP-007 | Sleep page SHOULD show overnight HRV/RHR context if available. | P1 | 1/2 |
-| PRD-FR-SLEEP-008 | Sleep page SHOULD show respiratory/SpO2 context if available. | P1 | 2 |
-| PRD-FR-SLEEP-009 | Sleep page MUST include a Bedtime Planner entry point. | P0 | 1 |
-| PRD-FR-SLEEP-010 | Sleep page SHOULD include AI sleep summary. | P1 | 1/2 |
+| ID               | Requirement                                                    | Priority | Phase |
+| ---------------- | -------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-SLEEP-001 | Sleep page MUST show Sleep Score.                              |       P0 |     1 |
+| PRD-FR-SLEEP-002 | Sleep page MUST show total sleep duration.                     |       P0 |     1 |
+| PRD-FR-SLEEP-003 | Sleep page MUST show sleep debt.                               |       P0 |     1 |
+| PRD-FR-SLEEP-004 | Sleep page SHOULD show sleep stages if available.              |       P1 |     1 |
+| PRD-FR-SLEEP-005 | Sleep page SHOULD show sleep efficiency if computable.         |       P1 |     1 |
+| PRD-FR-SLEEP-006 | Sleep page SHOULD show sleep consistency.                      |       P1 |   1/2 |
+| PRD-FR-SLEEP-007 | Sleep page SHOULD show overnight HRV/RHR context if available. |       P1 |   1/2 |
+| PRD-FR-SLEEP-008 | Sleep page SHOULD show respiratory/SpO2 context if available.  |       P1 |     2 |
+| PRD-FR-SLEEP-009 | Sleep page MUST include a Bedtime Planner entry point.         |       P0 |     1 |
+| PRD-FR-SLEEP-010 | Sleep page SHOULD include AI sleep summary.                    |       P1 |   1/2 |
 
 ### Acceptance criteria
 
@@ -791,18 +791,18 @@ This feature should be located under Sleep and optionally exposed as a Home widg
 
 ### 10.7.2 Requirements
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-BED-001 | User MUST be able to select a target wake-up time. | P0 | 1 |
-| PRD-FR-BED-002 | Primis MUST estimate bedtime windows using historical sleep latency when available. | P0 | 1 |
-| PRD-FR-BED-003 | Primis SHOULD use sleep-cycle heuristics but MUST NOT imply sleep cycles are perfectly predictable. | P0 | 1 |
-| PRD-FR-BED-004 | Primis SHOULD account for sleep debt. | P1 | 1 |
-| PRD-FR-BED-005 | Primis SHOULD account for recent recovery score. | P1 | 1/2 |
-| PRD-FR-BED-006 | Primis SHOULD account for user’s usual bedtime/wake time. | P1 | 1/2 |
-| PRD-FR-BED-007 | Primis SHOULD account for next-day training/workout importance if user provides it. | P2 | 2 |
-| PRD-FR-BED-008 | Output MUST provide ranked bedtime windows, not one fake-precise time. | P0 | 1 |
-| PRD-FR-BED-009 | Output MUST explain why each recommended window is suggested. | P0 | 1 |
-| PRD-FR-BED-010 | Bedtime recommendation MAY be saved as a plan/reminder later. | P2 | 2/3 |
+| ID             | Requirement                                                                                         | Priority | Phase |
+| -------------- | --------------------------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-BED-001 | User MUST be able to select a target wake-up time.                                                  |       P0 |     1 |
+| PRD-FR-BED-002 | Primis MUST estimate bedtime windows using historical sleep latency when available.                 |       P0 |     1 |
+| PRD-FR-BED-003 | Primis SHOULD use sleep-cycle heuristics but MUST NOT imply sleep cycles are perfectly predictable. |       P0 |     1 |
+| PRD-FR-BED-004 | Primis SHOULD account for sleep debt.                                                               |       P1 |     1 |
+| PRD-FR-BED-005 | Primis SHOULD account for recent recovery score.                                                    |       P1 |   1/2 |
+| PRD-FR-BED-006 | Primis SHOULD account for user’s usual bedtime/wake time.                                           |       P1 |   1/2 |
+| PRD-FR-BED-007 | Primis SHOULD account for next-day training/workout importance if user provides it.                 |       P2 |     2 |
+| PRD-FR-BED-008 | Output MUST provide ranked bedtime windows, not one fake-precise time.                              |       P0 |     1 |
+| PRD-FR-BED-009 | Output MUST explain why each recommended window is suggested.                                       |       P0 |     1 |
+| PRD-FR-BED-010 | Bedtime recommendation MAY be saved as a plan/reminder later.                                       |       P2 |   2/3 |
 
 ### 10.7.3 Recommended output pattern
 
@@ -846,16 +846,16 @@ Last acceptable option: 11:12–11:32 PM
 
 ## 10.8 Recovery Page
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-REC-001 | Recovery page MUST show Recovery Score. | P0 | 1 |
-| PRD-FR-REC-002 | Recovery page MUST explain main drivers. | P0 | 1 |
-| PRD-FR-REC-003 | Recovery page SHOULD use HRV vs personal baseline. | P1 | 1/2 |
-| PRD-FR-REC-004 | Recovery page SHOULD use RHR vs personal baseline. | P1 | 1/2 |
-| PRD-FR-REC-005 | Recovery page SHOULD use sleep score/debt. | P1 | 1 |
-| PRD-FR-REC-006 | Recovery page SHOULD use respiratory rate/SpO2 deviations if available. | P1 | 2 |
-| PRD-FR-REC-007 | Recovery page SHOULD incorporate subjective check-in as a contextual modifier. | P1 | 2 |
-| PRD-FR-REC-008 | Recovery page SHOULD provide training recommendation language. | P1 | 1/2 |
+| ID             | Requirement                                                                    | Priority | Phase |
+| -------------- | ------------------------------------------------------------------------------ | -------: | ----: |
+| PRD-FR-REC-001 | Recovery page MUST show Recovery Score.                                        |       P0 |     1 |
+| PRD-FR-REC-002 | Recovery page MUST explain main drivers.                                       |       P0 |     1 |
+| PRD-FR-REC-003 | Recovery page SHOULD use HRV vs personal baseline.                             |       P1 |   1/2 |
+| PRD-FR-REC-004 | Recovery page SHOULD use RHR vs personal baseline.                             |       P1 |   1/2 |
+| PRD-FR-REC-005 | Recovery page SHOULD use sleep score/debt.                                     |       P1 |     1 |
+| PRD-FR-REC-006 | Recovery page SHOULD use respiratory rate/SpO2 deviations if available.        |       P1 |     2 |
+| PRD-FR-REC-007 | Recovery page SHOULD incorporate subjective check-in as a contextual modifier. |       P1 |     2 |
+| PRD-FR-REC-008 | Recovery page SHOULD provide training recommendation language.                 |       P1 |   1/2 |
 
 ### Acceptance criteria
 
@@ -867,17 +867,17 @@ Last acceptable option: 11:12–11:32 PM
 
 ## 10.9 Activity and Training Page
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-ACT-001 | Activity page MUST show steps. | P0 | 1 |
-| PRD-FR-ACT-002 | Activity page MUST show calories burned where available. | P0 | 1 |
-| PRD-FR-ACT-003 | Activity page SHOULD distinguish active vs resting/total calories if data supports it. | P1 | 1/2 |
-| PRD-FR-ACT-004 | Activity page SHOULD show workouts/exercise sessions. | P1 | 1 |
-| PRD-FR-ACT-005 | Activity page SHOULD show floors/distance. | P1 | 1 |
-| PRD-FR-ACT-006 | Activity page SHOULD show time in heart-rate zones if available. | P1 | 2 |
-| PRD-FR-ACT-007 | Activity page SHOULD compute training load/strain. | P1 | 2 |
-| PRD-FR-ACT-008 | Activity page SHOULD show 7-day vs 28-day load. | P1 | 2 |
-| PRD-FR-ACT-009 | Activity page SHOULD provide workout suggestions based on readiness. | P1 | 2 |
+| ID             | Requirement                                                                            | Priority | Phase |
+| -------------- | -------------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-ACT-001 | Activity page MUST show steps.                                                         |       P0 |     1 |
+| PRD-FR-ACT-002 | Activity page MUST show calories burned where available.                               |       P0 |     1 |
+| PRD-FR-ACT-003 | Activity page SHOULD distinguish active vs resting/total calories if data supports it. |       P1 |   1/2 |
+| PRD-FR-ACT-004 | Activity page SHOULD show workouts/exercise sessions.                                  |       P1 |     1 |
+| PRD-FR-ACT-005 | Activity page SHOULD show floors/distance.                                             |       P1 |     1 |
+| PRD-FR-ACT-006 | Activity page SHOULD show time in heart-rate zones if available.                       |       P1 |     2 |
+| PRD-FR-ACT-007 | Activity page SHOULD compute training load/strain.                                     |       P1 |     2 |
+| PRD-FR-ACT-008 | Activity page SHOULD show 7-day vs 28-day load.                                        |       P1 |     2 |
+| PRD-FR-ACT-009 | Activity page SHOULD provide workout suggestions based on readiness.                   |       P1 |     2 |
 
 ### Acceptance criteria
 
@@ -889,16 +889,16 @@ Last acceptable option: 11:12–11:32 PM
 
 ## 10.10 Vitals and Body Metrics
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-VIT-001 | Primis MUST support a vitals/detail view. | P0 | 1 |
-| PRD-FR-VIT-002 | View SHOULD show resting HR. | P1 | 1 |
-| PRD-FR-VIT-003 | View SHOULD show HRV. | P1 | 1 |
-| PRD-FR-VIT-004 | View SHOULD show SpO2 if available. | P1 | 2 |
-| PRD-FR-VIT-005 | View SHOULD show respiratory rate if available. | P1 | 2 |
-| PRD-FR-VIT-006 | View SHOULD show VO2 max if available. | P1 | 2 |
-| PRD-FR-VIT-007 | View SHOULD show weight/body fat if available. | P1 | 2/3 |
-| PRD-FR-VIT-008 | View MUST use baseline language, not medical diagnosis language. | P0 | 1 |
+| ID             | Requirement                                                      | Priority | Phase |
+| -------------- | ---------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-VIT-001 | Primis MUST support a vitals/detail view.                        |       P0 |     1 |
+| PRD-FR-VIT-002 | View SHOULD show resting HR.                                     |       P1 |     1 |
+| PRD-FR-VIT-003 | View SHOULD show HRV.                                            |       P1 |     1 |
+| PRD-FR-VIT-004 | View SHOULD show SpO2 if available.                              |       P1 |     2 |
+| PRD-FR-VIT-005 | View SHOULD show respiratory rate if available.                  |       P1 |     2 |
+| PRD-FR-VIT-006 | View SHOULD show VO2 max if available.                           |       P1 |     2 |
+| PRD-FR-VIT-007 | View SHOULD show weight/body fat if available.                   |       P1 |   2/3 |
+| PRD-FR-VIT-008 | View MUST use baseline language, not medical diagnosis language. |       P0 |     1 |
 
 ### Acceptance criteria
 
@@ -915,30 +915,30 @@ Nutrition is important but can easily become a separate product. Primis should b
 
 ### 10.11.2 Requirements
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-NUT-001 | User SHOULD be able to manually log calories. | P1 | 1/2 |
-| PRD-FR-NUT-002 | User SHOULD be able to manually log protein/carbs/fat. | P1 | 1/2 |
-| PRD-FR-NUT-003 | User MUST be able to log water/hydration. | P0 | 1 |
-| PRD-FR-NUT-004 | User MUST be able to log caffeine amount and latest timing. | P0 | 1 |
-| PRD-FR-NUT-005 | User MUST be able to log alcohol amount/range and type. | P0 | 1 |
-| PRD-FR-NUT-006 | User SHOULD be able to tag late meal, high protein, whole foods, seed oils, artificial ingredients, or custom nutrition tags. | P1 | 2 |
-| PRD-FR-NUT-007 | Primis SHOULD import USDA FoodData Central into a local DB in v1.5. | P1 | 2 |
-| PRD-FR-NUT-008 | Primis SHOULD support user-created foods that persist. | P1 | 2 |
-| PRD-FR-NUT-009 | User-created foods MUST default to private unless explicitly designed otherwise. | P0 | 2 |
-| PRD-FR-NUT-010 | Primis MAY support AI-assisted meal estimation. | P2 | 2/3 |
-| PRD-FR-NUT-011 | Primis MAY support barcode scanning later. | P2 | 3 |
-| PRD-FR-NUT-012 | Primis MUST NOT depend on MyFitnessPal API access for early phases. | P0 | 1 |
+| ID             | Requirement                                                                                                                   | Priority | Phase |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-NUT-001 | User SHOULD be able to manually log calories.                                                                                 |       P1 |   1/2 |
+| PRD-FR-NUT-002 | User SHOULD be able to manually log protein/carbs/fat.                                                                        |       P1 |   1/2 |
+| PRD-FR-NUT-003 | User MUST be able to log water/hydration.                                                                                     |       P0 |     1 |
+| PRD-FR-NUT-004 | User MUST be able to log caffeine amount and latest timing.                                                                   |       P0 |     1 |
+| PRD-FR-NUT-005 | User MUST be able to log alcohol amount/range and type.                                                                       |       P0 |     1 |
+| PRD-FR-NUT-006 | User SHOULD be able to tag late meal, high protein, whole foods, seed oils, artificial ingredients, or custom nutrition tags. |       P1 |     2 |
+| PRD-FR-NUT-007 | Primis SHOULD import USDA FoodData Central into a local DB in v1.5.                                                           |       P1 |     2 |
+| PRD-FR-NUT-008 | Primis SHOULD support user-created foods that persist.                                                                        |       P1 |     2 |
+| PRD-FR-NUT-009 | User-created foods MUST default to private unless explicitly designed otherwise.                                              |       P0 |     2 |
+| PRD-FR-NUT-010 | Primis MAY support AI-assisted meal estimation.                                                                               |       P2 |   2/3 |
+| PRD-FR-NUT-011 | Primis MAY support barcode scanning later.                                                                                    |       P2 |     3 |
+| PRD-FR-NUT-012 | Primis MUST NOT depend on MyFitnessPal API access for early phases.                                                           |       P0 |     1 |
 
 ### 10.11.3 FoodData Central architecture requirements
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-FDC-001 | Primis SHOULD use FDC bulk downloadable datasets, not massive repeated API calls, for local catalog creation. | P1 | 2 |
-| PRD-FR-FDC-002 | Primis SHOULD maintain source version metadata for imported foods. | P1 | 2 |
-| PRD-FR-FDC-003 | Primis SHOULD index foods for fast search. | P1 | 2 |
-| PRD-FR-FDC-004 | Primis SHOULD support periodic refresh/import jobs. | P2 | 3 |
-| PRD-FR-FDC-005 | Primis SHOULD distinguish global verified foods from user-created foods. | P1 | 2 |
+| ID             | Requirement                                                                                                   | Priority | Phase |
+| -------------- | ------------------------------------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-FDC-001 | Primis SHOULD use FDC bulk downloadable datasets, not massive repeated API calls, for local catalog creation. |       P1 |     2 |
+| PRD-FR-FDC-002 | Primis SHOULD maintain source version metadata for imported foods.                                            |       P1 |     2 |
+| PRD-FR-FDC-003 | Primis SHOULD index foods for fast search.                                                                    |       P1 |     2 |
+| PRD-FR-FDC-004 | Primis SHOULD support periodic refresh/import jobs.                                                           |       P2 |     3 |
+| PRD-FR-FDC-005 | Primis SHOULD distinguish global verified foods from user-created foods.                                      |       P1 |     2 |
 
 ### 10.11.4 Acceptance criteria
 
@@ -950,24 +950,24 @@ Nutrition is important but can easily become a separate product. Primis should b
 
 ## 10.12 Manual Inputs and Custom Tags
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-MAN-001 | User MUST be able to complete a quick check-in. | P0 | 1 |
-| PRD-FR-MAN-002 | Check-in SHOULD include energy, mood, stress, soreness, hydration, caffeine, alcohol, digestion, and notes/tags. | P1 | 1/2 |
-| PRD-FR-MAN-003 | User SHOULD be able to add custom tags. | P1 | 1/2 |
-| PRD-FR-MAN-004 | Manual inputs SHOULD be optional. | P0 | 1 |
-| PRD-FR-MAN-005 | Manual inputs SHOULD become more useful as data accumulates. | P0 | 2 |
-| PRD-FR-MAN-006 | Primis SHOULD detect correlations between manual inputs and objective outcomes after enough data exists. | P1 | 2 |
+| ID             | Requirement                                                                                                      | Priority | Phase |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-MAN-001 | User MUST be able to complete a quick check-in.                                                                  |       P0 |     1 |
+| PRD-FR-MAN-002 | Check-in SHOULD include energy, mood, stress, soreness, hydration, caffeine, alcohol, digestion, and notes/tags. |       P1 |   1/2 |
+| PRD-FR-MAN-003 | User SHOULD be able to add custom tags.                                                                          |       P1 |   1/2 |
+| PRD-FR-MAN-004 | Manual inputs SHOULD be optional.                                                                                |       P0 |     1 |
+| PRD-FR-MAN-005 | Manual inputs SHOULD become more useful as data accumulates.                                                     |       P0 |     2 |
+| PRD-FR-MAN-006 | Primis SHOULD detect correlations between manual inputs and objective outcomes after enough data exists.         |       P1 |     2 |
 
 ### 10.12.1 Poop/digestion tracking
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-DIG-001 | User MAY track bowel movements optionally. | P2 | 2 |
-| PRD-FR-DIG-002 | Tracking SHOULD support Bristol stool type 1–7. | P2 | 2 |
-| PRD-FR-DIG-003 | Tracking MAY support color, smell, urgency, pain, bloating, frequency, and notes. | P2 | 2 |
-| PRD-FR-DIG-004 | Digestion insights MUST avoid medical diagnosis. | P0 | 2 |
-| PRD-FR-DIG-005 | Digestion data SHOULD support correlation analysis with food, hydration, caffeine, alcohol, sleep, and recovery. | P2 | 3 |
+| ID             | Requirement                                                                                                      | Priority | Phase |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-DIG-001 | User MAY track bowel movements optionally.                                                                       |       P2 |     2 |
+| PRD-FR-DIG-002 | Tracking SHOULD support Bristol stool type 1–7.                                                                  |       P2 |     2 |
+| PRD-FR-DIG-003 | Tracking MAY support color, smell, urgency, pain, bloating, frequency, and notes.                                |       P2 |     2 |
+| PRD-FR-DIG-004 | Digestion insights MUST avoid medical diagnosis.                                                                 |       P0 |     2 |
+| PRD-FR-DIG-005 | Digestion data SHOULD support correlation analysis with food, hydration, caffeine, alcohol, sleep, and recovery. |       P2 |     3 |
 
 ### Acceptance criteria
 
@@ -985,20 +985,20 @@ Primis should be AI-native, but not chatbot-only. AI should appear throughout th
 
 ### 10.13.2 Requirements
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-AI-001 | Primis MUST support an AI Coach chat interface. | P0 | 1 |
-| PRD-FR-AI-002 | Primis MUST abstract model providers behind a backend AI service. | P0 | 1 |
-| PRD-FR-AI-003 | GPT SHOULD be the first configured AI provider. | P0 | 1 |
-| PRD-FR-AI-004 | Backend SHOULD support Anthropic and future model providers through provider adapters. | P1 | 2 |
-| PRD-FR-AI-005 | AI MUST answer from structured context packets, not raw full-history dumps. | P0 | 1 |
-| PRD-FR-AI-006 | AI SHOULD support sleep summaries. | P1 | 1/2 |
-| PRD-FR-AI-007 | AI SHOULD support workout/activity summaries. | P1 | 2 |
-| PRD-FR-AI-008 | AI SHOULD support recovery explanations. | P1 | 1/2 |
-| PRD-FR-AI-009 | AI SHOULD support nutrition coaching. | P1 | 2 |
-| PRD-FR-AI-010 | AI SHOULD ask clarifying questions when data is missing and the answer would materially improve. | P1 | 2 |
-| PRD-FR-AI-011 | AI MUST respect coach tone and summary tone settings. | P0 | 1 |
-| PRD-FR-AI-012 | AI MUST NOT provide diagnosis or treatment claims. | P0 | 1 |
+| ID            | Requirement                                                                                      | Priority | Phase |
+| ------------- | ------------------------------------------------------------------------------------------------ | -------: | ----: |
+| PRD-FR-AI-001 | Primis MUST support an AI Coach chat interface.                                                  |       P0 |     1 |
+| PRD-FR-AI-002 | Primis MUST abstract model providers behind a backend AI service.                                |       P0 |     1 |
+| PRD-FR-AI-003 | GPT SHOULD be the first configured AI provider.                                                  |       P0 |     1 |
+| PRD-FR-AI-004 | Backend SHOULD support Anthropic and future model providers through provider adapters.           |       P1 |     2 |
+| PRD-FR-AI-005 | AI MUST answer from structured context packets, not raw full-history dumps.                      |       P0 |     1 |
+| PRD-FR-AI-006 | AI SHOULD support sleep summaries.                                                               |       P1 |   1/2 |
+| PRD-FR-AI-007 | AI SHOULD support workout/activity summaries.                                                    |       P1 |     2 |
+| PRD-FR-AI-008 | AI SHOULD support recovery explanations.                                                         |       P1 |   1/2 |
+| PRD-FR-AI-009 | AI SHOULD support nutrition coaching.                                                            |       P1 |     2 |
+| PRD-FR-AI-010 | AI SHOULD ask clarifying questions when data is missing and the answer would materially improve. |       P1 |     2 |
+| PRD-FR-AI-011 | AI MUST respect coach tone and summary tone settings.                                            |       P0 |     1 |
+| PRD-FR-AI-012 | AI MUST NOT provide diagnosis or treatment claims.                                               |       P0 |     1 |
 
 ### 10.13.3 Coach style settings
 
@@ -1044,13 +1044,13 @@ Example:
 
 ## 10.14 UI Customization
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-UI-CUST-001 | User SHOULD be able to select dark, light, or system mode. | P1 | 1 |
-| PRD-FR-UI-CUST-002 | User SHOULD be able to select accent color(s). | P1 | 1 |
-| PRD-FR-UI-CUST-003 | User SHOULD be able to reorder/hide/show home widgets. | P1 | 1 |
-| PRD-FR-UI-CUST-004 | User MAY customize tab order later. | P2 | 3 |
-| PRD-FR-UI-CUST-005 | Primis MUST maintain a premium default layout even without customization. | P0 | 1 |
+| ID                 | Requirement                                                               | Priority | Phase |
+| ------------------ | ------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-UI-CUST-001 | User SHOULD be able to select dark, light, or system mode.                |       P1 |     1 |
+| PRD-FR-UI-CUST-002 | User SHOULD be able to select accent color(s).                            |       P1 |     1 |
+| PRD-FR-UI-CUST-003 | User SHOULD be able to reorder/hide/show home widgets.                    |       P1 |     1 |
+| PRD-FR-UI-CUST-004 | User MAY customize tab order later.                                       |       P2 |     3 |
+| PRD-FR-UI-CUST-005 | Primis MUST maintain a premium default layout even without customization. |       P0 |     1 |
 
 ### Acceptance criteria
 
@@ -1062,14 +1062,14 @@ Example:
 
 ## 10.15 Settings and Data Controls
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-FR-SET-001 | User MUST be able to view connected data sources. | P0 | 1 |
-| PRD-FR-SET-002 | User MUST be able to disconnect Google Health. | P0 | 1/2 |
-| PRD-FR-SET-003 | User SHOULD be able to delete account and data before public beta. | P0 | 4 |
-| PRD-FR-SET-004 | User SHOULD be able to view last sync status. | P0 | 1 |
-| PRD-FR-SET-005 | User SHOULD be able to edit goals, coach style, summary style, and theme. | P1 | 1 |
-| PRD-FR-SET-006 | User MAY choose raw data retention later. | P2 | 4 |
+| ID             | Requirement                                                               | Priority | Phase |
+| -------------- | ------------------------------------------------------------------------- | -------: | ----: |
+| PRD-FR-SET-001 | User MUST be able to view connected data sources.                         |       P0 |     1 |
+| PRD-FR-SET-002 | User MUST be able to disconnect Google Health.                            |       P0 |   1/2 |
+| PRD-FR-SET-003 | User SHOULD be able to delete account and data before public beta.        |       P0 |     4 |
+| PRD-FR-SET-004 | User SHOULD be able to view last sync status.                             |       P0 |     1 |
+| PRD-FR-SET-005 | User SHOULD be able to edit goals, coach style, summary style, and theme. |       P1 |     1 |
+| PRD-FR-SET-006 | User MAY choose raw data retention later.                                 |       P2 |     4 |
 
 ---
 
@@ -1079,16 +1079,16 @@ This PRD defines product-level expectations only. A separate Scoring & Algorithm
 
 ### 11.1 Required scores
 
-| ID | Score | Phase | Notes |
-|---|---|---:|---|
-| PRD-SCORE-001 | Sleep Score | 1 | Must be explainable. |
-| PRD-SCORE-002 | Recovery Score | 1 | Main performance score. |
-| PRD-SCORE-003 | Training Readiness | 1/2 | Based on recovery + load + sleep debt. |
-| PRD-SCORE-004 | Training Load / Strain | 2 | Derived from workouts, HR zones, active calories, etc. |
-| PRD-SCORE-005 | Sleep Debt | 1 | Based on target vs actual sleep. |
-| PRD-SCORE-006 | Sleep Consistency | 1/2 | Bed/wake time regularity. |
-| PRD-SCORE-007 | Wellbeing Score | 2 | Optional composite home widget. |
-| PRD-SCORE-008 | Nutrition Adherence | 2 | Only after nutrition data exists. |
+| ID            | Score                  | Phase | Notes                                                  |
+| ------------- | ---------------------- | ----: | ------------------------------------------------------ |
+| PRD-SCORE-001 | Sleep Score            |     1 | Must be explainable.                                   |
+| PRD-SCORE-002 | Recovery Score         |     1 | Main performance score.                                |
+| PRD-SCORE-003 | Training Readiness     |   1/2 | Based on recovery + load + sleep debt.                 |
+| PRD-SCORE-004 | Training Load / Strain |     2 | Derived from workouts, HR zones, active calories, etc. |
+| PRD-SCORE-005 | Sleep Debt             |     1 | Based on target vs actual sleep.                       |
+| PRD-SCORE-006 | Sleep Consistency      |   1/2 | Bed/wake time regularity.                              |
+| PRD-SCORE-007 | Wellbeing Score        |     2 | Optional composite home widget.                        |
+| PRD-SCORE-008 | Nutrition Adherence    |     2 | Only after nutrition data exists.                      |
 
 ### 11.2 Scoring principles
 
@@ -1288,18 +1288,18 @@ Expected components:
 
 ### 13.2 Backend requirements
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-BE-001 | Backend MUST support secure auth and user identity. | P0 | 1 |
-| PRD-BE-002 | Backend MUST store Google Health OAuth tokens securely. | P0 | 1 |
-| PRD-BE-003 | Backend MUST encrypt sensitive tokens/secrets. | P0 | 1 |
-| PRD-BE-004 | Backend MUST support background sync jobs. | P0 | 1 |
-| PRD-BE-005 | Backend SHOULD use queues for long-running sync/processing tasks. | P1 | 1/2 |
-| PRD-BE-006 | Backend MUST support normalized health metrics. | P0 | 1 |
-| PRD-BE-007 | Backend MUST support precomputed dashboard payloads. | P0 | 1 |
-| PRD-BE-008 | Backend MUST support AI context packet generation. | P0 | 1/2 |
-| PRD-BE-009 | Backend SHOULD support raw payload archival. | P1 | 1 |
-| PRD-BE-010 | Backend MUST support formula versioning for scores. | P0 | 2 |
+| ID         | Requirement                                                       | Priority | Phase |
+| ---------- | ----------------------------------------------------------------- | -------: | ----: |
+| PRD-BE-001 | Backend MUST support secure auth and user identity.               |       P0 |     1 |
+| PRD-BE-002 | Backend MUST store Google Health OAuth tokens securely.           |       P0 |     1 |
+| PRD-BE-003 | Backend MUST encrypt sensitive tokens/secrets.                    |       P0 |     1 |
+| PRD-BE-004 | Backend MUST support background sync jobs.                        |       P0 |     1 |
+| PRD-BE-005 | Backend SHOULD use queues for long-running sync/processing tasks. |       P1 |   1/2 |
+| PRD-BE-006 | Backend MUST support normalized health metrics.                   |       P0 |     1 |
+| PRD-BE-007 | Backend MUST support precomputed dashboard payloads.              |       P0 |     1 |
+| PRD-BE-008 | Backend MUST support AI context packet generation.                |       P0 |   1/2 |
+| PRD-BE-009 | Backend SHOULD support raw payload archival.                      |       P1 |     1 |
+| PRD-BE-010 | Backend MUST support formula versioning for scores.               |       P0 |     2 |
 
 ### 13.3 Raw data retention
 
@@ -1339,15 +1339,15 @@ Primis SHOULD be built with:
 
 ### 14.2 Mobile UX performance requirements
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-MOB-PERF-001 | Home MUST render from cache before waiting on backend sync. | P0 | 1 |
-| PRD-MOB-PERF-002 | Core screen transitions MUST feel smooth on modern iPhones. | P0 | 1 |
-| PRD-MOB-PERF-003 | Heavy calculations MUST NOT run in React render paths. | P0 | 1 |
-| PRD-MOB-PERF-004 | Charts SHOULD use precomputed chart-ready datasets. | P1 | 1/2 |
-| PRD-MOB-PERF-005 | AI calls MUST NOT block score or dashboard display. | P0 | 1 |
-| PRD-MOB-PERF-006 | App SHOULD display last-known data gracefully when offline. | P1 | 1/2 |
-| PRD-MOB-PERF-007 | App MUST avoid jarring reloads when sync completes. | P0 | 1 |
+| ID               | Requirement                                                 | Priority | Phase |
+| ---------------- | ----------------------------------------------------------- | -------: | ----: |
+| PRD-MOB-PERF-001 | Home MUST render from cache before waiting on backend sync. |       P0 |     1 |
+| PRD-MOB-PERF-002 | Core screen transitions MUST feel smooth on modern iPhones. |       P0 |     1 |
+| PRD-MOB-PERF-003 | Heavy calculations MUST NOT run in React render paths.      |       P0 |     1 |
+| PRD-MOB-PERF-004 | Charts SHOULD use precomputed chart-ready datasets.         |       P1 |   1/2 |
+| PRD-MOB-PERF-005 | AI calls MUST NOT block score or dashboard display.         |       P0 |     1 |
+| PRD-MOB-PERF-006 | App SHOULD display last-known data gracefully when offline. |       P1 |   1/2 |
+| PRD-MOB-PERF-007 | App MUST avoid jarring reloads when sync completes.         |       P0 |     1 |
 
 ### 14.3 Perceived performance
 
@@ -1365,17 +1365,17 @@ Primis SHOULD:
 
 ### 15.1 Design system requirements
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-UX-001 | Primis MUST support premium dark mode. | P0 | 1 |
-| PRD-UX-002 | Primis MUST support premium light mode. | P0 | 1 |
-| PRD-UX-003 | Primis SHOULD support custom accent colors. | P1 | 1 |
-| PRD-UX-004 | Primis MUST define a spacing scale. | P0 | 1 |
-| PRD-UX-005 | Primis MUST define typography hierarchy. | P0 | 1 |
-| PRD-UX-006 | Primis MUST define card styles. | P0 | 1 |
-| PRD-UX-007 | Primis MUST define chart styling guidelines. | P0 | 1/2 |
-| PRD-UX-008 | Primis SHOULD define motion principles. | P1 | 1 |
-| PRD-UX-009 | Primis MUST avoid cluttered dashboard design. | P0 | 1 |
+| ID         | Requirement                                   | Priority | Phase |
+| ---------- | --------------------------------------------- | -------: | ----: |
+| PRD-UX-001 | Primis MUST support premium dark mode.        |       P0 |     1 |
+| PRD-UX-002 | Primis MUST support premium light mode.       |       P0 |     1 |
+| PRD-UX-003 | Primis SHOULD support custom accent colors.   |       P1 |     1 |
+| PRD-UX-004 | Primis MUST define a spacing scale.           |       P0 |     1 |
+| PRD-UX-005 | Primis MUST define typography hierarchy.      |       P0 |     1 |
+| PRD-UX-006 | Primis MUST define card styles.               |       P0 |     1 |
+| PRD-UX-007 | Primis MUST define chart styling guidelines.  |       P0 |   1/2 |
+| PRD-UX-008 | Primis SHOULD define motion principles.       |       P1 |     1 |
+| PRD-UX-009 | Primis MUST avoid cluttered dashboard design. |       P0 |     1 |
 
 ### 15.2 Motion and animation
 
@@ -1434,14 +1434,14 @@ The AI Context Engine is the bridge between structured health data and AI output
 
 ### 16.1 Context engine requirements
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-AICE-001 | Backend MUST classify AI user intents. | P0 | 1/2 |
-| PRD-AICE-002 | Backend MUST build compact context packets for AI calls. | P0 | 1 |
-| PRD-AICE-003 | Context packets SHOULD include latest scores, relevant baselines, recent trends, manual inputs, user goals, and prior insights. | P1 | 1/2 |
-| PRD-AICE-004 | Context packets MUST avoid unnecessary raw full-history dumps. | P0 | 1 |
-| PRD-AICE-005 | AI responses SHOULD include evidence/source signals. | P1 | 1/2 |
-| PRD-AICE-006 | AI outputs SHOULD be stored as summaries/conversation records where useful. | P1 | 1/2 |
+| ID           | Requirement                                                                                                                     | Priority | Phase |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-AICE-001 | Backend MUST classify AI user intents.                                                                                          |       P0 |   1/2 |
+| PRD-AICE-002 | Backend MUST build compact context packets for AI calls.                                                                        |       P0 |     1 |
+| PRD-AICE-003 | Context packets SHOULD include latest scores, relevant baselines, recent trends, manual inputs, user goals, and prior insights. |       P1 |   1/2 |
+| PRD-AICE-004 | Context packets MUST avoid unnecessary raw full-history dumps.                                                                  |       P0 |     1 |
+| PRD-AICE-005 | AI responses SHOULD include evidence/source signals.                                                                            |       P1 |   1/2 |
+| PRD-AICE-006 | AI outputs SHOULD be stored as summaries/conversation records where useful.                                                     |       P1 |   1/2 |
 
 ### 16.2 Example context packet shape
 
@@ -1485,13 +1485,13 @@ The AI Context Engine is the bridge between structured health data and AI output
 
 ### 17.1 Insight engine
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-INS-001 | Primis SHOULD generate deterministic insight candidates from metric deviations. | P1 | 2 |
-| PRD-INS-002 | Primis SHOULD detect baseline deviations in HRV, RHR, sleep, respiratory rate, activity, and training load. | P1 | 2 |
-| PRD-INS-003 | Primis SHOULD detect simple correlations between manual tags and outcomes after enough data exists. | P1 | 2 |
-| PRD-INS-004 | Primis SHOULD avoid presenting weak correlations as conclusions. | P0 | 2 |
-| PRD-INS-005 | Primis SHOULD communicate uncertainty using user-friendly language. | P1 | 2 |
+| ID          | Requirement                                                                                                 | Priority | Phase |
+| ----------- | ----------------------------------------------------------------------------------------------------------- | -------: | ----: |
+| PRD-INS-001 | Primis SHOULD generate deterministic insight candidates from metric deviations.                             |       P1 |     2 |
+| PRD-INS-002 | Primis SHOULD detect baseline deviations in HRV, RHR, sleep, respiratory rate, activity, and training load. |       P1 |     2 |
+| PRD-INS-003 | Primis SHOULD detect simple correlations between manual tags and outcomes after enough data exists.         |       P1 |     2 |
+| PRD-INS-004 | Primis SHOULD avoid presenting weak correlations as conclusions.                                            |       P0 |     2 |
+| PRD-INS-005 | Primis SHOULD communicate uncertainty using user-friendly language.                                         |       P1 |     2 |
 
 ### 17.2 Correlation examples
 
@@ -1529,17 +1529,17 @@ Primis MUST treat health data as sensitive.
 
 Requirements:
 
-| ID | Requirement | Priority | Phase |
-|---|---|---:|---:|
-| PRD-SEC-001 | OAuth tokens MUST be encrypted at rest. | P0 | 1 |
-| PRD-SEC-002 | Sensitive secrets MUST be stored in Secrets Manager or equivalent. | P0 | 1 |
-| PRD-SEC-003 | Health data MUST be encrypted at rest. | P0 | 1 |
-| PRD-SEC-004 | Health data MUST be transmitted over TLS. | P0 | 1 |
-| PRD-SEC-005 | Backend APIs MUST enforce user-level authorization. | P0 | 1 |
-| PRD-SEC-006 | Logs MUST NOT expose raw tokens or sensitive health payloads. | P0 | 1 |
-| PRD-SEC-007 | Public beta MUST include data deletion/account deletion. | P0 | 4 |
-| PRD-SEC-008 | Public beta MUST include clear in-app health data disclosure. | P0 | 4 |
-| PRD-SEC-009 | Public beta MUST include privacy policy. | P0 | 4 |
+| ID          | Requirement                                                        | Priority | Phase |
+| ----------- | ------------------------------------------------------------------ | -------: | ----: |
+| PRD-SEC-001 | OAuth tokens MUST be encrypted at rest.                            |       P0 |     1 |
+| PRD-SEC-002 | Sensitive secrets MUST be stored in Secrets Manager or equivalent. |       P0 |     1 |
+| PRD-SEC-003 | Health data MUST be encrypted at rest.                             |       P0 |     1 |
+| PRD-SEC-004 | Health data MUST be transmitted over TLS.                          |       P0 |     1 |
+| PRD-SEC-005 | Backend APIs MUST enforce user-level authorization.                |       P0 |     1 |
+| PRD-SEC-006 | Logs MUST NOT expose raw tokens or sensitive health payloads.      |       P0 |     1 |
+| PRD-SEC-007 | Public beta MUST include data deletion/account deletion.           |       P0 |     4 |
+| PRD-SEC-008 | Public beta MUST include clear in-app health data disclosure.      |       P0 |     4 |
+| PRD-SEC-009 | Public beta MUST include privacy policy.                           |       P0 |     4 |
 
 ### 18.2 AI/privacy disclosure
 
@@ -1589,14 +1589,14 @@ Candidate premium price: approximately $9.99/month, subject to validation.
 
 ### 20.1 Private beta success metrics
 
-| ID | Metric | Target |
-|---|---|---|
-| PRD-METRIC-001 | Founder opens app at least 4 days/week. | Yes/no qualitative validation. |
-| PRD-METRIC-002 | Home dashboard feels useful within 10 seconds. | Qualitative. |
-| PRD-METRIC-003 | Recovery/Sleep scores feel directionally accurate. | Qualitative. |
-| PRD-METRIC-004 | AI answers feel grounded in user data. | Qualitative. |
-| PRD-METRIC-005 | App performance feels premium. | Qualitative. |
-| PRD-METRIC-006 | Private tester uses app at least 3 days/week after 2 weeks. | Early retention signal. |
+| ID             | Metric                                                      | Target                         |
+| -------------- | ----------------------------------------------------------- | ------------------------------ |
+| PRD-METRIC-001 | Founder opens app at least 4 days/week.                     | Yes/no qualitative validation. |
+| PRD-METRIC-002 | Home dashboard feels useful within 10 seconds.              | Qualitative.                   |
+| PRD-METRIC-003 | Recovery/Sleep scores feel directionally accurate.          | Qualitative.                   |
+| PRD-METRIC-004 | AI answers feel grounded in user data.                      | Qualitative.                   |
+| PRD-METRIC-005 | App performance feels premium.                              | Qualitative.                   |
+| PRD-METRIC-006 | Private tester uses app at least 3 days/week after 2 weeks. | Early retention signal.        |
 
 ### 20.2 Future public metrics
 
@@ -1619,35 +1619,35 @@ Candidate premium price: approximately $9.99/month, subject to validation.
 
 These are not blockers for PRD creation but should be resolved during implementation planning.
 
-| ID | Question | Owner | Needed By |
-|---|---|---|---|
-| PRD-OQ-001 | Exact Google Health data types available from Fitbit Air account. | Engineering | Phase 0 |
-| PRD-OQ-002 | Whether provider sleep/readiness/cardio-load scores are exposed. | Engineering | Phase 0 |
-| PRD-OQ-003 | Whether HealthKit should be Phase 1 or Phase 3. | Product/Engineering | Before Phase 1 build lock |
-| PRD-OQ-004 | Final score formulas and weights. | Product/Data | Scoring spec |
-| PRD-OQ-005 | Final visual identity and logo. | Product/Design | UI spec |
-| PRD-OQ-006 | Public user raw-data retention defaults. | Product/Legal/Security | Before public beta |
-| PRD-OQ-007 | Final AI provider routing strategy. | Engineering | AI spec |
-| PRD-OQ-008 | Whether Facebook sign-in is worth early implementation. | Product | Phase 2/4 |
-| PRD-OQ-009 | Whether to write data back to Apple Health/Health Connect. | Product/Engineering | Phase 3 |
-| PRD-OQ-010 | Final subscription price and free plan limits. | Product | Public beta |
+| ID         | Question                                                          | Owner                  | Needed By                 |
+| ---------- | ----------------------------------------------------------------- | ---------------------- | ------------------------- |
+| PRD-OQ-001 | Exact Google Health data types available from Fitbit Air account. | Engineering            | Phase 0                   |
+| PRD-OQ-002 | Whether provider sleep/readiness/cardio-load scores are exposed.  | Engineering            | Phase 0                   |
+| PRD-OQ-003 | Whether HealthKit should be Phase 1 or Phase 3.                   | Product/Engineering    | Before Phase 1 build lock |
+| PRD-OQ-004 | Final score formulas and weights.                                 | Product/Data           | Scoring spec              |
+| PRD-OQ-005 | Final visual identity and logo.                                   | Product/Design         | UI spec                   |
+| PRD-OQ-006 | Public user raw-data retention defaults.                          | Product/Legal/Security | Before public beta        |
+| PRD-OQ-007 | Final AI provider routing strategy.                               | Engineering            | AI spec                   |
+| PRD-OQ-008 | Whether Facebook sign-in is worth early implementation.           | Product                | Phase 2/4                 |
+| PRD-OQ-009 | Whether to write data back to Apple Health/Health Connect.        | Product/Engineering    | Phase 3                   |
+| PRD-OQ-010 | Final subscription price and free plan limits.                    | Product                | Public beta               |
 
 ---
 
 ## 22. Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| Google Health API does not expose desired proprietary scores. | High | Compute Primis-owned scores from raw metrics. |
-| Fitbit Air data availability differs from assumptions. | High | Phase 0 data availability spike before dependent UI. |
-| App becomes too broad too early. | High | Phase boundaries and non-goals. |
-| AI feels generic or hallucinates. | High | Structured context engine; deterministic insights first. |
-| Nutrition scope explodes. | High | Start with manual/context logging; FoodData Central v1.5. |
-| React Native performance is poor. | Medium/High | Local caching, precomputed data, Reanimated/Skia, no render-path heavy compute. |
-| Health data privacy creates launch friction. | High | Build with verification/security principles early. |
-| Scores feel fake. | High | Explainable formulas, personal baselines, transparency, validation with user perception. |
-| Manual inputs become annoying. | Medium | Fast check-in, optional advanced fields, visible payoff through trends. |
-| Hume data not available through Apple Health. | Medium | Treat Hume as Phase 3 validation, not MVP dependency. |
+| Risk                                                          | Impact      | Mitigation                                                                               |
+| ------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------- |
+| Google Health API does not expose desired proprietary scores. | High        | Compute Primis-owned scores from raw metrics.                                            |
+| Fitbit Air data availability differs from assumptions.        | High        | Phase 0 data availability spike before dependent UI.                                     |
+| App becomes too broad too early.                              | High        | Phase boundaries and non-goals.                                                          |
+| AI feels generic or hallucinates.                             | High        | Structured context engine; deterministic insights first.                                 |
+| Nutrition scope explodes.                                     | High        | Start with manual/context logging; FoodData Central v1.5.                                |
+| React Native performance is poor.                             | Medium/High | Local caching, precomputed data, Reanimated/Skia, no render-path heavy compute.          |
+| Health data privacy creates launch friction.                  | High        | Build with verification/security principles early.                                       |
+| Scores feel fake.                                             | High        | Explainable formulas, personal baselines, transparency, validation with user perception. |
+| Manual inputs become annoying.                                | Medium      | Fast check-in, optional advanced fields, visible payoff through trends.                  |
+| Hume data not available through Apple Health.                 | Medium      | Treat Hume as Phase 3 validation, not MVP dependency.                                    |
 
 ---
 
@@ -1835,30 +1835,30 @@ Data access
 
 ## 26. Appendix: Requirement Priority Definitions
 
-| Priority | Meaning |
-|---|---|
-| P0 | Required. Cannot ship target phase without it. |
-| P1 | Important. Should ship if possible; can move one phase if necessary. |
-| P2 | Useful. Defer if it threatens core quality. |
-| P3 | Future/later enhancement. |
+| Priority | Meaning                                                              |
+| -------- | -------------------------------------------------------------------- |
+| P0       | Required. Cannot ship target phase without it.                       |
+| P1       | Important. Should ship if possible; can move one phase if necessary. |
+| P2       | Useful. Defer if it threatens core quality.                          |
+| P3       | Future/later enhancement.                                            |
 
 ---
 
 ## 27. Appendix: Glossary
 
-| Term | Meaning |
-|---|---|
-| Provider data | Raw health data from Google Health, HealthKit, Health Connect, Hume, nutrition systems, etc. |
-| Normalized metric | Provider-independent representation of a health metric. |
-| Derived metric | Primis-computed metric based on provider/manual data. |
-| Score snapshot | Stored value of a score at a point in time with formula version. |
-| Insight candidate | Deterministically generated possible insight before AI wording/filtering. |
-| AI context packet | Compact structured data object sent to AI for grounded response generation. |
-| Recovery Score | Primis score estimating current recovery state. |
-| Sleep Score | Primis score estimating sleep quality. |
-| Training Readiness | Primis score estimating readiness for training intensity. |
-| Sleep Debt | Difference between sleep need/target and recent actual sleep. |
-| Bedtime Planner | Feature that recommends ranked bedtime windows based on target wake time and personal sleep data. |
+| Term               | Meaning                                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
+| Provider data      | Raw health data from Google Health, HealthKit, Health Connect, Hume, nutrition systems, etc.      |
+| Normalized metric  | Provider-independent representation of a health metric.                                           |
+| Derived metric     | Primis-computed metric based on provider/manual data.                                             |
+| Score snapshot     | Stored value of a score at a point in time with formula version.                                  |
+| Insight candidate  | Deterministically generated possible insight before AI wording/filtering.                         |
+| AI context packet  | Compact structured data object sent to AI for grounded response generation.                       |
+| Recovery Score     | Primis score estimating current recovery state.                                                   |
+| Sleep Score        | Primis score estimating sleep quality.                                                            |
+| Training Readiness | Primis score estimating readiness for training intensity.                                         |
+| Sleep Debt         | Difference between sleep need/target and recent actual sleep.                                     |
+| Bedtime Planner    | Feature that recommends ranked bedtime windows based on target wake time and personal sleep data. |
 
 ---
 
@@ -1873,23 +1873,23 @@ Sleep is not a secondary analytics page. It is one of Primis' highest-priority s
 
 Primis MUST support a premium Sleep experience that includes, at minimum:
 
-| Requirement ID | Requirement | Phase |
-|---|---|---:|
-| PRD-FR-SLEEP-NEW-001 | Sleep tab MUST include a Sleep Score hero using Primis' deterministic Sleep Score algorithm. | P1 |
-| PRD-FR-SLEEP-NEW-002 | Sleep tab MUST show sleep duration, time in sleep period / time in bed when available, minutes asleep, minutes awake, and sleep efficiency. | P1 |
-| PRD-FR-SLEEP-NEW-003 | Sleep tab MUST include a premium sleep-stage timeline similar in richness to Google Health's visualization, using Primis visual language rather than copying Google. | P1 |
-| PRD-FR-SLEEP-NEW-004 | Sleep-stage chart MUST support AWAKE, LIGHT, DEEP, REM, ASLEEP, and RESTLESS states because Google Health API supports both classic and stages sleep types. | P1 |
-| PRD-FR-SLEEP-NEW-005 | Sleep tab MUST support stage summaries: stage type, minutes, and segment count where provided by Google Health API. | P1 |
-| PRD-FR-SLEEP-NEW-006 | Sleep tab MUST show sleep latency / minutes to fall asleep where available from the sleep summary. | P1 |
-| PRD-FR-SLEEP-NEW-007 | Sleep tab MUST show minutes after wake-up where available from the sleep summary. | P1 |
-| PRD-FR-SLEEP-NEW-008 | Sleep tab SHOULD show out-of-bed segments where available. | P1/P2 |
-| PRD-FR-SLEEP-NEW-009 | Sleep tab MUST include HRV context using daily HRV and deep-sleep RMSSD where available. | P1/P2 |
-| PRD-FR-SLEEP-NEW-010 | Sleep tab MUST include resting heart rate and/or overnight heart-rate context where available. | P1/P2 |
-| PRD-FR-SLEEP-NEW-011 | Sleep tab MUST include respiratory rate and SpO2 context where available. | P1/P2 |
-| PRD-FR-SLEEP-NEW-012 | Sleep tab SHOULD include sleep temperature deviation when available. | P2 |
-| PRD-FR-SLEEP-NEW-013 | Sleep tab MUST include Bedtime Planner entry point and next suggested bedtime window when enough data exists. | P1 |
-| PRD-FR-SLEEP-NEW-014 | Sleep tab MUST include AI sleep summary and `Ask Coach` contextual entry point. | P1/P2 |
-| PRD-FR-SLEEP-NEW-015 | Sleep tab MUST include clear missing-data/provisional states when Google data is absent, stale, unprocessed, or rejected. | P1 |
+| Requirement ID       | Requirement                                                                                                                                                          | Phase |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----: |
+| PRD-FR-SLEEP-NEW-001 | Sleep tab MUST include a Sleep Score hero using Primis' deterministic Sleep Score algorithm.                                                                         |    P1 |
+| PRD-FR-SLEEP-NEW-002 | Sleep tab MUST show sleep duration, time in sleep period / time in bed when available, minutes asleep, minutes awake, and sleep efficiency.                          |    P1 |
+| PRD-FR-SLEEP-NEW-003 | Sleep tab MUST include a premium sleep-stage timeline similar in richness to Google Health's visualization, using Primis visual language rather than copying Google. |    P1 |
+| PRD-FR-SLEEP-NEW-004 | Sleep-stage chart MUST support AWAKE, LIGHT, DEEP, REM, ASLEEP, and RESTLESS states because Google Health API supports both classic and stages sleep types.          |    P1 |
+| PRD-FR-SLEEP-NEW-005 | Sleep tab MUST support stage summaries: stage type, minutes, and segment count where provided by Google Health API.                                                  |    P1 |
+| PRD-FR-SLEEP-NEW-006 | Sleep tab MUST show sleep latency / minutes to fall asleep where available from the sleep summary.                                                                   |    P1 |
+| PRD-FR-SLEEP-NEW-007 | Sleep tab MUST show minutes after wake-up where available from the sleep summary.                                                                                    |    P1 |
+| PRD-FR-SLEEP-NEW-008 | Sleep tab SHOULD show out-of-bed segments where available.                                                                                                           | P1/P2 |
+| PRD-FR-SLEEP-NEW-009 | Sleep tab MUST include HRV context using daily HRV and deep-sleep RMSSD where available.                                                                             | P1/P2 |
+| PRD-FR-SLEEP-NEW-010 | Sleep tab MUST include resting heart rate and/or overnight heart-rate context where available.                                                                       | P1/P2 |
+| PRD-FR-SLEEP-NEW-011 | Sleep tab MUST include respiratory rate and SpO2 context where available.                                                                                            | P1/P2 |
+| PRD-FR-SLEEP-NEW-012 | Sleep tab SHOULD include sleep temperature deviation when available.                                                                                                 |    P2 |
+| PRD-FR-SLEEP-NEW-013 | Sleep tab MUST include Bedtime Planner entry point and next suggested bedtime window when enough data exists.                                                        |    P1 |
+| PRD-FR-SLEEP-NEW-014 | Sleep tab MUST include AI sleep summary and `Ask Coach` contextual entry point.                                                                                      | P1/P2 |
+| PRD-FR-SLEEP-NEW-015 | Sleep tab MUST include clear missing-data/provisional states when Google data is absent, stale, unprocessed, or rejected.                                            |    P1 |
 
 ### 22.2 Validated API capability vs real-device validation
 
@@ -1905,35 +1905,35 @@ API schema supports field != founder account/device will always populate field
 
 Primis MUST maintain `docs/decisions/google_health_api_feature_parity_matrix.md` as a source decision record. Every feature seen in Google Health screenshots must be classified as one of:
 
-| Classification | Meaning |
-|---|---|
-| `provider_direct` | Directly available from Google Health API data type/field. |
-| `provider_summary` | Available as provider-computed summary field. |
-| `primis_derived` | Computed by Primis from underlying API data. |
-| `manual_or_third_party` | Requires manual logging or another provider/source. |
-| `unsupported_or_deferred` | Not supported yet or unavailable. |
-| `provider_unverified` | API docs or screenshots imply possible support, but live payload validation has not confirmed it. |
+| Classification            | Meaning                                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------------------------- |
+| `provider_direct`         | Directly available from Google Health API data type/field.                                        |
+| `provider_summary`        | Available as provider-computed summary field.                                                     |
+| `primis_derived`          | Computed by Primis from underlying API data.                                                      |
+| `manual_or_third_party`   | Requires manual logging or another provider/source.                                               |
+| `unsupported_or_deferred` | Not supported yet or unavailable.                                                                 |
+| `provider_unverified`     | API docs or screenshots imply possible support, but live payload validation has not confirmed it. |
 
 ### 22.4 Screenshot-derived feature commitments
 
 The Google Health screenshots imply the following product expectations. Primis should support these features either directly or with a Primis-derived equivalent:
 
-| Google Health feature | Primis requirement |
-|---|---|
-| Device battery / sync pill | Primis MUST support paired-device metadata where available: battery level, battery status, last sync time, device version, device type, supported features. |
-| Steps ring/card | Primis MUST support steps daily summary and home widget. |
-| Calories burned | Primis MUST support active/total calories where available and label source clearly. |
-| Readiness | Primis MUST implement Primis Recovery Score and Training Readiness; exact Google readiness score is optional only if exposed. |
-| Sleep duration / Sleep Score | Primis MUST implement Primis Sleep Score and detailed sleep page. |
-| Exercise days | Primis MUST derive exercise days from exercise sessions. |
-| Vitals “in range” | Primis MUST compute personal-range status for supported vitals. |
-| Hydration | Primis SHOULD support hydration logging and Google hydration logs where available. |
-| Floors | Primis MUST support floors where available. |
-| Active Zone Minutes | Primis MUST support active zone minutes where available. |
-| Sleep-stage diagram | Primis MUST support a premium sleep-stage timeline. |
-| Sleep key metrics | Primis MUST support sleep schedule, REM, deep, efficiency, latency, restlessness/interruption equivalents where available or derivable. |
+| Google Health feature            | Primis requirement                                                                                                                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Device battery / sync pill       | Primis MUST support paired-device metadata where available: battery level, battery status, last sync time, device version, device type, supported features.                                              |
+| Steps ring/card                  | Primis MUST support steps daily summary and home widget.                                                                                                                                                 |
+| Calories burned                  | Primis MUST support active/total calories where available and label source clearly.                                                                                                                      |
+| Readiness                        | Primis MUST implement Primis Recovery Score and Training Readiness; exact Google readiness score is optional only if exposed.                                                                            |
+| Sleep duration / Sleep Score     | Primis MUST implement Primis Sleep Score and detailed sleep page.                                                                                                                                        |
+| Exercise days                    | Primis MUST derive exercise days from exercise sessions.                                                                                                                                                 |
+| Vitals “in range”                | Primis MUST compute personal-range status for supported vitals.                                                                                                                                          |
+| Hydration                        | Primis SHOULD support hydration logging and Google hydration logs where available.                                                                                                                       |
+| Floors                           | Primis MUST support floors where available.                                                                                                                                                              |
+| Active Zone Minutes              | Primis MUST support active zone minutes where available.                                                                                                                                                 |
+| Sleep-stage diagram              | Primis MUST support a premium sleep-stage timeline.                                                                                                                                                      |
+| Sleep key metrics                | Primis MUST support sleep schedule, REM, deep, efficiency, latency, restlessness/interruption equivalents where available or derivable.                                                                  |
 | Health status / key metrics grid | Primis MUST support key metric cards for weight, energy burned, intake, macros, steps, exercise days, RHR, HRV, breathing rate, cardio load, VO2 max, sleep score, sleep duration, glucose if available. |
-| Ask Coach / Reply | Primis MUST support contextual AI entry points grounded in structured data. |
+| Ask Coach / Reply                | Primis MUST support contextual AI entry points grounded in structured data.                                                                                                                              |
 
 ### 22.5 Provider proprietary scores
 
@@ -1954,7 +1954,6 @@ Before any sleep UI is declared complete, the implementation must have either:
 2. explicitly labeled synthetic fixtures whose shape matches official Google Health API schema and a visible `provider_unverified` warning in development fixtures.
 
 No production/private-beta Sleep page should be treated as valid until real payload validation is complete.
-
 
 ### V1.1 source references added by this amendment
 

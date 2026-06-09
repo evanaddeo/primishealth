@@ -113,15 +113,15 @@ This spec is informed by current platform and accessibility guidance:
 
 Primis should study, but not copy:
 
-| Product | Useful lesson | Primis application |
-|---|---|---|
-| WHOOP | Recovery, Strain, Sleep, coaching based on body signals | Athletic-performance framing and clear “what should I do today?” guidance |
-| Oura | Readiness, sleep depth, calm explanations, baseline-aware trends | Explainable recovery/sleep views and premium calm detail screens |
-| Apple Fitness | Fast daily progress visualization | Primis progress rings/bars for goals, but original visual design |
-| Apple Health | Metric detail pages and long-term health data hierarchy | Drill-down metric pages with history and source context |
-| Google Health/Fitbit | Broad health-data availability and mainstream user mental model | Data coverage and familiar health categories, with better UX/customization |
-| Bevel | AI health coach overlay, nutrition, strain, stress, Apple Health-based intelligence | Validates AI-native health overlay product category |
-| Athlytic | Apple Watch-based recovery/exertion/readiness | Validates performance analytics from existing wearable data |
+| Product              | Useful lesson                                                                       | Primis application                                                         |
+| -------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| WHOOP                | Recovery, Strain, Sleep, coaching based on body signals                             | Athletic-performance framing and clear “what should I do today?” guidance  |
+| Oura                 | Readiness, sleep depth, calm explanations, baseline-aware trends                    | Explainable recovery/sleep views and premium calm detail screens           |
+| Apple Fitness        | Fast daily progress visualization                                                   | Primis progress rings/bars for goals, but original visual design           |
+| Apple Health         | Metric detail pages and long-term health data hierarchy                             | Drill-down metric pages with history and source context                    |
+| Google Health/Fitbit | Broad health-data availability and mainstream user mental model                     | Data coverage and familiar health categories, with better UX/customization |
+| Bevel                | AI health coach overlay, nutrition, strain, stress, Apple Health-based intelligence | Validates AI-native health overlay product category                        |
+| Athlytic             | Apple Watch-based recovery/exertion/readiness                                       | Validates performance analytics from existing wearable data                |
 
 ### 2.3 Primis design thesis
 
@@ -1427,18 +1427,18 @@ Every chart should clarify:
 
 ### 13.2 Chart types by use case
 
-| Use case | Preferred chart |
-|---|---|
-| HRV/RHR trend | line chart with baseline band |
-| Sleep stages | horizontal timeline |
-| Sleep duration/debt | bar or area chart |
-| Recovery history | line or bar with status zones |
-| Training load | 7-day vs 28-day line/area |
-| Steps/calories | bar + goal marker |
-| Macro tracking | stacked progress or bars |
-| Body composition | trend line + smoothing |
-| Caffeine/alcohol correlation | grouped comparison / scatter later |
-| Bedtime windows | ranked cards + timeline visualization |
+| Use case                     | Preferred chart                       |
+| ---------------------------- | ------------------------------------- |
+| HRV/RHR trend                | line chart with baseline band         |
+| Sleep stages                 | horizontal timeline                   |
+| Sleep duration/debt          | bar or area chart                     |
+| Recovery history             | line or bar with status zones         |
+| Training load                | 7-day vs 28-day line/area             |
+| Steps/calories               | bar + goal marker                     |
+| Macro tracking               | stacked progress or bars              |
+| Body composition             | trend line + smoothing                |
+| Caffeine/alcohol correlation | grouped comparison / scatter later    |
+| Bedtime windows              | ranked cards + timeline visualization |
 
 ### 13.3 Chart rules
 
@@ -2044,15 +2044,15 @@ This prevents feature screens from creating inconsistent local components.
 
 These are not blockers for implementation planning:
 
-| Decision | Current default | Later action |
-|---|---|---|
-| Final logo | TBD | Brand exploration |
-| Final accent palette | Tokenized placeholders | Test in app context |
-| Exact chart library | Skia-based custom charts preferred | Prototype performance |
-| Drag-and-drop Home widgets in v1 | Prefer simple reorder first | Implement advanced drag later |
-| Haptics depth | Light haptics | Refine after physical testing |
-| Custom font | System font first | Revisit after brand direction |
-| Wearable companion app | Deferred | Consider after mobile app validates |
+| Decision                         | Current default                    | Later action                        |
+| -------------------------------- | ---------------------------------- | ----------------------------------- |
+| Final logo                       | TBD                                | Brand exploration                   |
+| Final accent palette             | Tokenized placeholders             | Test in app context                 |
+| Exact chart library              | Skia-based custom charts preferred | Prototype performance               |
+| Drag-and-drop Home widgets in v1 | Prefer simple reorder first        | Implement advanced drag later       |
+| Haptics depth                    | Light haptics                      | Refine after physical testing       |
+| Custom font                      | System font first                  | Revisit after brand direction       |
+| Wearable companion app           | Deferred                           | Consider after mobile app validates |
 
 ---
 
@@ -2160,15 +2160,15 @@ Primis must not copy Google Health's exact styling. It should use original Primi
 
 Recommended mapping:
 
-| Stage | Visual lane | Token direction |
-|---|---|---|
-| Awake | top lane | alert/wake accent, not harsh red unless status requires |
-| REM | upper-middle lane | cool/light blue-violet |
-| Light | middle lane | calm blue |
-| Deep | lower lane | deep violet/indigo |
-| Asleep classic | middle/deep blended lane | neutral cool |
-| Restless classic | separate thin disruption marks | green/amber depending theme |
-| Out of bed | vertical marker/overlay | neutral/amber |
+| Stage            | Visual lane                    | Token direction                                         |
+| ---------------- | ------------------------------ | ------------------------------------------------------- |
+| Awake            | top lane                       | alert/wake accent, not harsh red unless status requires |
+| REM              | upper-middle lane              | cool/light blue-violet                                  |
+| Light            | middle lane                    | calm blue                                               |
+| Deep             | lower lane                     | deep violet/indigo                                      |
+| Asleep classic   | middle/deep blended lane       | neutral cool                                            |
+| Restless classic | separate thin disruption marks | green/amber depending theme                             |
+| Out of bed       | vertical marker/overlay        | neutral/amber                                           |
 
 Rules:
 
@@ -2223,15 +2223,15 @@ Wake-time consistency
 
 `SleepStageTimeline` and Sleep screen MUST support:
 
-| State | UI behavior |
-|---|---|
-| `full_stages` | Show full Awake/REM/Light/Deep timeline. |
-| `classic_sleep` | Show Asleep/Restless/Awake fallback with lower confidence label. |
-| `summary_only` | Show stage summary cards but no detailed timeline; explain limitation. |
-| `session_only` | Show duration/timing only; clear provisional state. |
-| `stages_processing` | Show sleep summary and processing message; refresh later. |
-| `stages_rejected` | Show fallback and reason if provider gives rejection status. |
-| `no_sleep_data` | Explain missing sleep and suggest device sync/check permissions. |
+| State               | UI behavior                                                            |
+| ------------------- | ---------------------------------------------------------------------- |
+| `full_stages`       | Show full Awake/REM/Light/Deep timeline.                               |
+| `classic_sleep`     | Show Asleep/Restless/Awake fallback with lower confidence label.       |
+| `summary_only`      | Show stage summary cards but no detailed timeline; explain limitation. |
+| `session_only`      | Show duration/timing only; clear provisional state.                    |
+| `stages_processing` | Show sleep summary and processing message; refresh later.              |
+| `stages_rejected`   | Show fallback and reason if provider gives rejection status.           |
+| `no_sleep_data`     | Explain missing sleep and suggest device sync/check permissions.       |
 
 ### 24.7 AI sleep summary UX
 
@@ -2271,7 +2271,6 @@ Before accepting Sleep UI:
 [ ] Does reduced motion still work?
 [ ] Does screen reader output summarize sleep meaningfully?
 ```
-
 
 ### V1.1 source references added by this amendment
 

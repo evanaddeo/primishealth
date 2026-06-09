@@ -38,17 +38,17 @@ When Phase A is complete, a new contributor or AI coding agent can:
 
 Before implementing any CU in Phase A, the executing agent MUST read the following sections. Do not skip sections; each one contains guardrails that govern Phase A decisions.
 
-| Priority | Document | Sections to read | Why |
-|---|---|---|---|
-| 1 | `docs/source-of-truth/primis_full_implementation_spec_commit_plan.md` | §0–§5, Phase A CU-001–007, §9 | Commit sequencing authority; commit format; branch naming; verification commands; DoD per commit |
-| 2 | `docs/source-of-truth/primis_mvp_build_plan_milestones.md` | §0, §0.5, §1, §4, §6 | Milestone intent; health-data-model-first constraint; build order; M0 work items |
-| 3 | `docs/source-of-truth/primis_technical_architecture_document.md` | §0, §6, §7, §8 | Technology stack decisions; monorepo layout; environment strategy; code boundary rules |
-| 4 | `docs/source-of-truth/primis_data_model_health_metric_schema.md` | §0, §5.4, §5.5 | Data sensitivity classification (S0–S4); deletion conventions; fixture redaction policy |
-| 5 | `docs/source-of-truth/primis_scoring_algorithms_spec.md` | §0 only | Rule: do not invent score formulas ad hoc; scoring must be deterministic and centralized |
-| 6 | `docs/source-of-truth/primis_ai_context_engine_spec.md` | §0 only | Rules: no raw health data in prompts/logs; use `AiGateway` abstraction from day one |
-| 7 | `docs/source-of-truth/primis_ui_ux_design_system_spec.md` | §0 only | Rule: all future UI must use design tokens; no ad hoc styles |
-| 8 | `docs/source-of-truth/primis_product_requirements_document.md` | §0, §3, §4 | Product scope; core principles; goals and non-goals |
-| 9 | `docs/source-of-truth/primis_google_health_api_feature_parity_matrix.md` | Full (skim) | Required companion doc for future provider phases; no implementation in Phase A |
+| Priority | Document                                                                 | Sections to read              | Why                                                                                              |
+| -------- | ------------------------------------------------------------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| 1        | `docs/source-of-truth/primis_full_implementation_spec_commit_plan.md`    | §0–§5, Phase A CU-001–007, §9 | Commit sequencing authority; commit format; branch naming; verification commands; DoD per commit |
+| 2        | `docs/source-of-truth/primis_mvp_build_plan_milestones.md`               | §0, §0.5, §1, §4, §6          | Milestone intent; health-data-model-first constraint; build order; M0 work items                 |
+| 3        | `docs/source-of-truth/primis_technical_architecture_document.md`         | §0, §6, §7, §8                | Technology stack decisions; monorepo layout; environment strategy; code boundary rules           |
+| 4        | `docs/source-of-truth/primis_data_model_health_metric_schema.md`         | §0, §5.4, §5.5                | Data sensitivity classification (S0–S4); deletion conventions; fixture redaction policy          |
+| 5        | `docs/source-of-truth/primis_scoring_algorithms_spec.md`                 | §0 only                       | Rule: do not invent score formulas ad hoc; scoring must be deterministic and centralized         |
+| 6        | `docs/source-of-truth/primis_ai_context_engine_spec.md`                  | §0 only                       | Rules: no raw health data in prompts/logs; use `AiGateway` abstraction from day one              |
+| 7        | `docs/source-of-truth/primis_ui_ux_design_system_spec.md`                | §0 only                       | Rule: all future UI must use design tokens; no ad hoc styles                                     |
+| 8        | `docs/source-of-truth/primis_product_requirements_document.md`           | §0, §3, §4                    | Product scope; core principles; goals and non-goals                                              |
+| 9        | `docs/source-of-truth/primis_google_health_api_feature_parity_matrix.md` | Full (skim)                   | Required companion doc for future provider phases; no implementation in Phase A                  |
 
 ### Source priority order (conflict resolution)
 
@@ -201,12 +201,14 @@ CONTRIBUTING.md                       # commit-unit workflow, branch naming, com
 #### In scope
 
 **`docs/README.md`** must include:
+
 - A table listing all source-of-truth documents in required reading order (1–9, as in §2 of this plan)
 - One-sentence description of each doc's authority domain
 - A note that `docs/decisions/` holds ADRs and decision records
 - A note that `docs/runbooks/` holds operational runbooks (empty now)
 
 **`CONTRIBUTING.md`** must include:
+
 - Summary of the commit-unit workflow (one CU = one focused commit)
 - Commit message format: `<area>: <short imperative summary> (<CU-ID>)`
 - Branch naming format: `cu/<cu-id-lowercase>-<short-name>`
@@ -215,6 +217,7 @@ CONTRIBUTING.md                       # commit-unit workflow, branch naming, com
 - Statement that ADRs go in `docs/decisions/` when architecture deviates from source docs
 
 **`.ai-agent-instructions.md`** must include:
+
 - Rule: implement only the currently assigned commit unit
 - Rule: do not invent schema tables, metric codes, score formulas, or UI styles not in source docs
 - Rule: read the docs listed in this file before implementing
@@ -380,6 +383,7 @@ package.json                          # add/update lint and format scripts
 #### In scope
 
 **Root `package.json` scripts:**
+
 ```json
 {
   "lint": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0",
@@ -389,6 +393,7 @@ package.json                          # add/update lint and format scripts
 ```
 
 **`.eslintrc.cjs`** minimum rules:
+
 - Extends `@typescript-eslint/recommended`
 - `no-unused-vars`: error
 - `no-console`: warn (allow `console.error`)
@@ -398,6 +403,7 @@ package.json                          # add/update lint and format scripts
 - `ignorePatterns`: `["dist/", "node_modules/", "*.js"]` (allow plain JS config files)
 
 **`.prettierrc`:**
+
 ```json
 {
   "semi": true,
@@ -410,6 +416,7 @@ package.json                          # add/update lint and format scripts
 ```
 
 **`.editorconfig`:**
+
 ```ini
 root = true
 
@@ -426,6 +433,7 @@ trim_trailing_whitespace = false
 ```
 
 **Root `package.json` `devDependencies`** to add:
+
 - `eslint`
 - `@typescript-eslint/eslint-plugin`
 - `@typescript-eslint/parser`
@@ -496,10 +504,7 @@ packages/config/src/placeholder.test.ts  # minimal passing smoke test
 ```typescript
 import { defineWorkspace } from 'vitest/config';
 
-export default defineWorkspace([
-  'packages/*/vitest.config.ts',
-  'services/*/vitest.config.ts',
-]);
+export default defineWorkspace(['packages/*/vitest.config.ts', 'services/*/vitest.config.ts']);
 ```
 
 **Root `package.json` test script:** `"test": "vitest run"`
@@ -520,6 +525,7 @@ export default defineConfig({
 **`packages/config/src/placeholder.test.ts`** — minimal test that asserts `true` to confirm the test runner works. This will be replaced by real tests in CU-007.
 
 **`tests/README.md`** must document:
+
 - Use Vitest for all TypeScript packages and services
 - Tests must be deterministic; no real network calls in unit tests
 - Use fixtures from `database/fixtures/` for provider payload tests
@@ -527,6 +533,7 @@ export default defineConfig({
 - Test file naming: `*.test.ts` co-located with source, or in a `test/` subdirectory
 
 **`database/fixtures/README.md`** must document:
+
 - Data sensitivity levels S0–S4 (reference `primis_data_model_health_metric_schema.md §5.4`)
 - **No real user IDs, real OAuth tokens, real email addresses, or real device identifiers may be committed**
 - S2/S3 fixtures must have realistic value structure but synthetic or anonymized identifiers
@@ -608,7 +615,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
         with:
-          version: 9              # pin to match root .npmrc or engines field
+          version: 9 # pin to match root .npmrc or engines field
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -621,6 +628,7 @@ jobs:
 ```
 
 **Key CI requirements from the spec:**
+
 - No AWS credentials required (none exist yet; OIDC for deployments is Phase Z)
 - `permissions: contents: read` — least-privilege baseline
 - PNPM version pinned (use v9 unless a different version is already locked in the workspace)
@@ -771,9 +779,7 @@ export type BackendEnv = z.infer<typeof backendEnvSchema>;
 export function loadPublicEnv(raw: NodeJS.ProcessEnv = process.env): PublicEnv {
   const result = publicEnvSchema.safeParse(raw);
   if (!result.success) {
-    throw new Error(
-      `[config] Invalid public environment variables:\n${result.error.toString()}`,
-    );
+    throw new Error(`[config] Invalid public environment variables:\n${result.error.toString()}`);
   }
   return result.data;
 }
@@ -787,15 +793,14 @@ export function loadPublicEnv(raw: NodeJS.ProcessEnv = process.env): PublicEnv {
 export function loadBackendEnv(raw: NodeJS.ProcessEnv = process.env): BackendEnv {
   const result = backendEnvSchema.safeParse(raw);
   if (!result.success) {
-    throw new Error(
-      `[config] Invalid backend environment variables:\n${result.error.toString()}`,
-    );
+    throw new Error(`[config] Invalid backend environment variables:\n${result.error.toString()}`);
   }
   return result.data;
 }
 ```
 
 **`packages/config/src/env.test.ts`** must cover:
+
 - `loadPublicEnv` succeeds with valid input
 - `loadPublicEnv` throws a descriptive error when `NODE_ENV` is missing or invalid
 - `loadBackendEnv` succeeds with all required fields populated (use the `.env.example` placeholder values)
@@ -842,15 +847,15 @@ git status --short | grep "\.env$" # should return nothing
 
 These rules apply to every CU in Phase A and must be re-stated in each agent handoff prompt:
 
-| Guardrail | Rule |
-|---|---|
-| No secrets committed | `.env`, `.env.local`, real API keys, OAuth client secrets, and AWS credentials must never appear in any committed file. `.env.example` contains placeholders only. |
-| No production resources | Do not create, modify, or reference real AWS resources. CDK stacks that exist in `infrastructure/cdk/` are valid-but-undeployed. Phase Z is when real resources are created. |
-| No real OAuth / provider credentials | Google Health OAuth client IDs/secrets, Apple team IDs, Facebook app secrets remain `PLACEHOLDER` throughout Phase A. |
-| No database schema | No migration files, no SQL DDL, no Kysely/Drizzle schema files. Database schema is Phase D. |
-| No mobile app generation | Do not run `expo init`, `create-expo-app`, or any scaffolding command. `apps/mobile/.gitkeep` exists only as a directory placeholder. |
-| No scoring / AI / UI implementation | Do not implement any algorithm, AI call, design token, or UI component. Those phases are C, F, G, I respectively. |
-| Do not silently change source-of-truth docs | If an implementation finding contradicts a source doc, create `docs/decisions/ADR-000X-<topic>.md` and reference the conflict explicitly. Do not overwrite the source doc. |
+| Guardrail                                   | Rule                                                                                                                                                                         |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| No secrets committed                        | `.env`, `.env.local`, real API keys, OAuth client secrets, and AWS credentials must never appear in any committed file. `.env.example` contains placeholders only.           |
+| No production resources                     | Do not create, modify, or reference real AWS resources. CDK stacks that exist in `infrastructure/cdk/` are valid-but-undeployed. Phase Z is when real resources are created. |
+| No real OAuth / provider credentials        | Google Health OAuth client IDs/secrets, Apple team IDs, Facebook app secrets remain `PLACEHOLDER` throughout Phase A.                                                        |
+| No database schema                          | No migration files, no SQL DDL, no Kysely/Drizzle schema files. Database schema is Phase D.                                                                                  |
+| No mobile app generation                    | Do not run `expo init`, `create-expo-app`, or any scaffolding command. `apps/mobile/.gitkeep` exists only as a directory placeholder.                                        |
+| No scoring / AI / UI implementation         | Do not implement any algorithm, AI call, design token, or UI component. Those phases are C, F, G, I respectively.                                                            |
+| Do not silently change source-of-truth docs | If an implementation finding contradicts a source doc, create `docs/decisions/ADR-000X-<topic>.md` and reference the conflict explicitly. Do not overwrite the source doc.   |
 
 ---
 
@@ -964,16 +969,16 @@ Phase A is complete when ALL of the following are true:
 
 ## 8. Known Risks and Decisions to Defer
 
-| Risk / Decision | Status | Where to resolve |
-|---|---|---|
-| ESLint v8 vs v9 flat config | Deferred — use ESLint v8 legacy format (`eslintrc.cjs`) for now to avoid flat-config complexity | Migrate to flat config in a future CU when team and tooling stabilize |
-| `moduleResolution: "bundler"` vs `"node16"` for backend services | Deferred — `tsconfig.base.json` uses `"bundler"` for Vitest/Vite compatibility; backend services may need `"node16"` in their own tsconfig | Address per-service in Phase D (CU-014+) |
-| TypeScript project references / composite builds | Deferred — add composite builds when the package graph is non-trivial (Phase B/C) | Document in `docs/decisions/ADR-003-ts-project-references.md` when implemented |
-| Node.js version pinning | Deferred — CI uses Node 20 LTS; add `.nvmrc` or `engines` field in root package.json | Add before onboarding second developer |
-| pnpm version pinning | Assumed v9 in CI. Confirm with `pnpm -v` locally and add `packageManager` field to root `package.json` | CU-003 or a follow-up cleanup commit |
-| `apps/mobile` vs `apps/mobile/` naming consistency | The implementation spec and TAD both use `apps/mobile/`; no conflict | N/A |
-| Google Health API parity matrix doc status | Document exists in `docs/source-of-truth/` but validation against a real account is Phase Z (manual). Future agents must not treat it as confirmed availability data. | Phase Z / M1 manual validation |
-| `docs/source-of-truth/` already contains 9 docs (not 7) | The implementation spec §1 references 7 docs, but the repo also contains `primis_full_implementation_spec_commit_plan.md` itself and `primis_google_health_api_feature_parity_matrix.md`. Both are valid source docs. | No action required; acknowledge in `docs/README.md` reading order |
+| Risk / Decision                                                  | Status                                                                                                                                                                                                                | Where to resolve                                                               |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| ESLint v8 vs v9 flat config                                      | Deferred — use ESLint v8 legacy format (`eslintrc.cjs`) for now to avoid flat-config complexity                                                                                                                       | Migrate to flat config in a future CU when team and tooling stabilize          |
+| `moduleResolution: "bundler"` vs `"node16"` for backend services | Deferred — `tsconfig.base.json` uses `"bundler"` for Vitest/Vite compatibility; backend services may need `"node16"` in their own tsconfig                                                                            | Address per-service in Phase D (CU-014+)                                       |
+| TypeScript project references / composite builds                 | Deferred — add composite builds when the package graph is non-trivial (Phase B/C)                                                                                                                                     | Document in `docs/decisions/ADR-003-ts-project-references.md` when implemented |
+| Node.js version pinning                                          | Deferred — CI uses Node 20 LTS; add `.nvmrc` or `engines` field in root package.json                                                                                                                                  | Add before onboarding second developer                                         |
+| pnpm version pinning                                             | Assumed v9 in CI. Confirm with `pnpm -v` locally and add `packageManager` field to root `package.json`                                                                                                                | CU-003 or a follow-up cleanup commit                                           |
+| `apps/mobile` vs `apps/mobile/` naming consistency               | The implementation spec and TAD both use `apps/mobile/`; no conflict                                                                                                                                                  | N/A                                                                            |
+| Google Health API parity matrix doc status                       | Document exists in `docs/source-of-truth/` but validation against a real account is Phase Z (manual). Future agents must not treat it as confirmed availability data.                                                 | Phase Z / M1 manual validation                                                 |
+| `docs/source-of-truth/` already contains 9 docs (not 7)          | The implementation spec §1 references 7 docs, but the repo also contains `primis_full_implementation_spec_commit_plan.md` itself and `primis_google_health_api_feature_parity_matrix.md`. Both are valid source docs. | No action required; acknowledge in `docs/README.md` reading order              |
 
 ---
 
@@ -983,16 +988,17 @@ Phase A is complete when ALL of the following are true:
 
 Phase B — Shared Contracts and Health Model Foundations (CU-008 onward) will create:
 
-| CU | Title | First file created |
-|---|---|---|
-| CU-008 | Core type package with domain enums | `packages/core-types/src/provider.ts` |
-| CU-009 | Canonical metric registry | `packages/health-metrics/src/registry.ts` |
-| CU-010 | Unit conversion utilities | `packages/health-metrics/src/units.ts` |
-| CU-011 | API contract envelope and error schema | `packages/api-contracts/src/envelope.ts` |
-| CU-012 | Score and data-quality DTOs | `packages/api-contracts/src/scores.ts` |
-| CU-013 | Fixture redaction helpers | `scripts/redact-fixture.ts` |
+| CU     | Title                                  | First file created                        |
+| ------ | -------------------------------------- | ----------------------------------------- |
+| CU-008 | Core type package with domain enums    | `packages/core-types/src/provider.ts`     |
+| CU-009 | Canonical metric registry              | `packages/health-metrics/src/registry.ts` |
+| CU-010 | Unit conversion utilities              | `packages/health-metrics/src/units.ts`    |
+| CU-011 | API contract envelope and error schema | `packages/api-contracts/src/envelope.ts`  |
+| CU-012 | Score and data-quality DTOs            | `packages/api-contracts/src/scores.ts`    |
+| CU-013 | Fixture redaction helpers              | `scripts/redact-fixture.ts`               |
 
 **Phase B dependency on Phase A:**
+
 - All Phase B packages extend `tsconfig.base.json` from CU-003
 - All Phase B packages are linted by the ESLint config from CU-004
 - All Phase B tests run through the Vitest workspace from CU-005
@@ -1000,6 +1006,7 @@ Phase B — Shared Contracts and Health Model Foundations (CU-008 onward) will c
 - Phase B packages that need env values import `loadBackendEnv` from `@primis/config` (CU-007)
 
 **Before starting CU-008, the executing agent must:**
+
 1. Confirm Phase A DoD checklist is fully checked
 2. Read `primis_data_model_health_metric_schema.md` §5–§9 for enum values and metric registry structure
 3. Read `primis_scoring_algorithms_spec.md` §5–§6 for score types and algorithm version conventions
@@ -1007,4 +1014,4 @@ Phase B — Shared Contracts and Health Model Foundations (CU-008 onward) will c
 
 ---
 
-*End of Phase A — Repo and Tooling Foundation Plan*
+_End of Phase A — Repo and Tooling Foundation Plan_

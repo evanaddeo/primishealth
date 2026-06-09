@@ -4,11 +4,11 @@
   "private": true,
   "description": "Primis — health data aggregation, deterministic scoring, and AI-native coaching platform",
   "scripts": {
-    "lint": "echo \"not implemented — configure in CU-004\"",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0",
     "typecheck": "pnpm -r typecheck",
     "test": "echo \"not implemented — configure in CU-005\"",
-    "format": "echo \"not implemented — configure in CU-004\"",
-    "format:check": "echo \"not implemented — configure in CU-004\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "build": "echo \"not implemented — configure per-package in later phases\""
   },
   "engines": {
@@ -17,6 +17,10 @@
   },
   "packageManager": "pnpm@9.0.0",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
+    "eslint": "^8",
+    "prettier": "^3.8.4",
     "typescript": "^5.8.3"
   }
 }

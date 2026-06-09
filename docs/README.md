@@ -8,17 +8,17 @@ All seven primary specification documents plus two companion docs live under `do
 Read them in the order below before implementing any commit unit. Priority order also governs conflict
 resolution — if two documents disagree, the lower priority number wins.
 
-| Priority | Filename | Authority Domain |
-|---|---|---|
-| 1 | `primis_full_implementation_spec_commit_plan.md` | Commit sequencing authority; commit format; branch naming; verification commands; Definition of Done per commit unit |
-| 2 | `primis_mvp_build_plan_milestones.md` | Milestone intent; health-data-model-first constraint; correct build order; M0–M5 work items and gates |
-| 3 | `primis_technical_architecture_document.md` | Technology stack decisions; monorepo layout; AWS service boundaries; environment strategy; code boundary rules |
-| 4 | `primis_data_model_health_metric_schema.md` | Canonical table definitions; metric codes; enums; units; provider mappings; data sensitivity classification (S0–S4); deletion conventions; fixture redaction policy |
-| 5 | `primis_scoring_algorithms_spec.md` | Score formulas; component baselines; data-quality confidence; deterministic-only rule — do not invent score formulas ad hoc |
-| 6 | `primis_ai_context_engine_spec.md` | AI gateway abstraction; intent classification; context packets; safety rules — no raw health data in prompts or logs |
-| 7 | `primis_ui_ux_design_system_spec.md` | Design tokens; navigation patterns; component library; motion; accessibility — all UI must use design tokens; no ad hoc styles |
-| 8 | `primis_product_requirements_document.md` | Product scope; core principles; user journeys; phase non-goals |
-| 9 | `primis_google_health_api_feature_parity_matrix.md` | Required companion doc for provider phases; documents Google Health API surface, data types, and Fitbit field mapping. No implementation in Phase A. Treat as unconfirmed until M1 manual validation. |
+| Priority | Filename                                            | Authority Domain                                                                                                                                                                                      |
+| -------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1        | `primis_full_implementation_spec_commit_plan.md`    | Commit sequencing authority; commit format; branch naming; verification commands; Definition of Done per commit unit                                                                                  |
+| 2        | `primis_mvp_build_plan_milestones.md`               | Milestone intent; health-data-model-first constraint; correct build order; M0–M5 work items and gates                                                                                                 |
+| 3        | `primis_technical_architecture_document.md`         | Technology stack decisions; monorepo layout; AWS service boundaries; environment strategy; code boundary rules                                                                                        |
+| 4        | `primis_data_model_health_metric_schema.md`         | Canonical table definitions; metric codes; enums; units; provider mappings; data sensitivity classification (S0–S4); deletion conventions; fixture redaction policy                                   |
+| 5        | `primis_scoring_algorithms_spec.md`                 | Score formulas; component baselines; data-quality confidence; deterministic-only rule — do not invent score formulas ad hoc                                                                           |
+| 6        | `primis_ai_context_engine_spec.md`                  | AI gateway abstraction; intent classification; context packets; safety rules — no raw health data in prompts or logs                                                                                  |
+| 7        | `primis_ui_ux_design_system_spec.md`                | Design tokens; navigation patterns; component library; motion; accessibility — all UI must use design tokens; no ad hoc styles                                                                        |
+| 8        | `primis_product_requirements_document.md`           | Product scope; core principles; user journeys; phase non-goals                                                                                                                                        |
+| 9        | `primis_google_health_api_feature_parity_matrix.md` | Required companion doc for provider phases; documents Google Health API surface, data types, and Fitbit field mapping. No implementation in Phase A. Treat as unconfirmed until M1 manual validation. |
 
 ### Conflict resolution
 

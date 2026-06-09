@@ -77,28 +77,28 @@ The architecture must support a private beta with only the founder and one frien
 
 ### 2.1 Goals
 
-| ID | Goal | Description |
-|---|---|---|
-| ARCH-GOAL-001 | Mature health-data foundation | Build normalized, extensible health data stores that can support Google/Fitbit, HealthKit, Health Connect, body composition, nutrition, manual inputs, scoring, AI, and future integrations. |
-| ARCH-GOAL-002 | Fast premium mobile UX | Home, Sleep, Recovery, and Activity screens must feel instant using local cache, precomputed summaries, and optimistic rendering. |
-| ARCH-GOAL-003 | Secure sensitive data handling | Encrypt health data, provider tokens, raw payloads, AI context logs, and user identity data appropriately. |
-| ARCH-GOAL-004 | AI-native but deterministic-core | Support chat, summaries, coaching, and recommendations using AI while keeping scoring, normalization, and trend detection deterministic and testable. |
-| ARCH-GOAL-005 | Provider abstraction | Add providers through connector modules without rewriting scoring, AI, or UI layers. |
-| ARCH-GOAL-006 | Low-cost private beta with public-launch path | Use AWS-native services with cost controls, but avoid fragile indie shortcuts that would block security review, app review, or OAuth verification. |
-| ARCH-GOAL-007 | Reprocessable historical data | Preserve enough raw/provider-level data to reprocess when schemas, algorithms, or scoring weights improve. |
-| ARCH-GOAL-008 | AI-agent implementation clarity | Provide explicit boundaries, schemas, APIs, jobs, and implementation sequencing to reduce AI coding-agent drift. |
+| ID            | Goal                                          | Description                                                                                                                                                                                  |
+| ------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ARCH-GOAL-001 | Mature health-data foundation                 | Build normalized, extensible health data stores that can support Google/Fitbit, HealthKit, Health Connect, body composition, nutrition, manual inputs, scoring, AI, and future integrations. |
+| ARCH-GOAL-002 | Fast premium mobile UX                        | Home, Sleep, Recovery, and Activity screens must feel instant using local cache, precomputed summaries, and optimistic rendering.                                                            |
+| ARCH-GOAL-003 | Secure sensitive data handling                | Encrypt health data, provider tokens, raw payloads, AI context logs, and user identity data appropriately.                                                                                   |
+| ARCH-GOAL-004 | AI-native but deterministic-core              | Support chat, summaries, coaching, and recommendations using AI while keeping scoring, normalization, and trend detection deterministic and testable.                                        |
+| ARCH-GOAL-005 | Provider abstraction                          | Add providers through connector modules without rewriting scoring, AI, or UI layers.                                                                                                         |
+| ARCH-GOAL-006 | Low-cost private beta with public-launch path | Use AWS-native services with cost controls, but avoid fragile indie shortcuts that would block security review, app review, or OAuth verification.                                           |
+| ARCH-GOAL-007 | Reprocessable historical data                 | Preserve enough raw/provider-level data to reprocess when schemas, algorithms, or scoring weights improve.                                                                                   |
+| ARCH-GOAL-008 | AI-agent implementation clarity               | Provide explicit boundaries, schemas, APIs, jobs, and implementation sequencing to reduce AI coding-agent drift.                                                                             |
 
 ### 2.2 Non-goals
 
-| ID | Non-goal | Rationale |
-|---|---|---|
-| ARCH-NONGOAL-001 | Medical diagnosis platform | Primis is performance/wellness software, not diagnostic or disease-treatment software. |
-| ARCH-NONGOAL-002 | Real-time wearable telemetry | Fitbit/Google provider sync is not truly real-time. Primis should show recent data after provider sync, not promise live telemetry. |
-| ARCH-NONGOAL-003 | Full MyFitnessPal clone in v1 | Food catalog, barcode scanning, serving-size normalization, and meal UX are significant scope. Basic nutrition comes first. |
-| ARCH-NONGOAL-004 | Raw-data-to-LLM scoring | LLMs must not compute core scores directly from raw data. |
-| ARCH-NONGOAL-005 | Every provider in v1 | Google Health API first; HealthKit second; Health Connect later. |
-| ARCH-NONGOAL-006 | Full custom dashboard engine across every screen in v1 | Home widgets are customizable first. Deeper page customization can come later. |
-| ARCH-NONGOAL-007 | Public launch before OAuth/security readiness | Public launch requires Google verification/security readiness and user trust controls. |
+| ID               | Non-goal                                               | Rationale                                                                                                                           |
+| ---------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| ARCH-NONGOAL-001 | Medical diagnosis platform                             | Primis is performance/wellness software, not diagnostic or disease-treatment software.                                              |
+| ARCH-NONGOAL-002 | Real-time wearable telemetry                           | Fitbit/Google provider sync is not truly real-time. Primis should show recent data after provider sync, not promise live telemetry. |
+| ARCH-NONGOAL-003 | Full MyFitnessPal clone in v1                          | Food catalog, barcode scanning, serving-size normalization, and meal UX are significant scope. Basic nutrition comes first.         |
+| ARCH-NONGOAL-004 | Raw-data-to-LLM scoring                                | LLMs must not compute core scores directly from raw data.                                                                           |
+| ARCH-NONGOAL-005 | Every provider in v1                                   | Google Health API first; HealthKit second; Health Connect later.                                                                    |
+| ARCH-NONGOAL-006 | Full custom dashboard engine across every screen in v1 | Home widgets are customizable first. Deeper page customization can come later.                                                      |
+| ARCH-NONGOAL-007 | Public launch before OAuth/security readiness          | Public launch requires Google verification/security readiness and user trust controls.                                              |
 
 ---
 
@@ -108,14 +108,14 @@ This section captures current integration constraints that affect architecture. 
 
 ### 3.1 Google Health API
 
-| ID | Constraint | Architecture implication |
-|---|---|---|
-| EXT-GOOGLE-001 | Most Google Health API scopes are restricted and public apps must complete verification before public availability. Unverified apps are limited to 100 users. | Private beta can proceed with controlled users. Public launch requires OAuth verification/security assessment readiness. |
-| EXT-GOOGLE-002 | Google Health API rate limits include project daily/minute limits and per-user minutely limits. Default documented values include 86.4M requests/day/project, 120,000 requests/min/project, and 300 requests/min/user. | Sync jobs must batch, backoff on 429, and avoid request explosions. Use incremental sync and daily summaries. |
+| ID             | Constraint                                                                                                                                                                                                                                                                          | Architecture implication                                                                                                                   |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| EXT-GOOGLE-001 | Most Google Health API scopes are restricted and public apps must complete verification before public availability. Unverified apps are limited to 100 users.                                                                                                                       | Private beta can proceed with controlled users. Public launch requires OAuth verification/security assessment readiness.                   |
+| EXT-GOOGLE-002 | Google Health API rate limits include project daily/minute limits and per-user minutely limits. Default documented values include 86.4M requests/day/project, 120,000 requests/min/project, and 300 requests/min/user.                                                              | Sync jobs must batch, backoff on 429, and avoid request explosions. Use incremental sync and daily summaries.                              |
 | EXT-GOOGLE-003 | Google Health API exposes many data types relevant to Primis, including activity, calories, steps, floors, heart rate, HRV, resting HR, oxygen saturation, respiratory rate, sleep sessions, VO2 max, hydration, nutrition, weight, body fat, ECG/irregular rhythm where available. | The health model should support these categories. Phase 0 must verify which data actually arrives from Fitbit Air / Google Health account. |
-| EXT-GOOGLE-004 | Google/Fitbit proprietary app scores such as Sleep Score, Readiness, or Cardio Load may not be exposed as first-class API objects even if visible in Google/Fitbit app. | Primis must compute its own scores from exposed raw/summary data. Provider scores may be stored if exposed later. |
-| EXT-GOOGLE-005 | Fitbit devices sync through Google/Fitbit app/cloud before third-party API access. | Primis should display provider-data freshness and not promise live second-by-second telemetry. |
-| EXT-GOOGLE-006 | Google requires prominent in-app disclosure for health/fitness data access and usage. | Onboarding/auth flows must include clear in-app disclosure before health scopes. |
+| EXT-GOOGLE-004 | Google/Fitbit proprietary app scores such as Sleep Score, Readiness, or Cardio Load may not be exposed as first-class API objects even if visible in Google/Fitbit app.                                                                                                             | Primis must compute its own scores from exposed raw/summary data. Provider scores may be stored if exposed later.                          |
+| EXT-GOOGLE-005 | Fitbit devices sync through Google/Fitbit app/cloud before third-party API access.                                                                                                                                                                                                  | Primis should display provider-data freshness and not promise live second-by-second telemetry.                                             |
+| EXT-GOOGLE-006 | Google requires prominent in-app disclosure for health/fitness data access and usage.                                                                                                                                                                                               | Onboarding/auth flows must include clear in-app disclosure before health scopes.                                                           |
 
 Primary source references:
 
@@ -125,11 +125,11 @@ Primary source references:
 
 ### 3.2 Apple HealthKit
 
-| ID | Constraint | Architecture implication |
-|---|---|---|
-| EXT-APPLE-001 | HealthKit requires explicit user authorization for each read/write data type. | iOS provider connector must request minimal scopes and handle partial permissions. |
-| EXT-APPLE-002 | HealthKit data is device-local and accessed through iOS APIs, not directly by the backend. | Mobile app must read HealthKit locally, then optionally sync normalized records to backend. |
-| EXT-APPLE-003 | Hume Health likely syncs body composition into Apple Health, but direct Hume API access is not currently assumed. | Hume integration should be via HealthKit body-composition data initially. |
+| ID            | Constraint                                                                                                        | Architecture implication                                                                    |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| EXT-APPLE-001 | HealthKit requires explicit user authorization for each read/write data type.                                     | iOS provider connector must request minimal scopes and handle partial permissions.          |
+| EXT-APPLE-002 | HealthKit data is device-local and accessed through iOS APIs, not directly by the backend.                        | Mobile app must read HealthKit locally, then optionally sync normalized records to backend. |
+| EXT-APPLE-003 | Hume Health likely syncs body composition into Apple Health, but direct Hume API access is not currently assumed. | Hume integration should be via HealthKit body-composition data initially.                   |
 
 Primary source references:
 
@@ -138,11 +138,11 @@ Primary source references:
 
 ### 3.3 Android Health Connect
 
-| ID | Constraint | Architecture implication |
-|---|---|---|
-| EXT-HC-001 | Health Connect requires declared permissions and user-granted permission per record/data type. | Android connector must be permission-aware and handle partial availability. |
-| EXT-HC-002 | By default, apps can read Health Connect data only up to 30 days before permission grant unless requesting historical read permission. | Android phase must include permission planning for historical data. |
-| EXT-HC-003 | Health Connect imposes rate limits and encourages efficient reads. | Use date-windowed incremental reads and local caching. |
+| ID         | Constraint                                                                                                                             | Architecture implication                                                    |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| EXT-HC-001 | Health Connect requires declared permissions and user-granted permission per record/data type.                                         | Android connector must be permission-aware and handle partial availability. |
+| EXT-HC-002 | By default, apps can read Health Connect data only up to 30 days before permission grant unless requesting historical read permission. | Android phase must include permission planning for historical data.         |
+| EXT-HC-003 | Health Connect imposes rate limits and encourages efficient reads.                                                                     | Use date-windowed incremental reads and local caching.                      |
 
 Primary source references:
 
@@ -152,10 +152,10 @@ Primary source references:
 
 ### 3.4 Expo / React Native
 
-| ID | Constraint | Architecture implication |
-|---|---|---|
+| ID         | Constraint                                                                                                  | Architecture implication                                                                                                      |
+| ---------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | EXT-RN-001 | Expo Go cannot access arbitrary custom native code; development builds can include custom native libraries. | Primis MUST use Expo Dev Client / EAS development builds, not Expo Go, once HealthKit/Health Connect/native modules are used. |
-| EXT-RN-002 | Expo supports custom native code through libraries with native code or Expo Modules API. | HealthKit/Health Connect connectors can be implemented via maintained libraries or local native modules. |
+| EXT-RN-002 | Expo supports custom native code through libraries with native code or Expo Modules API.                    | HealthKit/Health Connect connectors can be implemented via maintained libraries or local native modules.                      |
 
 Primary source references:
 
@@ -164,10 +164,10 @@ Primary source references:
 
 ### 3.5 AWS Cognito
 
-| ID | Constraint | Architecture implication |
-|---|---|---|
-| EXT-AWS-AUTH-001 | Cognito user pools can integrate with social identity providers including Google, Facebook, Amazon, and Apple. | Primis can support email/password plus Google, Apple, Facebook sign-in through Cognito. |
-| EXT-AWS-AUTH-002 | App authentication is separate from Google Health authorization. | A user signing in with Google does not automatically grant Google Health data scopes. Separate provider-connection flows are required. |
+| ID               | Constraint                                                                                                     | Architecture implication                                                                                                               |
+| ---------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| EXT-AWS-AUTH-001 | Cognito user pools can integrate with social identity providers including Google, Facebook, Amazon, and Apple. | Primis can support email/password plus Google, Apple, Facebook sign-in through Cognito.                                                |
+| EXT-AWS-AUTH-002 | App authentication is separate from Google Health authorization.                                               | A user signing in with Google does not automatically grant Google Health data scopes. Separate provider-connection flows are required. |
 
 Primary source reference:
 
@@ -175,10 +175,10 @@ Primary source reference:
 
 ### 3.6 FoodData Central / MyFitnessPal
 
-| ID | Constraint | Architecture implication |
-|---|---|---|
+| ID                | Constraint                                                                       | Architecture implication                                                                                             |
+| ----------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | EXT-NUTRITION-001 | USDA FoodData Central provides downloadable datasets and public-domain/CC0 data. | Primis can bulk-import FoodData Central into its own food catalog rather than making live API calls for every query. |
-| EXT-NUTRITION-002 | MyFitnessPal API is private and available only to approved developers. | MyFitnessPal must not be treated as a v1 dependency. Do not scrape or use unofficial integrations. |
+| EXT-NUTRITION-002 | MyFitnessPal API is private and available only to approved developers.           | MyFitnessPal must not be treated as a v1 dependency. Do not scrape or use unofficial integrations.                   |
 
 Primary source references:
 
@@ -285,17 +285,17 @@ Use serverless/on-demand where possible for private beta, but choose components 
 
 ### 5.1 Actors
 
-| Actor | Description |
-|---|---|
-| User | Primis mobile user who connects accounts, views insights, logs manual inputs, chats with AI. |
-| Mobile App | React Native app running on iOS initially, Android later. |
-| Primis Backend | AWS-hosted APIs, jobs, processing pipelines, AI gateway, storage. |
-| Google Health API | Primary health-data provider for Google/Fitbit data. |
-| Apple HealthKit | iOS-local health data repository used for Apple Health/Hume enrichment. |
-| Health Connect | Android health aggregation layer for future Android support. |
-| AI Providers | OpenAI first; Anthropic and future models via abstraction. |
-| FoodData Central | Nutrition catalog source for v1.5 food database import. |
-| App Store / Play Store | Distribution and review platforms. |
+| Actor                  | Description                                                                                  |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| User                   | Primis mobile user who connects accounts, views insights, logs manual inputs, chats with AI. |
+| Mobile App             | React Native app running on iOS initially, Android later.                                    |
+| Primis Backend         | AWS-hosted APIs, jobs, processing pipelines, AI gateway, storage.                            |
+| Google Health API      | Primary health-data provider for Google/Fitbit data.                                         |
+| Apple HealthKit        | iOS-local health data repository used for Apple Health/Hume enrichment.                      |
+| Health Connect         | Android health aggregation layer for future Android support.                                 |
+| AI Providers           | OpenAI first; Anthropic and future models via abstraction.                                   |
+| FoodData Central       | Nutrition catalog source for v1.5 food database import.                                      |
+| App Store / Play Store | Distribution and review platforms.                                                           |
 
 ### 5.2 C4-style system context diagram
 
@@ -371,39 +371,39 @@ flowchart TD
 
 ### 6.1 Mobile stack
 
-| Layer | Decision | Notes |
-|---|---|---|
-| Framework | React Native | Chosen for iOS-first with Android future and user’s React background. |
-| Expo mode | Expo Dev Client / EAS builds | Required for native modules; Expo Go is insufficient. |
-| Navigation | Expo Router or React Navigation | Use one; avoid mixing. Expo Router preferred if using file-based app structure. |
-| Animation | React Native Reanimated | Required for premium transitions/microinteractions. |
-| Charts/advanced rendering | React Native Skia | Use for high-performance custom charts and visualizations. |
-| Gestures | React Native Gesture Handler | Use for interactive cards/widgets/charts. |
-| Server state | TanStack Query | Caching, stale-while-revalidate, retries, optimistic updates. |
-| Local DB | SQLite / Expo SQLite or WatermelonDB | Store dashboard snapshots, chart series, manual drafts, recent AI summaries. |
-| Fast key-value | MMKV or SecureStore/MMKV split | MMKV for UI settings/cache flags; SecureStore/Keychain for device-local sensitive tokens if needed. |
-| Forms | React Hook Form + Zod | Manual inputs, onboarding, settings. |
-| Validation | Zod shared schemas | Align mobile/backend DTOs. |
-| Error tracking | Sentry | Add in Phase 1/2. |
-| Analytics | Minimal privacy-safe product analytics | Do not log health values. Track feature usage only. |
+| Layer                     | Decision                               | Notes                                                                                               |
+| ------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Framework                 | React Native                           | Chosen for iOS-first with Android future and user’s React background.                               |
+| Expo mode                 | Expo Dev Client / EAS builds           | Required for native modules; Expo Go is insufficient.                                               |
+| Navigation                | Expo Router or React Navigation        | Use one; avoid mixing. Expo Router preferred if using file-based app structure.                     |
+| Animation                 | React Native Reanimated                | Required for premium transitions/microinteractions.                                                 |
+| Charts/advanced rendering | React Native Skia                      | Use for high-performance custom charts and visualizations.                                          |
+| Gestures                  | React Native Gesture Handler           | Use for interactive cards/widgets/charts.                                                           |
+| Server state              | TanStack Query                         | Caching, stale-while-revalidate, retries, optimistic updates.                                       |
+| Local DB                  | SQLite / Expo SQLite or WatermelonDB   | Store dashboard snapshots, chart series, manual drafts, recent AI summaries.                        |
+| Fast key-value            | MMKV or SecureStore/MMKV split         | MMKV for UI settings/cache flags; SecureStore/Keychain for device-local sensitive tokens if needed. |
+| Forms                     | React Hook Form + Zod                  | Manual inputs, onboarding, settings.                                                                |
+| Validation                | Zod shared schemas                     | Align mobile/backend DTOs.                                                                          |
+| Error tracking            | Sentry                                 | Add in Phase 1/2.                                                                                   |
+| Analytics                 | Minimal privacy-safe product analytics | Do not log health values. Track feature usage only.                                                 |
 
 ### 6.2 Backend stack
 
-| Layer | Decision | Notes |
-|---|---|---|
-| Cloud | AWS | Mature stack as requested. |
-| Auth | Cognito User Pools | Email/password + Google + Apple + Facebook login. |
-| API edge | API Gateway HTTP API | Front door for mobile app. |
-| Compute | Lambda first; ECS/Fargate for heavier jobs | Keep costs low while preserving maturity. |
-| Primary DB | RDS Postgres | Relational model, JSONB flexibility, analytics queries, strong correctness. |
-| Raw data | S3 | Raw provider payload archive, encrypted with KMS, lifecycle policies. |
-| Queues | SQS + DLQs | Provider sync, normalization, scoring, AI summary jobs. |
-| Scheduling/events | EventBridge | Scheduled syncs and event bus patterns. |
-| Secrets | Secrets Manager | Provider client secrets, OAuth tokens where appropriate, model API keys. |
-| Encryption | KMS | CMKs for S3/RDS/Secrets where appropriate. |
-| Observability | CloudWatch, X-Ray, structured logs | Add dashboards/alarms. |
-| IaC | AWS CDK or Terraform | CDK recommended if using TypeScript monorepo. |
-| CI/CD | GitHub Actions + AWS deploy roles | OIDC to AWS, no long-lived AWS keys in GitHub. |
+| Layer             | Decision                                   | Notes                                                                       |
+| ----------------- | ------------------------------------------ | --------------------------------------------------------------------------- |
+| Cloud             | AWS                                        | Mature stack as requested.                                                  |
+| Auth              | Cognito User Pools                         | Email/password + Google + Apple + Facebook login.                           |
+| API edge          | API Gateway HTTP API                       | Front door for mobile app.                                                  |
+| Compute           | Lambda first; ECS/Fargate for heavier jobs | Keep costs low while preserving maturity.                                   |
+| Primary DB        | RDS Postgres                               | Relational model, JSONB flexibility, analytics queries, strong correctness. |
+| Raw data          | S3                                         | Raw provider payload archive, encrypted with KMS, lifecycle policies.       |
+| Queues            | SQS + DLQs                                 | Provider sync, normalization, scoring, AI summary jobs.                     |
+| Scheduling/events | EventBridge                                | Scheduled syncs and event bus patterns.                                     |
+| Secrets           | Secrets Manager                            | Provider client secrets, OAuth tokens where appropriate, model API keys.    |
+| Encryption        | KMS                                        | CMKs for S3/RDS/Secrets where appropriate.                                  |
+| Observability     | CloudWatch, X-Ray, structured logs         | Add dashboards/alarms.                                                      |
+| IaC               | AWS CDK or Terraform                       | CDK recommended if using TypeScript monorepo.                               |
+| CI/CD             | GitHub Actions + AWS deploy roles          | OIDC to AWS, no long-lived AWS keys in GitHub.                              |
 
 ### 6.3 Backend language decision
 
@@ -482,16 +482,16 @@ packages/shared-types/package.json
 
 ### 7.3 Code boundary rules
 
-| ID | Rule |
-|---|---|
-| ARCH-CODE-001 | Mobile app MUST NOT contain provider API client secrets. |
-| ARCH-CODE-002 | Mobile app MAY call HealthKit/Health Connect locally because those are device permission APIs. |
+| ID            | Rule                                                                                                              |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- |
+| ARCH-CODE-001 | Mobile app MUST NOT contain provider API client secrets.                                                          |
+| ARCH-CODE-002 | Mobile app MAY call HealthKit/Health Connect locally because those are device permission APIs.                    |
 | ARCH-CODE-003 | Google Health API access MUST run through backend provider connector, not direct mobile calls for protected sync. |
-| ARCH-CODE-004 | Scoring functions MUST be deterministic and unit tested. |
-| ARCH-CODE-005 | AI prompts MUST be generated by backend AI context engine, not scattered in mobile components. |
-| ARCH-CODE-006 | Shared DTO schemas MUST live in shared packages and be imported by both mobile/backend where practical. |
-| ARCH-CODE-007 | Database writes MUST pass through repository/service layers; avoid raw SQL scattered through handlers. |
-| ARCH-CODE-008 | Health metric definitions MUST be centralized, not hardcoded in UI screens. |
+| ARCH-CODE-004 | Scoring functions MUST be deterministic and unit tested.                                                          |
+| ARCH-CODE-005 | AI prompts MUST be generated by backend AI context engine, not scattered in mobile components.                    |
+| ARCH-CODE-006 | Shared DTO schemas MUST live in shared packages and be imported by both mobile/backend where practical.           |
+| ARCH-CODE-007 | Database writes MUST pass through repository/service layers; avoid raw SQL scattered through handlers.            |
+| ARCH-CODE-008 | Health metric definitions MUST be centralized, not hardcoded in UI screens.                                       |
 
 ---
 
@@ -499,12 +499,12 @@ packages/shared-types/package.json
 
 ### 8.1 Environments
 
-| Environment | Purpose | Notes |
-|---|---|---|
-| local | Local mobile/backend development | Docker Postgres, local env vars, mocked providers where needed. |
-| dev | Cloud development sandbox | Real AWS resources with low-cost settings; test users only. |
-| staging | Pre-release validation | Mirrors prod security patterns; used for app review/testing. |
-| prod | Public/private production | Real user data, strict IAM, alarms, backups. |
+| Environment | Purpose                          | Notes                                                           |
+| ----------- | -------------------------------- | --------------------------------------------------------------- |
+| local       | Local mobile/backend development | Docker Postgres, local env vars, mocked providers where needed. |
+| dev         | Cloud development sandbox        | Real AWS resources with low-cost settings; test users only.     |
+| staging     | Pre-release validation           | Mirrors prod security patterns; used for app review/testing.    |
+| prod        | Public/private production        | Real user data, strict IAM, alarms, backups.                    |
 
 ### 8.2 Environment isolation
 
@@ -593,12 +593,12 @@ provider_oauth_tokens
 
 ### 9.3 User identity requirements
 
-| ID | Requirement |
-|---|---|
-| ARCH-AUTH-001 | `users.id` MUST be an internal UUID/ULID independent of Cognito subject. |
-| ARCH-AUTH-002 | Store Cognito `sub` as an auth identity mapping, not as the primary internal health-data key. |
-| ARCH-AUTH-003 | Provider connections MUST be linked to internal `user_id`. |
-| ARCH-AUTH-004 | A user MAY have multiple auth identities later. |
+| ID            | Requirement                                                                                                                                   |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| ARCH-AUTH-001 | `users.id` MUST be an internal UUID/ULID independent of Cognito subject.                                                                      |
+| ARCH-AUTH-002 | Store Cognito `sub` as an auth identity mapping, not as the primary internal health-data key.                                                 |
+| ARCH-AUTH-003 | Provider connections MUST be linked to internal `user_id`.                                                                                    |
+| ARCH-AUTH-004 | A user MAY have multiple auth identities later.                                                                                               |
 | ARCH-AUTH-005 | Account deletion MUST delete or schedule deletion of provider tokens, raw payloads, normalized health data, AI summaries, and manual entries. |
 
 ### 9.4 Session/security expectations
@@ -620,7 +620,10 @@ Every provider connector should implement a common interface.
 interface HealthProviderConnector {
   providerKey: ProviderKey;
   startAuthorization(userId: string, requestedScopes: string[]): Promise<AuthStartResult>;
-  completeAuthorization(userId: string, callbackParams: AuthCallbackParams): Promise<ProviderConnection>;
+  completeAuthorization(
+    userId: string,
+    callbackParams: AuthCallbackParams,
+  ): Promise<ProviderConnection>;
   refreshConnection(connectionId: string): Promise<void>;
   syncWindow(connectionId: string, window: SyncWindow): Promise<ProviderSyncResult>;
   revokeConnection(connectionId: string): Promise<void>;
@@ -682,21 +685,21 @@ The Google Health connector MUST:
 
 Before building production score dependencies, implement a spike that verifies:
 
-| Metric family | Required validation |
-|---|---|
-| sleep | sessions, stages, start/end, wake periods, availability latency |
-| HRV | daily HRV and/or time-series availability |
-| resting HR | daily resting HR availability |
-| heart rate | time-series granularity availability |
-| respiratory rate | daily/sleep summary availability |
-| SpO2 | daily/sleep availability |
-| steps | daily and interval availability |
-| calories | active, resting/total availability |
-| workouts | exercise sessions and details |
-| floors | availability from Fitbit Air |
-| VO2 max | availability |
-| weight/body fat | availability if user has scale/provider data |
-| provider scores | validate whether Google exposes Sleep Score, Readiness, Cardio Load as API fields |
+| Metric family    | Required validation                                                               |
+| ---------------- | --------------------------------------------------------------------------------- |
+| sleep            | sessions, stages, start/end, wake periods, availability latency                   |
+| HRV              | daily HRV and/or time-series availability                                         |
+| resting HR       | daily resting HR availability                                                     |
+| heart rate       | time-series granularity availability                                              |
+| respiratory rate | daily/sleep summary availability                                                  |
+| SpO2             | daily/sleep availability                                                          |
+| steps            | daily and interval availability                                                   |
+| calories         | active, resting/total availability                                                |
+| workouts         | exercise sessions and details                                                     |
+| floors           | availability from Fitbit Air                                                      |
+| VO2 max          | availability                                                                      |
+| weight/body fat  | availability if user has scale/provider data                                      |
+| provider scores  | validate whether Google exposes Sleep Score, Readiness, Cardio Load as API fields |
 
 The spike output MUST be a data availability report saved under `docs/research/google-health-data-availability.md`.
 
@@ -725,13 +728,13 @@ sequenceDiagram
 
 #### 10.3.4 Sync window strategy
 
-| Sync type | Window | Purpose |
-|---|---|---|
-| initial backfill | as much as provider allows/practical | Build history for baselines. |
-| daily incremental | last 3 days | Catch late-arriving/updated sleep and vitals data. |
-| recent refresh | last 24 hours | Fast dashboard freshness. |
-| weekly reconciliation | last 14-30 days | Fix provider corrections and delayed data. |
-| manual refresh | user-triggered recent window | Let user refresh visible dashboard. |
+| Sync type             | Window                               | Purpose                                            |
+| --------------------- | ------------------------------------ | -------------------------------------------------- |
+| initial backfill      | as much as provider allows/practical | Build history for baselines.                       |
+| daily incremental     | last 3 days                          | Catch late-arriving/updated sleep and vitals data. |
+| recent refresh        | last 24 hours                        | Fast dashboard freshness.                          |
+| weekly reconciliation | last 14-30 days                      | Fix provider corrections and delayed data.         |
+| manual refresh        | user-triggered recent window         | Let user refresh visible dashboard.                |
 
 Implementation note: provider APIs may have specific pagination/date limits. Connector must adapt by splitting windows into safe chunks.
 
@@ -760,14 +763,14 @@ sequenceDiagram
 
 Requirements:
 
-| ID | Requirement |
-|---|---|
-| ARCH-HK-001 | HealthKit integration MUST request permissions per data type and handle partial permissions. |
-| ARCH-HK-002 | HealthKit data MUST be tagged with `provider_key=apple_healthkit` and source metadata. |
+| ID          | Requirement                                                                                                                                   |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| ARCH-HK-001 | HealthKit integration MUST request permissions per data type and handle partial permissions.                                                  |
+| ARCH-HK-002 | HealthKit data MUST be tagged with `provider_key=apple_healthkit` and source metadata.                                                        |
 | ARCH-HK-003 | Hume-via-Apple-Health body composition data MUST be represented as HealthKit-sourced body metric records unless direct Hume API exists later. |
-| ARCH-HK-004 | HealthKit upload batches MUST be idempotent. |
-| ARCH-HK-005 | HealthKit read jobs MUST not freeze UI; they run in background or user-triggered flows. |
-| ARCH-HK-006 | If identical metrics exist from Google and HealthKit, source priority/conflict rules must apply. |
+| ARCH-HK-004 | HealthKit upload batches MUST be idempotent.                                                                                                  |
+| ARCH-HK-005 | HealthKit read jobs MUST not freeze UI; they run in background or user-triggered flows.                                                       |
+| ARCH-HK-006 | If identical metrics exist from Google and HealthKit, source priority/conflict rules must apply.                                              |
 
 ### 10.5 Android Health Connect connector
 
@@ -775,12 +778,12 @@ Phase 5 or later unless accelerated.
 
 Requirements:
 
-| ID | Requirement |
-|---|---|
-| ARCH-HC-001 | Use Health Connect permissions per data type. |
+| ID          | Requirement                                                              |
+| ----------- | ------------------------------------------------------------------------ |
+| ARCH-HC-001 | Use Health Connect permissions per data type.                            |
 | ARCH-HC-002 | Plan for historical permission if reading beyond default history window. |
-| ARCH-HC-003 | Use local incremental reads and upload normalized batches to backend. |
-| ARCH-HC-004 | Handle devices without Health Connect availability gracefully. |
+| ARCH-HC-003 | Use local incremental reads and upload normalized batches to backend.    |
+| ARCH-HC-004 | Handle devices without Health Connect availability gracefully.           |
 
 ### 10.6 Hume Health path
 
@@ -800,18 +803,18 @@ Detailed schema belongs in the Health Data Model document. This section defines 
 
 ### 11.1 Data layers
 
-| Layer | Storage | Purpose |
-|---|---|---|
-| Provider raw data | S3 | Preserve provider payloads for replay/reprocessing/audit. |
-| Provider source records | Postgres | Provider-specific metadata, cursors, source IDs, raw references. |
-| Normalized metric points | Postgres | Unified time-series metric records. |
-| Sessions | Postgres | Sleep sessions, workouts, future meditation/sauna/etc. |
-| Daily summaries | Postgres | Precomputed day-level aggregates. |
-| Baselines | Postgres | Rolling personal baseline values. |
-| Score snapshots | Postgres | Deterministic score outputs by day/session. |
-| Insight candidates | Postgres | Deterministically generated observations. |
-| AI summaries/conversations | Postgres + optional S3 for larger logs | AI outputs and conversation state. |
-| Mobile cache | SQLite/MMKV | Fast local rendering and offline-friendly recent state. |
+| Layer                      | Storage                                | Purpose                                                          |
+| -------------------------- | -------------------------------------- | ---------------------------------------------------------------- |
+| Provider raw data          | S3                                     | Preserve provider payloads for replay/reprocessing/audit.        |
+| Provider source records    | Postgres                               | Provider-specific metadata, cursors, source IDs, raw references. |
+| Normalized metric points   | Postgres                               | Unified time-series metric records.                              |
+| Sessions                   | Postgres                               | Sleep sessions, workouts, future meditation/sauna/etc.           |
+| Daily summaries            | Postgres                               | Precomputed day-level aggregates.                                |
+| Baselines                  | Postgres                               | Rolling personal baseline values.                                |
+| Score snapshots            | Postgres                               | Deterministic score outputs by day/session.                      |
+| Insight candidates         | Postgres                               | Deterministically generated observations.                        |
+| AI summaries/conversations | Postgres + optional S3 for larger logs | AI outputs and conversation state.                               |
+| Mobile cache               | SQLite/MMKV                            | Fast local rendering and offline-friendly recent state.          |
 
 ### 11.2 Core data entities
 
@@ -879,12 +882,12 @@ Security:
 
 ### 11.4 Data retention defaults
 
-| User segment | Raw payload retention | Normalized data retention | Notes |
-|---|---|---|---|
-| founder/dev | indefinite unless deleted | indefinite unless deleted | Best for experimentation/reprocessing. |
-| private beta | indefinite initially if cost acceptable | indefinite unless deleted | Add retention controls before broader launch. |
-| future public default | 30-180 days raw, longer normalized summaries | indefinite or user-configurable | Final default TBD. |
-| user deletes account | delete/schedule deletion | delete/schedule deletion | Must include provider tokens and AI records. |
+| User segment          | Raw payload retention                        | Normalized data retention       | Notes                                         |
+| --------------------- | -------------------------------------------- | ------------------------------- | --------------------------------------------- |
+| founder/dev           | indefinite unless deleted                    | indefinite unless deleted       | Best for experimentation/reprocessing.        |
+| private beta          | indefinite initially if cost acceptable      | indefinite unless deleted       | Add retention controls before broader launch. |
+| future public default | 30-180 days raw, longer normalized summaries | indefinite or user-configurable | Final default TBD.                            |
+| user deletes account  | delete/schedule deletion                     | delete/schedule deletion        | Must include provider tokens and AI records.  |
 
 ### 11.5 Source conflict resolution
 
@@ -1081,14 +1084,14 @@ Example home response:
 
 ### 12.5 API performance requirements
 
-| Endpoint category | Target |
-|---|---|
-| home dashboard cached response | p95 < 300 ms backend time |
-| score summary response | p95 < 400 ms backend time |
-| chart-ready trend response | p95 < 600 ms backend time |
-| AI chat first token | best effort; should not block objective UI |
-| manual input create | p95 < 300 ms backend time |
-| provider sync trigger | returns job accepted quickly; does not run full sync inline |
+| Endpoint category              | Target                                                      |
+| ------------------------------ | ----------------------------------------------------------- |
+| home dashboard cached response | p95 < 300 ms backend time                                   |
+| score summary response         | p95 < 400 ms backend time                                   |
+| chart-ready trend response     | p95 < 600 ms backend time                                   |
+| AI chat first token            | best effort; should not block objective UI                  |
+| manual input create            | p95 < 300 ms backend time                                   |
+| provider sync trigger          | returns job accepted quickly; does not run full sync inline |
 
 ---
 
@@ -1120,15 +1123,15 @@ user.preferences.updated
 
 ### 13.2 Queue strategy
 
-| Queue | Purpose | DLQ required |
-|---|---|---|
-| `provider-sync-queue` | Google/other provider sync jobs | yes |
-| `normalization-queue` | Normalize raw provider payloads if separated | yes |
-| `scoring-queue` | Recompute summaries/scores for affected windows | yes |
-| `insight-queue` | Generate deterministic insights/correlations | yes |
-| `ai-summary-queue` | Generate async AI summaries | yes |
-| `food-import-queue` | FoodData Central import batches | yes |
-| `deletion-queue` | Account/data deletion workflows | yes, with strict alerting |
+| Queue                 | Purpose                                         | DLQ required              |
+| --------------------- | ----------------------------------------------- | ------------------------- |
+| `provider-sync-queue` | Google/other provider sync jobs                 | yes                       |
+| `normalization-queue` | Normalize raw provider payloads if separated    | yes                       |
+| `scoring-queue`       | Recompute summaries/scores for affected windows | yes                       |
+| `insight-queue`       | Generate deterministic insights/correlations    | yes                       |
+| `ai-summary-queue`    | Generate async AI summaries                     | yes                       |
+| `food-import-queue`   | FoodData Central import batches                 | yes                       |
+| `deletion-queue`      | Account/data deletion workflows                 | yes, with strict alerting |
 
 ### 13.3 Job payload requirements
 
@@ -1150,16 +1153,16 @@ Do not include raw provider OAuth tokens in queue messages. Use token references
 
 ### 13.4 Retry and DLQ policy
 
-| Failure type | Strategy |
-|---|---|
-| provider 429/rate limit | exponential backoff + retry later |
-| provider 401/expired token | refresh token; if fails mark connection action-required |
-| provider 403/scope revoked | mark permission issue; notify app |
-| transient AWS/network failure | retry with backoff |
-| schema parsing error | store raw payload ref; mark normalization failed; alert if repeated |
-| deterministic score error | retry once; then DLQ with affected date/user |
-| AI provider error | fallback provider if configured; otherwise degraded summary unavailable |
-| deletion failure | retry with high priority and alert |
+| Failure type                  | Strategy                                                                |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| provider 429/rate limit       | exponential backoff + retry later                                       |
+| provider 401/expired token    | refresh token; if fails mark connection action-required                 |
+| provider 403/scope revoked    | mark permission issue; notify app                                       |
+| transient AWS/network failure | retry with backoff                                                      |
+| schema parsing error          | store raw payload ref; mark normalization failed; alert if repeated     |
+| deterministic score error     | retry once; then DLQ with affected date/user                            |
+| AI provider error             | fallback provider if configured; otherwise degraded summary unavailable |
+| deletion failure              | retry with high priority and alert                                      |
 
 ---
 
@@ -1187,14 +1190,14 @@ flowchart TD
 
 ### 14.2 Ingestion rules
 
-| ID | Rule |
-|---|---|
-| ARCH-INGEST-001 | Raw provider payloads SHOULD be stored before normalization where cost allows. |
-| ARCH-INGEST-002 | Every normalized record MUST retain source metadata. |
+| ID              | Rule                                                                                                                |
+| --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| ARCH-INGEST-001 | Raw provider payloads SHOULD be stored before normalization where cost allows.                                      |
+| ARCH-INGEST-002 | Every normalized record MUST retain source metadata.                                                                |
 | ARCH-INGEST-003 | Provider timestamps MUST be normalized to UTC while preserving local-date interpretation for sleep/daily summaries. |
-| ARCH-INGEST-004 | Unit conversion MUST happen in normalization layer, not UI layer. |
-| ARCH-INGEST-005 | Duplicate provider records MUST be detected by source IDs, time windows, and metric identity. |
-| ARCH-INGEST-006 | Late-arriving/corrected data MUST trigger recomputation for affected days/sessions. |
+| ARCH-INGEST-004 | Unit conversion MUST happen in normalization layer, not UI layer.                                                   |
+| ARCH-INGEST-005 | Duplicate provider records MUST be detected by source IDs, time windows, and metric identity.                       |
+| ARCH-INGEST-006 | Late-arriving/corrected data MUST trigger recomputation for affected days/sessions.                                 |
 
 ### 14.3 Summary recomputation rules
 
@@ -1304,7 +1307,15 @@ interface InsightCandidate {
   insightId: string;
   userId: string;
   dateRange: { start: string; end: string };
-  category: 'sleep' | 'recovery' | 'activity' | 'nutrition' | 'vitals' | 'manual_input' | 'body' | 'bedtime';
+  category:
+    | 'sleep'
+    | 'recovery'
+    | 'activity'
+    | 'nutrition'
+    | 'vitals'
+    | 'manual_input'
+    | 'body'
+    | 'bedtime';
   severity: 'info' | 'positive' | 'watch' | 'important';
   confidence: 'low' | 'medium' | 'high';
   titleKey: string;
@@ -1406,15 +1417,15 @@ interface BedtimePlanOutput {
 
 ### 16.6 Rules
 
-| ID | Requirement |
-|---|---|
-| ARCH-BEDTIME-001 | Bedtime Planner calculation MUST be deterministic. |
-| ARCH-BEDTIME-002 | AI MAY explain the recommendation but MUST NOT be the only planner. |
-| ARCH-BEDTIME-003 | Planner MUST account for historical sleep latency. |
-| ARCH-BEDTIME-004 | Planner SHOULD recommend windows, not fake-precise single times. |
-| ARCH-BEDTIME-005 | Planner SHOULD personalize sleep-cycle assumptions over time. |
-| ARCH-BEDTIME-006 | Planner MUST handle insufficient data with sensible defaults and disclose uncertainty in rationale. |
-| ARCH-BEDTIME-007 | Planner SHOULD bias earlier if sleep debt/recovery need is high. |
+| ID               | Requirement                                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------------------------- |
+| ARCH-BEDTIME-001 | Bedtime Planner calculation MUST be deterministic.                                                    |
+| ARCH-BEDTIME-002 | AI MAY explain the recommendation but MUST NOT be the only planner.                                   |
+| ARCH-BEDTIME-003 | Planner MUST account for historical sleep latency.                                                    |
+| ARCH-BEDTIME-004 | Planner SHOULD recommend windows, not fake-precise single times.                                      |
+| ARCH-BEDTIME-005 | Planner SHOULD personalize sleep-cycle assumptions over time.                                         |
+| ARCH-BEDTIME-006 | Planner MUST handle insufficient data with sensible defaults and disclose uncertainty in rationale.   |
+| ARCH-BEDTIME-007 | Planner SHOULD bias earlier if sleep debt/recovery need is high.                                      |
 | ARCH-BEDTIME-008 | Planner SHOULD avoid unrealistic circadian shifts unless user explicitly wants aggressive adjustment. |
 
 ---
@@ -1445,16 +1456,16 @@ user question/event
 
 ### 17.2 AI surfaces
 
-| Surface | Sync/async | Notes |
-|---|---|---|
-| AI chat | interactive | User asks health/performance questions. |
-| Sleep summary | sync or async | Generated from sleep session summary and score drivers. |
-| Workout summary | sync or async | Generated from workout summary/training load. |
-| Recovery explanation | sync/cached | Should be available quickly from score drivers. |
-| Today recommendation | cached/async | Uses latest scores and goals. |
-| Nutrition coaching | interactive/cached | Uses nutrition entries/preferences. |
-| Weekly review | async | Precomputed, not generated while user waits. |
-| Bedtime rationale | sync small context | Explains deterministic planner output. |
+| Surface              | Sync/async         | Notes                                                   |
+| -------------------- | ------------------ | ------------------------------------------------------- |
+| AI chat              | interactive        | User asks health/performance questions.                 |
+| Sleep summary        | sync or async      | Generated from sleep session summary and score drivers. |
+| Workout summary      | sync or async      | Generated from workout summary/training load.           |
+| Recovery explanation | sync/cached        | Should be available quickly from score drivers.         |
+| Today recommendation | cached/async       | Uses latest scores and goals.                           |
+| Nutrition coaching   | interactive/cached | Uses nutrition entries/preferences.                     |
+| Weekly review        | async              | Precomputed, not generated while user waits.            |
+| Bedtime rationale    | sync small context | Explains deterministic planner output.                  |
 
 ### 17.3 AI gateway
 
@@ -1483,12 +1494,12 @@ interface PrimisAIService {
 
 ### 17.4 Initial provider strategy
 
-| Phase | Provider approach |
-|---|---|
-| Phase 0/1 | OpenAI first, hardcoded through abstraction interface. |
-| Phase 2 | Add Anthropic provider implementation. |
-| Phase 3+ | Add routing by task type, cost, latency, quality. |
-| Future | Consider AWS Bedrock if enterprise/compliance or account consolidation becomes useful. |
+| Phase     | Provider approach                                                                      |
+| --------- | -------------------------------------------------------------------------------------- |
+| Phase 0/1 | OpenAI first, hardcoded through abstraction interface.                                 |
+| Phase 2   | Add Anthropic provider implementation.                                                 |
+| Phase 3+  | Add routing by task type, cost, latency, quality.                                      |
+| Future    | Consider AWS Bedrock if enterprise/compliance or account consolidation becomes useful. |
 
 ### 17.5 AI context packet
 
@@ -1526,16 +1537,16 @@ Example:
 
 ### 17.6 Prompt governance
 
-| ID | Requirement |
-|---|---|
-| ARCH-AI-001 | Prompts MUST be stored in backend code/config, not mobile UI components. |
-| ARCH-AI-002 | Every AI response MUST know its task type. |
-| ARCH-AI-003 | AI MUST receive coach/summary tone as a style variable, not as a license to change facts. |
-| ARCH-AI-004 | AI MUST avoid medical diagnosis/treatment claims. |
-| ARCH-AI-005 | AI SHOULD cite internal metrics/factors in user-friendly language. |
+| ID          | Requirement                                                                                           |
+| ----------- | ----------------------------------------------------------------------------------------------------- |
+| ARCH-AI-001 | Prompts MUST be stored in backend code/config, not mobile UI components.                              |
+| ARCH-AI-002 | Every AI response MUST know its task type.                                                            |
+| ARCH-AI-003 | AI MUST receive coach/summary tone as a style variable, not as a license to change facts.             |
+| ARCH-AI-004 | AI MUST avoid medical diagnosis/treatment claims.                                                     |
+| ARCH-AI-005 | AI SHOULD cite internal metrics/factors in user-friendly language.                                    |
 | ARCH-AI-006 | AI MUST not receive all raw history unless a specialized export/research task explicitly requires it. |
-| ARCH-AI-007 | AI output SHOULD be cached when generated from static data, e.g., yesterday’s sleep. |
-| ARCH-AI-008 | AI failures MUST degrade gracefully; objective data remains available. |
+| ARCH-AI-007 | AI output SHOULD be cached when generated from static data, e.g., yesterday’s sleep.                  |
+| ARCH-AI-008 | AI failures MUST degrade gracefully; objective data remains available.                                |
 
 ### 17.7 AI conversation memory
 
@@ -1553,13 +1564,13 @@ Do not store unnecessarily large raw prompts with raw health data unless require
 
 ### 17.8 AI latency strategy
 
-| Use case | Strategy |
-|---|---|
-| chat | streaming if supported; retrieve context first; show thinking/loading UI. |
-| sleep summary | precompute after sleep session summary changes. |
-| recovery explanation | deterministic explanation first; AI-enhanced text optional/cached. |
-| today recommendation | cache and refresh when scores/manual inputs change. |
-| weekly review | async scheduled generation. |
+| Use case             | Strategy                                                                  |
+| -------------------- | ------------------------------------------------------------------------- |
+| chat                 | streaming if supported; retrieve context first; show thinking/loading UI. |
+| sleep summary        | precompute after sleep session summary changes.                           |
+| recovery explanation | deterministic explanation first; AI-enhanced text optional/cached.        |
+| today recommendation | cache and refresh when scores/manual inputs change.                       |
+| weekly review        | async scheduled generation.                                               |
 
 ---
 
@@ -1614,30 +1625,30 @@ apps/mobile/src/
 
 ### 18.3 Mobile rendering rules
 
-| ID | Requirement |
-|---|---|
-| ARCH-MOBILE-001 | Home MUST render from local cached dashboard snapshot if available. |
-| ARCH-MOBILE-002 | App MUST use stale-while-revalidate patterns for dashboard data. |
-| ARCH-MOBILE-003 | Charts MUST receive chart-ready series, not raw provider payloads. |
-| ARCH-MOBILE-004 | Heavy transformations MUST not run in React render paths. |
-| ARCH-MOBILE-005 | Lists MUST use performant list components such as FlashList where appropriate. |
+| ID              | Requirement                                                                       |
+| --------------- | --------------------------------------------------------------------------------- |
+| ARCH-MOBILE-001 | Home MUST render from local cached dashboard snapshot if available.               |
+| ARCH-MOBILE-002 | App MUST use stale-while-revalidate patterns for dashboard data.                  |
+| ARCH-MOBILE-003 | Charts MUST receive chart-ready series, not raw provider payloads.                |
+| ARCH-MOBILE-004 | Heavy transformations MUST not run in React render paths.                         |
+| ARCH-MOBILE-005 | Lists MUST use performant list components such as FlashList where appropriate.    |
 | ARCH-MOBILE-006 | Animation work should use Reanimated/Skia where possible to avoid JS-thread jank. |
-| ARCH-MOBILE-007 | AI summaries MUST not block screen layout. Use cached summary or placeholder. |
-| ARCH-MOBILE-008 | Provider sync status MUST be visible but non-intrusive. |
+| ARCH-MOBILE-007 | AI summaries MUST not block screen layout. Use cached summary or placeholder.     |
+| ARCH-MOBILE-008 | Provider sync status MUST be visible but non-intrusive.                           |
 
 ### 18.4 Local cache strategy
 
 Local storage categories:
 
-| Data | Store | Notes |
-|---|---|---|
-| auth/session tokens | secure storage | platform-appropriate secure storage. |
-| theme/settings | MMKV | fast key-value. |
-| dashboard snapshots | SQLite | day-keyed snapshots. |
-| chart series | SQLite | compact pre-shaped series. |
-| recent AI summaries | SQLite | cache with model/version metadata. |
-| manual input drafts | SQLite/MMKV | offline or interrupted entry support. |
-| provider permission state | SQLite/MMKV | display connection status. |
+| Data                      | Store          | Notes                                 |
+| ------------------------- | -------------- | ------------------------------------- |
+| auth/session tokens       | secure storage | platform-appropriate secure storage.  |
+| theme/settings            | MMKV           | fast key-value.                       |
+| dashboard snapshots       | SQLite         | day-keyed snapshots.                  |
+| chart series              | SQLite         | compact pre-shaped series.            |
+| recent AI summaries       | SQLite         | cache with model/version metadata.    |
+| manual input drafts       | SQLite/MMKV    | offline or interrupted entry support. |
+| provider permission state | SQLite/MMKV    | display connection status.            |
 
 ### 18.5 Offline/degraded behavior
 
@@ -1651,14 +1662,14 @@ Primis does not need full offline functionality in v1, but it should degrade gra
 
 ### 18.6 UI performance targets
 
-| Interaction | Target |
-|---|---|
-| app cold start to shell | under 2 seconds on modern iPhone target |
-| home cached data visible | under 1 second after shell |
-| tab transition | 60fps target, no blocking data work |
-| chart interactions | smooth on modern iPhone; avoid JS-heavy gestures |
-| manual check-in open | instant/no heavy network dependency |
-| AI chat submit | immediate message echo + streamed/cached response where possible |
+| Interaction              | Target                                                           |
+| ------------------------ | ---------------------------------------------------------------- |
+| app cold start to shell  | under 2 seconds on modern iPhone target                          |
+| home cached data visible | under 1 second after shell                                       |
+| tab transition           | 60fps target, no blocking data work                              |
+| chart interactions       | smooth on modern iPhone; avoid JS-heavy gestures                 |
+| manual check-in open     | instant/no heavy network dependency                              |
+| AI chat submit           | immediate message echo + streamed/cached response where possible |
 
 ---
 
@@ -1736,13 +1747,13 @@ Avoid:
 
 ### 20.1 Phase strategy
 
-| Phase | Nutrition capability |
-|---|---|
-| Phase 1 | basic manual calories/protein/carbs/fat/water/caffeine/alcohol/tags. |
-| Phase 2 | better summaries, correlations, coaching. |
-| Phase 2/3 | FoodData Central local catalog import/search. |
-| Future | barcode/OCR/photo estimate/saved meals/recipes. |
-| Future only if official | MyFitnessPal integration. |
+| Phase                   | Nutrition capability                                                 |
+| ----------------------- | -------------------------------------------------------------------- |
+| Phase 1                 | basic manual calories/protein/carbs/fat/water/caffeine/alcohol/tags. |
+| Phase 2                 | better summaries, correlations, coaching.                            |
+| Phase 2/3               | FoodData Central local catalog import/search.                        |
+| Future                  | barcode/OCR/photo estimate/saved meals/recipes.                      |
+| Future only if official | MyFitnessPal integration.                                            |
 
 ### 20.2 FoodData Central import architecture
 
@@ -1840,13 +1851,13 @@ Time is hard in sleep/health apps.
 
 Rules:
 
-| ID | Requirement |
-|---|---|
-| ARCH-TIME-001 | Store raw timestamps in UTC. |
-| ARCH-TIME-002 | Store user timezone at event/session creation where local interpretation matters. |
-| ARCH-TIME-003 | Daily summaries MUST use user-local dates. |
+| ID            | Requirement                                                                                                            |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| ARCH-TIME-001 | Store raw timestamps in UTC.                                                                                           |
+| ARCH-TIME-002 | Store user timezone at event/session creation where local interpretation matters.                                      |
+| ARCH-TIME-003 | Daily summaries MUST use user-local dates.                                                                             |
 | ARCH-TIME-004 | Sleep sessions crossing midnight MUST be assigned to a sleep date consistently, usually wake date or configured logic. |
-| ARCH-TIME-005 | DST transitions MUST be tested for sleep sessions and bedtime planner. |
+| ARCH-TIME-005 | DST transitions MUST be tested for sleep sessions and bedtime planner.                                                 |
 
 ---
 
@@ -1922,12 +1933,12 @@ AI context minimization is required.
 
 Rules:
 
-| ID | Requirement |
-|---|---|
-| ARCH-SEC-AI-001 | Send only the context needed for the AI task. |
-| ARCH-SEC-AI-002 | Do not send full raw provider payloads to AI providers. |
-| ARCH-SEC-AI-003 | Store model provider and model version for generated responses. |
-| ARCH-SEC-AI-004 | Public launch must disclose AI data processing clearly. |
+| ID              | Requirement                                                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------------------- |
+| ARCH-SEC-AI-001 | Send only the context needed for the AI task.                                                                  |
+| ARCH-SEC-AI-002 | Do not send full raw provider payloads to AI providers.                                                        |
+| ARCH-SEC-AI-003 | Store model provider and model version for generated responses.                                                |
+| ARCH-SEC-AI-004 | Public launch must disclose AI data processing clearly.                                                        |
 | ARCH-SEC-AI-005 | Future public app should consider optional AI disable/data controls even if private beta has AI on by default. |
 
 ### 22.6 Data deletion
@@ -2081,14 +2092,14 @@ Likely cost drivers:
 
 ### 25.2 Cost controls
 
-| Cost area | Control |
-|---|---|
-| AI | cache summaries; use smaller/cheaper models for simple summaries; route by task. |
-| S3 | gzip raw payloads; lifecycle policies; avoid storing duplicate payloads. |
-| RDS | start small; monitor storage/index growth; avoid inefficient queries. |
-| CloudWatch | redact and sample verbose logs; set retention periods. |
+| Cost area   | Control                                                                            |
+| ----------- | ---------------------------------------------------------------------------------- |
+| AI          | cache summaries; use smaller/cheaper models for simple summaries; route by task.   |
+| S3          | gzip raw payloads; lifecycle policies; avoid storing duplicate payloads.           |
+| RDS         | start small; monitor storage/index growth; avoid inefficient queries.              |
+| CloudWatch  | redact and sample verbose logs; set retention periods.                             |
 | NAT Gateway | consider VPC endpoints or architecture that avoids unnecessary NAT where feasible. |
-| Lambda | batch work; avoid memory over-provisioning without measurement. |
+| Lambda      | batch work; avoid memory over-provisioning without measurement.                    |
 
 ### 25.3 Data retention cost decision
 
@@ -2171,17 +2182,17 @@ Rules:
 
 ### 27.1 Test layers
 
-| Layer | Required tests |
-|---|---|
-| scoring engine | unit tests with fixtures and edge cases. |
-| normalization | provider fixture tests. |
-| provider sync | mocked API contract tests. |
-| API | integration tests for endpoints/auth. |
-| database | migration tests and repository tests. |
-| mobile components | visual/component tests for critical primitives. |
-| mobile flows | E2E for onboarding, connect provider, dashboard, check-in. |
-| AI gateway | mocked provider tests + structured output validation. |
-| deletion | integration test in non-prod environment. |
+| Layer             | Required tests                                             |
+| ----------------- | ---------------------------------------------------------- |
+| scoring engine    | unit tests with fixtures and edge cases.                   |
+| normalization     | provider fixture tests.                                    |
+| provider sync     | mocked API contract tests.                                 |
+| API               | integration tests for endpoints/auth.                      |
+| database          | migration tests and repository tests.                      |
+| mobile components | visual/component tests for critical primitives.            |
+| mobile flows      | E2E for onboarding, connect provider, dashboard, check-in. |
+| AI gateway        | mocked provider tests + structured output validation.      |
+| deletion          | integration test in non-prod environment.                  |
 
 ### 27.2 Golden fixtures
 
@@ -2289,13 +2300,13 @@ Avoid unnecessary NAT Gateway if possible. Lambda functions that only need AWS s
 
 ### 29.2 Compute split
 
-| Workload | Initial compute | Future option |
-|---|---|---|
-| mobile API | Lambda | ECS if persistent service needed. |
-| provider sync | Lambda | ECS/Fargate if long-running/windowed jobs exceed Lambda. |
-| scoring | Lambda | ECS/Python workers for heavier analytics. |
-| AI gateway | Lambda | ECS if streaming/long-lived connections demand it. |
-| food import | local script or ECS task | ECS task/batch for full import. |
+| Workload      | Initial compute          | Future option                                            |
+| ------------- | ------------------------ | -------------------------------------------------------- |
+| mobile API    | Lambda                   | ECS if persistent service needed.                        |
+| provider sync | Lambda                   | ECS/Fargate if long-running/windowed jobs exceed Lambda. |
+| scoring       | Lambda                   | ECS/Python workers for heavier analytics.                |
+| AI gateway    | Lambda                   | ECS if streaming/long-lived connections demand it.       |
+| food import   | local script or ECS task | ECS task/batch for full import.                          |
 
 ---
 
@@ -2320,14 +2331,14 @@ Every dashboard response should include:
 
 ### 30.2 UI states
 
-| State | UI behavior |
-|---|---|
-| connected/fresh | normal display. |
-| connected/syncing | show subtle sync indicator; do not block. |
-| connected/stale | show last updated and refresh option. |
-| permission issue | show action-required card. |
+| State                | UI behavior                                       |
+| -------------------- | ------------------------------------------------- |
+| connected/fresh      | normal display.                                   |
+| connected/syncing    | show subtle sync indicator; do not block.         |
+| connected/stale      | show last updated and refresh option.             |
+| permission issue     | show action-required card.                        |
 | provider unavailable | show cached data and provider outage/error state. |
-| insufficient data | show educational empty state and next steps. |
+| insufficient data    | show educational empty state and next steps.      |
 
 ---
 
@@ -2571,18 +2582,18 @@ Deliverables:
 
 ## 36. Known Risks and Mitigations
 
-| Risk | Severity | Mitigation |
-|---|---:|---|
-| Google Health does not expose desired proprietary scores | high | Compute Primis scores from raw/summary metrics; validate in Phase 0. |
-| Google verification delays public launch | high | Private beta under 100 users; build verification-ready from start. |
-| React Native UI feels less premium than desired | high | Design system, Reanimated/Skia, local cache, careful performance budget. |
-| AI gives unsupported advice | high | Deterministic context, prompt guardrails, no medical claims, structured facts. |
-| Health data privacy mishandled | high | Encryption, token security, log redaction, deletion workflows. |
-| Nutrition scope explodes | medium/high | Phase manual logging first; FDC later; no MFP dependency. |
-| Raw data storage cost grows | medium | gzip, lifecycle policies, retention preferences, storage monitoring. |
-| Provider sync bugs duplicate data | medium | idempotency keys, source IDs, unique constraints, replay-safe jobs. |
-| Timezone/sleep-date bugs | medium | central time utilities, DST fixtures, sleep crossing midnight tests. |
-| AI cost grows | medium | caching, model routing, compact context packets. |
+| Risk                                                     |    Severity | Mitigation                                                                     |
+| -------------------------------------------------------- | ----------: | ------------------------------------------------------------------------------ |
+| Google Health does not expose desired proprietary scores |        high | Compute Primis scores from raw/summary metrics; validate in Phase 0.           |
+| Google verification delays public launch                 |        high | Private beta under 100 users; build verification-ready from start.             |
+| React Native UI feels less premium than desired          |        high | Design system, Reanimated/Skia, local cache, careful performance budget.       |
+| AI gives unsupported advice                              |        high | Deterministic context, prompt guardrails, no medical claims, structured facts. |
+| Health data privacy mishandled                           |        high | Encryption, token security, log redaction, deletion workflows.                 |
+| Nutrition scope explodes                                 | medium/high | Phase manual logging first; FDC later; no MFP dependency.                      |
+| Raw data storage cost grows                              |      medium | gzip, lifecycle policies, retention preferences, storage monitoring.           |
+| Provider sync bugs duplicate data                        |      medium | idempotency keys, source IDs, unique constraints, replay-safe jobs.            |
+| Timezone/sleep-date bugs                                 |      medium | central time utilities, DST fixtures, sleep crossing midnight tests.           |
+| AI cost grows                                            |      medium | caching, model routing, compact context packets.                               |
 
 ---
 
@@ -2590,17 +2601,17 @@ Deliverables:
 
 These are not blockers for initial docs, but should become tickets/spikes.
 
-| ID | Question | Owner/phase |
-|---|---|---|
-| OPEN-TECH-001 | Which exact Google Health API data types are available from Fitbit Air for the user account? | Phase 0 spike |
-| OPEN-TECH-002 | Are Google/Fitbit Sleep Score, Readiness, and Cardio Load exposed through API or only app UI? | Phase 0 spike |
-| OPEN-TECH-003 | Should HealthKit be included in Phase 1 or Phase 3? | Product/engineering decision |
-| OPEN-TECH-004 | Which React Native HealthKit library or local Expo module is best for Primis? | Phase 1/3 spike |
-| OPEN-TECH-005 | CDK vs Terraform final choice? | Before infra implementation |
-| OPEN-TECH-006 | Prisma vs Drizzle vs direct SQL/query builder? | Before DB implementation |
-| OPEN-TECH-007 | AI provider SDK abstraction shape final? | Before AI Gateway implementation |
-| OPEN-TECH-008 | Raw payload default retention for future public users? | Before public beta |
-| OPEN-TECH-009 | Whether to write user-created hydration/nutrition/checkins back to HealthKit? | Phase 3 decision |
+| ID            | Question                                                                                      | Owner/phase                      |
+| ------------- | --------------------------------------------------------------------------------------------- | -------------------------------- |
+| OPEN-TECH-001 | Which exact Google Health API data types are available from Fitbit Air for the user account?  | Phase 0 spike                    |
+| OPEN-TECH-002 | Are Google/Fitbit Sleep Score, Readiness, and Cardio Load exposed through API or only app UI? | Phase 0 spike                    |
+| OPEN-TECH-003 | Should HealthKit be included in Phase 1 or Phase 3?                                           | Product/engineering decision     |
+| OPEN-TECH-004 | Which React Native HealthKit library or local Expo module is best for Primis?                 | Phase 1/3 spike                  |
+| OPEN-TECH-005 | CDK vs Terraform final choice?                                                                | Before infra implementation      |
+| OPEN-TECH-006 | Prisma vs Drizzle vs direct SQL/query builder?                                                | Before DB implementation         |
+| OPEN-TECH-007 | AI provider SDK abstraction shape final?                                                      | Before AI Gateway implementation |
+| OPEN-TECH-008 | Raw payload default retention for future public users?                                        | Before public beta               |
+| OPEN-TECH-009 | Whether to write user-created hydration/nutrition/checkins back to HealthKit?                 | Phase 3 decision                 |
 
 ---
 
@@ -2653,22 +2664,22 @@ This proves the architecture without drowning in feature scope.
 
 ## 39. Appendix: Glossary
 
-| Term | Meaning |
-|---|---|
-| Provider | External/local source of health data, e.g., Google Health, HealthKit, Health Connect. |
-| Raw payload | Original provider response stored before normalization. |
-| Normalized metric | Internal canonical representation of a health measurement. |
-| Daily summary | Precomputed day-level aggregate. |
-| Baseline | Rolling personal comparison value, e.g., 30-day HRV average. |
-| Score snapshot | Deterministic score result for a date/session. |
-| Insight candidate | Deterministic observation generated from data before AI prose. |
-| AI context packet | Compact structured data sent to an AI model for a specific task. |
-| Provider connection | User-authorized link between Primis and a data provider. |
-| Sync cursor | Stored state used to continue incremental provider syncs. |
-| Bedtime Planner | Sleep feature that recommends ranked bedtime windows for a target wake time. |
-| HealthKit | Apple’s iOS health data framework. |
-| Health Connect | Android health data sharing layer. |
-| FoodData Central | USDA food/nutrition dataset and API. |
+| Term                | Meaning                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| Provider            | External/local source of health data, e.g., Google Health, HealthKit, Health Connect. |
+| Raw payload         | Original provider response stored before normalization.                               |
+| Normalized metric   | Internal canonical representation of a health measurement.                            |
+| Daily summary       | Precomputed day-level aggregate.                                                      |
+| Baseline            | Rolling personal comparison value, e.g., 30-day HRV average.                          |
+| Score snapshot      | Deterministic score result for a date/session.                                        |
+| Insight candidate   | Deterministic observation generated from data before AI prose.                        |
+| AI context packet   | Compact structured data sent to an AI model for a specific task.                      |
+| Provider connection | User-authorized link between Primis and a data provider.                              |
+| Sync cursor         | Stored state used to continue incremental provider syncs.                             |
+| Bedtime Planner     | Sleep feature that recommends ranked bedtime windows for a target wake time.          |
+| HealthKit           | Apple’s iOS health data framework.                                                    |
+| Health Connect      | Android health data sharing layer.                                                    |
+| FoodData Central    | USDA food/nutrition dataset and API.                                                  |
 
 ---
 
@@ -2704,20 +2715,20 @@ This proves the architecture without drowning in feature scope.
 
 The Google Health provider connector MUST explicitly support and test the following endpoint families:
 
-| Endpoint family | HTTP pattern | Purpose |
-|---|---|---|
-| List data points | `GET /v4/users/me/dataTypes/{dataType}/dataPoints` | Fetch session/sample/interval/daily data by type. |
-| Reconcile data points | `GET /v4/users/me/dataTypes/{dataType}/dataPoints:reconcile` | Fetch reconciled provider stream when appropriate. |
-| Daily rollup | `POST /v4/users/me/dataTypes/{dataType}/dataPoints:dailyRollUp` | Fetch day-level aggregates for supported metrics. |
-| Paired devices | `GET /v4/users/me/pairedDevices` | Fetch tracker/scale metadata, battery level/status, last sync time, version, and supported features. |
+| Endpoint family       | HTTP pattern                                                    | Purpose                                                                                              |
+| --------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| List data points      | `GET /v4/users/me/dataTypes/{dataType}/dataPoints`              | Fetch session/sample/interval/daily data by type.                                                    |
+| Reconcile data points | `GET /v4/users/me/dataTypes/{dataType}/dataPoints:reconcile`    | Fetch reconciled provider stream when appropriate.                                                   |
+| Daily rollup          | `POST /v4/users/me/dataTypes/{dataType}/dataPoints:dailyRollUp` | Fetch day-level aggregates for supported metrics.                                                    |
+| Paired devices        | `GET /v4/users/me/pairedDevices`                                | Fetch tracker/scale metadata, battery level/status, last sync time, version, and supported features. |
 
 The connector MUST not hide endpoint family differences behind ambiguous method names. Provider services should use explicit methods such as:
 
 ```ts
-listDataPoints(dataType, query)
-reconcileDataPoints(dataType, query)
-dailyRollup(dataType, body)
-listPairedDevices()
+listDataPoints(dataType, query);
+reconcileDataPoints(dataType, query);
+dailyRollup(dataType, body);
+listPairedDevices();
 ```
 
 ### 29.2 Sleep schema requirements
@@ -2791,17 +2802,17 @@ These fields are first-class inputs to Primis Sleep Score, Sleep detail UI, AI s
 
 The connector MUST support sleep-relevant vitals and summaries:
 
-| Google Health data type | Primis usage |
-|---|---|
-| `daily-heart-rate-variability` | HRV baseline, recovery, sleep recovery context; includes average HRV, non-REM HR, entropy, deep-sleep RMSSD when populated. |
-| `heart-rate-variability` | HRV sample-level detail where available. |
-| `daily-resting-heart-rate` | RHR baseline/recovery; metadata may indicate calculation method. |
-| `heart-rate` | Sleep-window slicing and workout/vitals context where granularity is available. |
-| `daily-respiratory-rate` | respiratory baseline and recovery context. |
-| `respiratory-rate-sleep-summary` | sleep respiratory summary when available. |
-| `daily-oxygen-saturation` | SpO2 baseline/status. |
-| `oxygen-saturation` | sample-level SpO2 where available. |
-| `daily-sleep-temperature-derivations` | sleep temperature deviation/trend where available. |
+| Google Health data type               | Primis usage                                                                                                                |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `daily-heart-rate-variability`        | HRV baseline, recovery, sleep recovery context; includes average HRV, non-REM HR, entropy, deep-sleep RMSSD when populated. |
+| `heart-rate-variability`              | HRV sample-level detail where available.                                                                                    |
+| `daily-resting-heart-rate`            | RHR baseline/recovery; metadata may indicate calculation method.                                                            |
+| `heart-rate`                          | Sleep-window slicing and workout/vitals context where granularity is available.                                             |
+| `daily-respiratory-rate`              | respiratory baseline and recovery context.                                                                                  |
+| `respiratory-rate-sleep-summary`      | sleep respiratory summary when available.                                                                                   |
+| `daily-oxygen-saturation`             | SpO2 baseline/status.                                                                                                       |
+| `oxygen-saturation`                   | sample-level SpO2 where available.                                                                                          |
+| `daily-sleep-temperature-derivations` | sleep temperature deviation/trend where available.                                                                          |
 
 ### 29.5 Paired-device architecture
 
@@ -2861,7 +2872,6 @@ pairedDevices
 ```
 
 Synthetic fixtures may be used only for early implementation and must be clearly labeled.
-
 
 ### V1.1 source references added by this amendment
 

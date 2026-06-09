@@ -95,18 +95,18 @@ The score engine should produce both numbers and reasons. A score without an exp
 
 ### 2.2 Algorithm principles
 
-| ID | Principle | Description |
-|---|---|---|
-| ALG-PRIN-001 | Personal baseline first | Compare users to their own history before comparing to generic population norms. |
-| ALG-PRIN-002 | Objective data dominates | Wearable/body metrics should drive core scores. Manual logs should contextualize and adjust lightly. |
-| ALG-PRIN-003 | Explainability required | Every score should be decomposable into component scores, weights, input values, baselines, and final contribution. |
-| ALG-PRIN-004 | Missing data is explicit | Scores should store completeness and confidence. They should not pretend unavailable metrics were measured. |
+| ID           | Principle                                    | Description                                                                                                                 |
+| ------------ | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| ALG-PRIN-001 | Personal baseline first                      | Compare users to their own history before comparing to generic population norms.                                            |
+| ALG-PRIN-002 | Objective data dominates                     | Wearable/body metrics should drive core scores. Manual logs should contextualize and adjust lightly.                        |
+| ALG-PRIN-003 | Explainability required                      | Every score should be decomposable into component scores, weights, input values, baselines, and final contribution.         |
+| ALG-PRIN-004 | Missing data is explicit                     | Scores should store completeness and confidence. They should not pretend unavailable metrics were measured.                 |
 | ALG-PRIN-005 | AI explains; deterministic engine calculates | The deterministic algorithm service produces scores and insight candidates. AI translates them into coach/analyst language. |
-| ALG-PRIN-006 | Stable but adaptive | Scores should not swing wildly from noisy data, but should react meaningfully to real deviations. |
-| ALG-PRIN-007 | Performance-only language | Recommendations should avoid diagnosis/treatment language and remain in performance/wellness framing. |
-| ALG-PRIN-008 | Versioned algorithms | Algorithm versions must be stored with every score snapshot. |
-| ALG-PRIN-009 | Provider-agnostic scoring | Scores should consume canonical Primis metrics, not direct provider payloads. |
-| ALG-PRIN-010 | User trust through transparency | Users should be able to tap into a score and see the major reasons behind it. |
+| ALG-PRIN-006 | Stable but adaptive                          | Scores should not swing wildly from noisy data, but should react meaningfully to real deviations.                           |
+| ALG-PRIN-007 | Performance-only language                    | Recommendations should avoid diagnosis/treatment language and remain in performance/wellness framing.                       |
+| ALG-PRIN-008 | Versioned algorithms                         | Algorithm versions must be stored with every score snapshot.                                                                |
+| ALG-PRIN-009 | Provider-agnostic scoring                    | Scores should consume canonical Primis metrics, not direct provider payloads.                                               |
+| ALG-PRIN-010 | User trust through transparency              | Users should be able to tap into a score and see the major reasons behind it.                                               |
 
 ### 2.3 What “advanced” means for v1
 
@@ -128,15 +128,15 @@ For the first private-beta versions, Primis should not pretend to have large pop
 
 ### 2.4 What Primis must avoid
 
-| ID | Avoid | Reason |
-|---|---|---|
-| ALG-AVOID-001 | Raw-data-to-LLM score calculation | Expensive, slow, inconsistent, hard to test, and likely inaccurate. |
-| ALG-AVOID-002 | Fake medical detection | Avoid claims like “you are sick” or “you have X.” Use “signals are outside baseline” language. |
-| ALG-AVOID-003 | Overweighting manual inputs | Users may forget, exaggerate, or inconsistently log. Objective metrics should remain primary. |
-| ALG-AVOID-004 | Opaque formulas | Users should understand major drivers of a score. |
-| ALG-AVOID-005 | Perfectionist ML before data exists | Premature ML will slow the project and likely perform worse than thoughtful rules/statistics. |
-| ALG-AVOID-006 | Exact sleep-cycle certainty | Sleep cycles vary. Bedtime recommendations should use windows and probability, not fake precision. |
-| ALG-AVOID-007 | Nutrition over-scope | Full MyFitnessPal-level nutrition should not block v1 scoring. |
+| ID            | Avoid                               | Reason                                                                                             |
+| ------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------- |
+| ALG-AVOID-001 | Raw-data-to-LLM score calculation   | Expensive, slow, inconsistent, hard to test, and likely inaccurate.                                |
+| ALG-AVOID-002 | Fake medical detection              | Avoid claims like “you are sick” or “you have X.” Use “signals are outside baseline” language.     |
+| ALG-AVOID-003 | Overweighting manual inputs         | Users may forget, exaggerate, or inconsistently log. Objective metrics should remain primary.      |
+| ALG-AVOID-004 | Opaque formulas                     | Users should understand major drivers of a score.                                                  |
+| ALG-AVOID-005 | Perfectionist ML before data exists | Premature ML will slow the project and likely perform worse than thoughtful rules/statistics.      |
+| ALG-AVOID-006 | Exact sleep-cycle certainty         | Sleep cycles vary. Bedtime recommendations should use windows and probability, not fake precision. |
+| ALG-AVOID-007 | Nutrition over-scope                | Full MyFitnessPal-level nutrition should not block v1 scoring.                                     |
 
 ---
 
@@ -200,16 +200,16 @@ Canonical metrics
 
 ### 4.2 Layer descriptions
 
-| Layer | Purpose | Examples |
-|---|---|---|
-| Canonical metrics | Raw normalized measurements | HRV, RHR, steps, SpO2, sleep duration, active calories |
-| Daily summaries | Day-level aggregated facts | total steps, sleep duration, avg HRV, max HR, total active calories |
-| Rolling baselines | User-specific normal ranges | 7-day, 14-day, 30-day, 90-day averages and variability |
-| Component scores | Individual normalized sub-scores | HRV balance score, sleep debt score, activity balance score |
-| Composite scores | User-facing scores | Recovery, Sleep, Readiness, Activity, Nutrition |
-| Insight candidates | Structured explanation objects | “HRV below baseline,” “training load elevated,” “late caffeine trend” |
-| AI context packets | Curated data for AI model | compact JSON evidence payload |
-| User-facing explanations | UI/AI language | coach/analyst summaries |
+| Layer                    | Purpose                          | Examples                                                              |
+| ------------------------ | -------------------------------- | --------------------------------------------------------------------- |
+| Canonical metrics        | Raw normalized measurements      | HRV, RHR, steps, SpO2, sleep duration, active calories                |
+| Daily summaries          | Day-level aggregated facts       | total steps, sleep duration, avg HRV, max HR, total active calories   |
+| Rolling baselines        | User-specific normal ranges      | 7-day, 14-day, 30-day, 90-day averages and variability                |
+| Component scores         | Individual normalized sub-scores | HRV balance score, sleep debt score, activity balance score           |
+| Composite scores         | User-facing scores               | Recovery, Sleep, Readiness, Activity, Nutrition                       |
+| Insight candidates       | Structured explanation objects   | “HRV below baseline,” “training load elevated,” “late caffeine trend” |
+| AI context packets       | Curated data for AI model        | compact JSON evidence payload                                         |
+| User-facing explanations | UI/AI language                   | coach/analyst summaries                                               |
 
 ---
 
@@ -217,32 +217,32 @@ Canonical metrics
 
 ### 5.1 Core scores
 
-| Score | User-facing? | Phase | Purpose |
-|---|---:|---|---|
-| Sleep Score | Yes | Phase 1/2 | Quality and sufficiency of last sleep period. |
-| Recovery Score | Yes | Phase 1/2 | Physiological recovery using sleep/vitals/training context. |
-| Training Readiness Score | Yes | Phase 2 | How suitable today is for training intensity. |
-| Strain / Daily Load | Yes | Phase 2 | How much physical stress the user accumulated. |
-| Activity Score | Yes | Phase 1/2 | Daily movement and goal completion. |
-| Nutrition Score | Yes | Phase 2/3 | Macro/hydration/timing/behavior adherence. |
-| Wellbeing Score | Optional widget | Phase 2 | High-level blended snapshot. |
-| Bedtime Recommendation Score | Internal + UI | Phase 2 | Rank suggested bedtimes for a target wake time. |
+| Score                        |    User-facing? | Phase     | Purpose                                                     |
+| ---------------------------- | --------------: | --------- | ----------------------------------------------------------- |
+| Sleep Score                  |             Yes | Phase 1/2 | Quality and sufficiency of last sleep period.               |
+| Recovery Score               |             Yes | Phase 1/2 | Physiological recovery using sleep/vitals/training context. |
+| Training Readiness Score     |             Yes | Phase 2   | How suitable today is for training intensity.               |
+| Strain / Daily Load          |             Yes | Phase 2   | How much physical stress the user accumulated.              |
+| Activity Score               |             Yes | Phase 1/2 | Daily movement and goal completion.                         |
+| Nutrition Score              |             Yes | Phase 2/3 | Macro/hydration/timing/behavior adherence.                  |
+| Wellbeing Score              | Optional widget | Phase 2   | High-level blended snapshot.                                |
+| Bedtime Recommendation Score |   Internal + UI | Phase 2   | Rank suggested bedtimes for a target wake time.             |
 
 ### 5.2 Supporting metrics
 
-| Metric | User-facing? | Purpose |
-|---|---:|---|
-| Sleep Debt | Yes | Measures cumulative shortfall from personal sleep need. |
-| Sleep Consistency | Yes | Measures regularity of bedtime/wake time. |
-| HRV Balance | Yes | Compares recent HRV to longer-term baseline. |
-| Resting HR Deviation | Yes | Detects higher/lower-than-normal RHR. |
-| Respiratory Stability | Sometimes | Detects deviation from baseline. |
-| SpO2 Stability | Sometimes | Detects deviation from baseline. |
-| Acute/Chronic Load Ratio | Advanced detail | Measures recent training load vs longer load. |
-| Caffeine Timing Risk | Yes | Estimates sleep-impact risk based on caffeine timing. |
-| Alcohol Recovery Impact | Yes | Correlates alcohol logs with next-day recovery/sleep. |
-| Gut Regularity Signal | Yes if enabled | Tracks digestion/poop trends and associations. |
-| Body Composition Trend | Yes | Weight/body fat/lean mass trend interpretation. |
+| Metric                   |    User-facing? | Purpose                                                 |
+| ------------------------ | --------------: | ------------------------------------------------------- |
+| Sleep Debt               |             Yes | Measures cumulative shortfall from personal sleep need. |
+| Sleep Consistency        |             Yes | Measures regularity of bedtime/wake time.               |
+| HRV Balance              |             Yes | Compares recent HRV to longer-term baseline.            |
+| Resting HR Deviation     |             Yes | Detects higher/lower-than-normal RHR.                   |
+| Respiratory Stability    |       Sometimes | Detects deviation from baseline.                        |
+| SpO2 Stability           |       Sometimes | Detects deviation from baseline.                        |
+| Acute/Chronic Load Ratio | Advanced detail | Measures recent training load vs longer load.           |
+| Caffeine Timing Risk     |             Yes | Estimates sleep-impact risk based on caffeine timing.   |
+| Alcohol Recovery Impact  |             Yes | Correlates alcohol logs with next-day recovery/sleep.   |
+| Gut Regularity Signal    |  Yes if enabled | Tracks digestion/poop trends and associations.          |
+| Body Composition Trend   |             Yes | Weight/body fat/lean mass trend interpretation.         |
 
 ---
 
@@ -260,13 +260,13 @@ All major user-facing scores should be `0–100`.
 
 ### 6.2 Recommended score bands
 
-| Band | Range | Label | UI interpretation |
-|---|---:|---|---|
+| Band      |  Range | Label     | UI interpretation                                     |
+| --------- | -----: | --------- | ----------------------------------------------------- |
 | Excellent | 85–100 | Excellent | Strong signal; user likely ready or metric is strong. |
-| Good | 70–84 | Good | Solid; minor optimization available. |
-| Moderate | 55–69 | Moderate | Mixed; watch key limiting factors. |
-| Low | 35–54 | Low | Recovery/performance likely constrained. |
-| Very Low | 0–34 | Very Low | Prioritize rest/low-intensity/recovery behaviors. |
+| Good      |  70–84 | Good      | Solid; minor optimization available.                  |
+| Moderate  |  55–69 | Moderate  | Mixed; watch key limiting factors.                    |
+| Low       |  35–54 | Low       | Recovery/performance likely constrained.              |
+| Very Low  |   0–34 | Very Low  | Prioritize rest/low-intensity/recovery behaviors.     |
 
 ### 6.3 Score state enum
 
@@ -332,15 +332,13 @@ function weightedScore(components: WeightedComponent[]): {
   normalizedWeightTotal: number;
   missingRequired: string[];
 } {
-  const missingRequired = components
-    .filter(c => c.required && c.score == null)
-    .map(c => c.key);
+  const missingRequired = components.filter((c) => c.required && c.score == null).map((c) => c.key);
 
   if (missingRequired.length > 0) {
     return { score: null, normalizedWeightTotal: 0, missingRequired };
   }
 
-  const available = components.filter(c => c.score != null);
+  const available = components.filter((c) => c.score != null);
   const totalWeight = available.reduce((sum, c) => sum + c.weight, 0);
 
   if (totalWeight <= 0) {
@@ -354,7 +352,7 @@ function weightedScore(components: WeightedComponent[]): {
   return {
     score: Math.round(clamp(score, 0, 100)),
     normalizedWeightTotal: totalWeight,
-    missingRequired: []
+    missingRequired: [],
   };
 }
 ```
@@ -367,15 +365,15 @@ Primis MUST compute rolling baselines for important metrics.
 
 Recommended windows:
 
-| Window | Use |
-|---|---|
-| 3-day | Short-term acute change, smoothing recent noise. |
-| 7-day | Recent behavior/performance trend. |
-| 14-day | Short recovery/sleep balance window. |
-| 30-day | Main personal baseline for many metrics. |
-| 60-day | Optional mid-term baseline. |
-| 90-day | Long-term baseline / stable normal range. |
-| 180-day | Later-phase seasonality/context. |
+| Window  | Use                                              |
+| ------- | ------------------------------------------------ |
+| 3-day   | Short-term acute change, smoothing recent noise. |
+| 7-day   | Recent behavior/performance trend.               |
+| 14-day  | Short recovery/sleep balance window.             |
+| 30-day  | Main personal baseline for many metrics.         |
+| 60-day  | Optional mid-term baseline.                      |
+| 90-day  | Long-term baseline / stable normal range.        |
+| 180-day | Later-phase seasonality/context.                 |
 
 ### 7.4 Baseline calculation
 
@@ -411,12 +409,12 @@ Requirement ID: `ALG-BASE-003`
 
 Minimum sample thresholds:
 
-| Baseline window | Minimum valid samples | State if missing |
-|---|---:|---|
-| 7-day | 4 valid days | provisional if below |
-| 14-day | 8 valid days | provisional if below |
-| 30-day | 18 valid days | low confidence if below |
-| 90-day | 45 valid days | use 30-day fallback if below |
+| Baseline window | Minimum valid samples | State if missing             |
+| --------------- | --------------------: | ---------------------------- |
+| 7-day           |          4 valid days | provisional if below         |
+| 14-day          |          8 valid days | provisional if below         |
+| 30-day          |         18 valid days | low confidence if below      |
+| 90-day          |         45 valid days | use 30-day fallback if below |
 
 For first-time users, the system may use:
 
@@ -444,11 +442,11 @@ function ema(values: number[], alpha: number): number | null {
 
 Suggested alpha:
 
-| Use | Alpha |
-|---|---:|
-| Fast trend | 0.40 |
-| Medium trend | 0.25 |
-| Slow trend | 0.10 |
+| Use          | Alpha |
+| ------------ | ----: |
+| Fast trend   |  0.40 |
+| Medium trend |  0.25 |
+| Slow trend   |  0.10 |
 
 ### 7.7 Z-score / deviation
 
@@ -490,18 +488,18 @@ type MetricDirection = 'higher_is_better' | 'lower_is_better' | 'target_range' |
 
 Examples:
 
-| Metric | Direction |
-|---|---|
-| HRV | higher_is_better, but contextual |
-| Resting HR | lower_is_better, but contextual |
-| Sleep duration | target_range |
-| Sleep efficiency | higher_is_better |
-| Respiratory rate | target_range / stable is better |
-| SpO2 | higher/stable is better |
-| Training load | target_range / contextual |
-| Calories burned | contextual |
-| Calories consumed | target_range |
-| Alcohol | lower_is_better for recovery |
+| Metric            | Direction                        |
+| ----------------- | -------------------------------- |
+| HRV               | higher_is_better, but contextual |
+| Resting HR        | lower_is_better, but contextual  |
+| Sleep duration    | target_range                     |
+| Sleep efficiency  | higher_is_better                 |
+| Respiratory rate  | target_range / stable is better  |
+| SpO2              | higher/stable is better          |
+| Training load     | target_range / contextual        |
+| Calories burned   | contextual                       |
+| Calories consumed | target_range                     |
+| Alcohol           | lower_is_better for recovery     |
 
 ---
 
@@ -515,12 +513,12 @@ Every day-level scoring cycle SHOULD compute a `data_quality_score` from 0–100
 
 Suggested components:
 
-| Component | Weight | Description |
-|---|---:|---|
-| Provider recency | 25% | How recently provider data synced. |
-| Required metric availability | 35% | Availability of key inputs for requested score. |
-| Historical baseline depth | 25% | Enough samples to personalize. |
-| Metric continuity | 15% | Few gaps/anomalies in time series. |
+| Component                    | Weight | Description                                     |
+| ---------------------------- | -----: | ----------------------------------------------- |
+| Provider recency             |    25% | How recently provider data synced.              |
+| Required metric availability |    35% | Availability of key inputs for requested score. |
+| Historical baseline depth    |    25% | Enough samples to personalize.                  |
+| Metric continuity            |    15% | Few gaps/anomalies in time series.              |
 
 ### 8.2 Provider recency scoring
 
@@ -586,7 +584,7 @@ function targetRangeScore(
   idealMin: number,
   idealMax: number,
   hardMin: number,
-  hardMax: number
+  hardMax: number,
 ): number {
   if (value >= idealMin && value <= idealMax) return 100;
   if (value < idealMin) {
@@ -688,34 +686,34 @@ Sleep Score estimates the quality and sufficiency of the user’s most recent ma
 
 ### 10.2 Required inputs
 
-| Input | Required? | Canonical metric/source |
-|---|---:|---|
-| Main sleep start/end | Required | sleep session |
-| Sleep duration | Required | sleep session total duration |
-| Time in bed | Required if available | sleep session |
-| Sleep efficiency | Optional but important | duration / time in bed |
-| Awake time | Optional | sleep stages |
-| Deep sleep | Optional | sleep stages |
-| REM sleep | Optional | sleep stages |
-| Resting/overnight HR | Optional | heart rate / daily resting HR |
-| HRV during sleep / daily HRV | Optional | HRV metrics |
-| Respiratory rate | Optional | daily respiratory rate / sleep summary |
-| SpO2 | Optional | daily oxygen saturation |
-| Prior sleep debt | Optional | derived metric |
-| User sleep target | Required with fallback | user setting / inferred |
+| Input                        |              Required? | Canonical metric/source                |
+| ---------------------------- | ---------------------: | -------------------------------------- |
+| Main sleep start/end         |               Required | sleep session                          |
+| Sleep duration               |               Required | sleep session total duration           |
+| Time in bed                  |  Required if available | sleep session                          |
+| Sleep efficiency             | Optional but important | duration / time in bed                 |
+| Awake time                   |               Optional | sleep stages                           |
+| Deep sleep                   |               Optional | sleep stages                           |
+| REM sleep                    |               Optional | sleep stages                           |
+| Resting/overnight HR         |               Optional | heart rate / daily resting HR          |
+| HRV during sleep / daily HRV |               Optional | HRV metrics                            |
+| Respiratory rate             |               Optional | daily respiratory rate / sleep summary |
+| SpO2                         |               Optional | daily oxygen saturation                |
+| Prior sleep debt             |               Optional | derived metric                         |
+| User sleep target            | Required with fallback | user setting / inferred                |
 
 ### 10.3 Sleep Score components
 
 Initial v1/v2 formula:
 
-| Component | Weight | Required? | Description |
-|---|---:|---:|---|
-| Sleep Duration | 25% | Yes | Actual sleep vs personal need/target. |
-| Sleep Efficiency | 20% | No | Percent of time in bed spent asleep. |
-| Sleep Consistency | 15% | No | Bedtime/wake time regularity vs baseline. |
-| Stage Balance | 15% | No | Deep/REM vs personal baseline and reasonable range. |
-| Overnight Recovery Signals | 15% | No | HRV/RHR/respiratory/SpO2 during sleep if available. |
-| Sleep Debt Impact | 10% | No | Penalizes accumulated sleep shortfall. |
+| Component                  | Weight | Required? | Description                                         |
+| -------------------------- | -----: | --------: | --------------------------------------------------- |
+| Sleep Duration             |    25% |       Yes | Actual sleep vs personal need/target.               |
+| Sleep Efficiency           |    20% |        No | Percent of time in bed spent asleep.                |
+| Sleep Consistency          |    15% |        No | Bedtime/wake time regularity vs baseline.           |
+| Stage Balance              |    15% |        No | Deep/REM vs personal baseline and reasonable range. |
+| Overnight Recovery Signals |    15% |        No | HRV/RHR/respiratory/SpO2 during sleep if available. |
+| Sleep Debt Impact          |    10% |        No | Penalizes accumulated sleep shortfall.              |
 
 If optional metrics are missing, reweight available optional components but mark confidence accordingly.
 
@@ -734,7 +732,7 @@ Suggested duration scoring:
 ```typescript
 function sleepDurationScore(actualHours: number, targetHours: number): number {
   const idealMin = targetHours - 0.25;
-  const idealMax = targetHours + 0.50;
+  const idealMax = targetHours + 0.5;
   const hardMin = Math.max(3.5, targetHours - 3.5);
   const hardMax = Math.min(11.0, targetHours + 2.5);
   return targetRangeScore(actualHours, idealMin, idealMax, hardMin, hardMax);
@@ -780,7 +778,7 @@ Circular time math is required because bedtimes cross midnight.
 ```typescript
 function sleepConsistencyScore(
   bedtimeDeviationMinutes: number,
-  wakeDeviationMinutes: number
+  wakeDeviationMinutes: number,
 ): number {
   const weightedDeviation = bedtimeDeviationMinutes * 0.55 + wakeDeviationMinutes * 0.45;
   if (weightedDeviation <= 20) return 100;
@@ -830,12 +828,12 @@ Combine overnight HRV, RHR, respiratory rate, and SpO2 if available.
 
 Suggested components:
 
-| Component | Weight within overnight score |
-|---|---:|
-| HRV vs baseline | 35% |
-| RHR vs baseline | 35% |
-| Respiratory stability | 15% |
-| SpO2 stability | 15% |
+| Component             | Weight within overnight score |
+| --------------------- | ----------------------------: |
+| HRV vs baseline       |                           35% |
+| RHR vs baseline       |                           35% |
+| Respiratory stability |                           15% |
+| SpO2 stability        |                           15% |
 
 If only HRV/RHR available, use those and mark medium confidence.
 
@@ -875,13 +873,13 @@ type SleepScoreSnapshot = {
 
 ### 10.11 Sleep Score acceptance criteria
 
-| ID | Acceptance Criteria |
-|---|---|
-| ALG-SLEEP-AC-001 | If sleep duration is missing, Sleep Score state is `missing_required_data`. |
+| ID               | Acceptance Criteria                                                                                |
+| ---------------- | -------------------------------------------------------------------------------------------------- |
+| ALG-SLEEP-AC-001 | If sleep duration is missing, Sleep Score state is `missing_required_data`.                        |
 | ALG-SLEEP-AC-002 | If sleep stages are missing but duration exists, Sleep Score still computes with lower confidence. |
-| ALG-SLEEP-AC-003 | Score snapshot stores all component scores and weights. |
-| ALG-SLEEP-AC-004 | User can tap Sleep Score and see top 3 reasons. |
-| ALG-SLEEP-AC-005 | Algorithm does not claim exact sleep-cycle certainty. |
+| ALG-SLEEP-AC-003 | Score snapshot stores all component scores and weights.                                            |
+| ALG-SLEEP-AC-004 | User can tap Sleep Score and see top 3 reasons.                                                    |
+| ALG-SLEEP-AC-005 | Algorithm does not claim exact sleep-cycle certainty.                                              |
 
 ---
 
@@ -928,11 +926,11 @@ surplus_credit = max(0, actualSleep - targetSleep) * 0.35
 
 ### 11.4 Acceptance criteria
 
-| ID | Acceptance Criteria |
-|---|---|
-| ALG-DEBT-AC-001 | Sleep debt updates after each main sleep session. |
-| ALG-DEBT-AC-002 | Sleep debt uses personal target if available. |
-| ALG-DEBT-AC-003 | Sleep debt decays over time and cannot become negative. |
+| ID              | Acceptance Criteria                                                      |
+| --------------- | ------------------------------------------------------------------------ |
+| ALG-DEBT-AC-001 | Sleep debt updates after each main sleep session.                        |
+| ALG-DEBT-AC-002 | Sleep debt uses personal target if available.                            |
+| ALG-DEBT-AC-003 | Sleep debt decays over time and cannot become negative.                  |
 | ALG-DEBT-AC-004 | Bedtime Planner uses sleep debt to bias earlier bedtime recommendations. |
 
 ---
@@ -949,31 +947,31 @@ Recovery Score is not a medical diagnosis. It should indicate readiness/recovery
 
 ### 12.2 Required inputs
 
-| Input | Required? | Notes |
-|---|---:|---|
-| Sleep Score | Required or fallback | If missing, Recovery Score should be provisional or unavailable. |
-| HRV | Strongly preferred | Use daily HRV or sleep HRV if available. |
-| Resting HR | Strongly preferred | Use daily resting HR or overnight RHR. |
-| Respiratory rate | Optional | Stability signal. |
-| SpO2 | Optional | Stability signal. |
-| Sleep debt | Optional | Important context. |
-| Recent training load | Optional | Recovery-load context. |
-| Subjective check-in | Optional | Energy/soreness/stress context. |
+| Input                |            Required? | Notes                                                            |
+| -------------------- | -------------------: | ---------------------------------------------------------------- |
+| Sleep Score          | Required or fallback | If missing, Recovery Score should be provisional or unavailable. |
+| HRV                  |   Strongly preferred | Use daily HRV or sleep HRV if available.                         |
+| Resting HR           |   Strongly preferred | Use daily resting HR or overnight RHR.                           |
+| Respiratory rate     |             Optional | Stability signal.                                                |
+| SpO2                 |             Optional | Stability signal.                                                |
+| Sleep debt           |             Optional | Important context.                                               |
+| Recent training load |             Optional | Recovery-load context.                                           |
+| Subjective check-in  |             Optional | Energy/soreness/stress context.                                  |
 
 ### 12.3 Recovery Score components
 
 Initial formula:
 
-| Component | Weight | Required? | Description |
-|---|---:|---:|---|
-| HRV Balance | 30% | No but important | Recent HRV vs baseline. |
-| Resting HR Deviation | 20% | No but important | RHR above/below personal baseline. |
-| Sleep Score | 20% | Yes | Last sleep quality/sufficiency. |
-| Sleep Debt | 10% | No | Cumulative shortfall. |
-| Respiratory Stability | 7.5% | No | Deviation from baseline. |
-| SpO2 Stability | 5% | No | Low/deviated oxygen saturation. |
-| Training Load Context | 5% | No | Recent load vs chronic load. |
-| Subjective Check-in | 2.5% | No | Energy/stress/soreness modifier. |
+| Component             | Weight |        Required? | Description                        |
+| --------------------- | -----: | ---------------: | ---------------------------------- |
+| HRV Balance           |    30% | No but important | Recent HRV vs baseline.            |
+| Resting HR Deviation  |    20% | No but important | RHR above/below personal baseline. |
+| Sleep Score           |    20% |              Yes | Last sleep quality/sufficiency.    |
+| Sleep Debt            |    10% |               No | Cumulative shortfall.              |
+| Respiratory Stability |   7.5% |               No | Deviation from baseline.           |
+| SpO2 Stability        |     5% |               No | Low/deviated oxygen saturation.    |
+| Training Load Context |     5% |               No | Recent load vs chronic load.       |
+| Subjective Check-in   |   2.5% |               No | Energy/stress/soreness modifier.   |
 
 This formula should be versioned as `recovery_v1_0`.
 
@@ -999,7 +997,7 @@ Then compare to 30-day baseline if available, else 14-day baseline.
 
 ```typescript
 function hrvBalanceScore(latestHrv: number, recentHrv: number, baselineHrv: number): number {
-  const blended = latestHrv * 0.60 + recentHrv * 0.40;
+  const blended = latestHrv * 0.6 + recentHrv * 0.4;
   const pctDev = percentDeviation(blended, baselineHrv);
   if (pctDev == null) return 50;
   return clamp(Math.round(higherIsBetterBaselineScore(pctDev)), 0, 100);
@@ -1127,26 +1125,26 @@ type RecoveryScoreSnapshot = {
 
 ### 12.11 Recovery recommendation bands
 
-| Recovery Score | Suggested framing |
-|---:|---|
-| 85–100 | Strong recovery. Higher-intensity training may be appropriate if training plan supports it. |
-| 70–84 | Good recovery. Normal training likely reasonable. |
-| 55–69 | Mixed recovery. Moderate intensity or reduced volume may be better. |
-| 35–54 | Low recovery. Prefer light work, skill, mobility, walking, or rest. |
-| 0–34 | Very low recovery. Prioritize recovery behaviors and avoid maximal intensity. |
+| Recovery Score | Suggested framing                                                                           |
+| -------------: | ------------------------------------------------------------------------------------------- |
+|         85–100 | Strong recovery. Higher-intensity training may be appropriate if training plan supports it. |
+|          70–84 | Good recovery. Normal training likely reasonable.                                           |
+|          55–69 | Mixed recovery. Moderate intensity or reduced volume may be better.                         |
+|          35–54 | Low recovery. Prefer light work, skill, mobility, walking, or rest.                         |
+|           0–34 | Very low recovery. Prioritize recovery behaviors and avoid maximal intensity.               |
 
 Language should remain in the middle: neither overly conservative nor reckless.
 
 ### 12.12 Acceptance criteria
 
-| ID | Acceptance Criteria |
-|---|---|
-| ALG-REC-AC-001 | Recovery Score computes from canonical metrics, not raw provider JSON. |
-| ALG-REC-AC-002 | Recovery Score stores component scores and weights. |
-| ALG-REC-AC-003 | If HRV is missing, Recovery Score can compute provisionally from sleep/RHR/other signals if enough data exists. |
+| ID             | Acceptance Criteria                                                                                              |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| ALG-REC-AC-001 | Recovery Score computes from canonical metrics, not raw provider JSON.                                           |
+| ALG-REC-AC-002 | Recovery Score stores component scores and weights.                                                              |
+| ALG-REC-AC-003 | If HRV is missing, Recovery Score can compute provisionally from sleep/RHR/other signals if enough data exists.  |
 | ALG-REC-AC-004 | If Sleep Score is missing, Recovery Score is low confidence or unavailable depending on other available signals. |
-| ALG-REC-AC-005 | User can tap Recovery Score and see top negative/positive drivers. |
-| ALG-REC-AC-006 | AI recommendations use Recovery Score and drivers, not raw data alone. |
+| ALG-REC-AC-005 | User can tap Recovery Score and see top negative/positive drivers.                                               |
+| ALG-REC-AC-006 | AI recommendations use Recovery Score and drivers, not raw data alone.                                           |
 
 ---
 
@@ -1162,14 +1160,14 @@ Training Readiness estimates whether the user appears ready for higher-intensity
 
 Initial formula:
 
-| Component | Weight | Description |
-|---|---:|---|
-| Recovery Score | 40% | Physiological readiness. |
-| Sleep Debt | 15% | Accumulated sleep constraint. |
-| Acute/Chronic Training Load | 20% | Whether recent load is in a productive range. |
-| Soreness/Fatigue Check-in | 10% | Manual training context. |
-| Recent High-Intensity Exposure | 10% | Whether user stacked hard sessions. |
-| Goal Context | 5% | Performance/fat loss/muscle/sleep goals affect recommendation. |
+| Component                      | Weight | Description                                                    |
+| ------------------------------ | -----: | -------------------------------------------------------------- |
+| Recovery Score                 |    40% | Physiological readiness.                                       |
+| Sleep Debt                     |    15% | Accumulated sleep constraint.                                  |
+| Acute/Chronic Training Load    |    20% | Whether recent load is in a productive range.                  |
+| Soreness/Fatigue Check-in      |    10% | Manual training context.                                       |
+| Recent High-Intensity Exposure |    10% | Whether user stacked hard sessions.                            |
+| Goal Context                   |     5% | Performance/fat loss/muscle/sleep goals affect recommendation. |
 
 ### 13.3 Recommendation wording
 
@@ -1190,7 +1188,9 @@ type TrainingReadinessSnapshot = {
   localDate: string;
   algorithmVersion: 'training_readiness_v1_0';
   suggestedTrainingIntensity: 'rest' | 'light' | 'moderate' | 'high';
-  suggestedSessionTypes: Array<'zone2' | 'strength' | 'mobility' | 'skills' | 'sprints' | 'basketball' | 'walk' | 'rest'>;
+  suggestedSessionTypes: Array<
+    'zone2' | 'strength' | 'mobility' | 'skills' | 'sprints' | 'basketball' | 'walk' | 'rest'
+  >;
   components: ScoreComponent[];
   explanationDrivers: InsightReference[];
 };
@@ -1198,13 +1198,13 @@ type TrainingReadinessSnapshot = {
 
 ### 13.5 Suggested training-intensity mapping
 
-| Score | Suggested intensity |
-|---:|---|
-| 85–100 | high |
-| 70–84 | moderate/high |
-| 55–69 | moderate |
-| 35–54 | light |
-| 0–34 | rest/light |
+|  Score | Suggested intensity |
+| -----: | ------------------- |
+| 85–100 | high                |
+|  70–84 | moderate/high       |
+|  55–69 | moderate            |
+|  35–54 | light               |
+|   0–34 | rest/light          |
 
 Goal and recent load can adjust final wording.
 
@@ -1220,14 +1220,14 @@ Strain/Training Load estimates the physiological training stress accumulated dur
 
 ### 14.2 Inputs
 
-| Input | Required? | Notes |
-|---|---:|---|
-| Workout duration | Required for workout load | Exercise session. |
-| Heart-rate zone minutes | Preferred | Best for intensity calculation. |
-| Active calories | Optional | Useful secondary signal. |
-| Workout type | Optional | Helps apply sport-specific factors. |
-| User effort/RPE | Optional | Later manual/enriched input. |
-| Steps/active minutes | Optional | Non-workout daily strain. |
+| Input                   |                 Required? | Notes                               |
+| ----------------------- | ------------------------: | ----------------------------------- |
+| Workout duration        | Required for workout load | Exercise session.                   |
+| Heart-rate zone minutes |                 Preferred | Best for intensity calculation.     |
+| Active calories         |                  Optional | Useful secondary signal.            |
+| Workout type            |                  Optional | Helps apply sport-specific factors. |
+| User effort/RPE         |                  Optional | Later manual/enriched input.        |
+| Steps/active minutes    |                  Optional | Non-workout daily strain.           |
 
 ### 14.3 Workout load formula
 
@@ -1237,13 +1237,13 @@ Compute workout load from HR zone minutes where available.
 
 Suggested HR-zone weights:
 
-| Zone | Weight |
-|---|---:|
-| Zone 1 | 1.0 |
-| Zone 2 | 1.5 |
-| Zone 3 | 2.5 |
-| Zone 4 | 4.0 |
-| Zone 5 | 6.0 |
+| Zone   | Weight |
+| ------ | -----: |
+| Zone 1 |    1.0 |
+| Zone 2 |    1.5 |
+| Zone 3 |    2.5 |
+| Zone 4 |    4.0 |
+| Zone 5 |    6.0 |
 
 ```typescript
 function heartRateZoneLoad(zoneMinutes: Record<string, number>): number {
@@ -1265,16 +1265,16 @@ Workout type can adjust load slightly, but HR should remain primary.
 
 Suggested v1 multipliers:
 
-| Workout type | Multiplier | Notes |
-|---|---:|---|
-| Walk | 0.75 | Lower stress. |
-| Run | 1.05 | Standard endurance. |
-| Cycling | 1.00 | Standard endurance. |
-| Strength | 1.10 | HR may understate muscular strain. |
-| Basketball | 1.15 | Stop/start, impact, intensity. |
-| HIIT | 1.20 | High intensity. |
-| Mobility/Yoga | 0.60 | Low systemic strain. |
-| Unknown | 1.00 | Default. |
+| Workout type  | Multiplier | Notes                              |
+| ------------- | ---------: | ---------------------------------- |
+| Walk          |       0.75 | Lower stress.                      |
+| Run           |       1.05 | Standard endurance.                |
+| Cycling       |       1.00 | Standard endurance.                |
+| Strength      |       1.10 | HR may understate muscular strain. |
+| Basketball    |       1.15 | Stop/start, impact, intensity.     |
+| HIIT          |       1.20 | High intensity.                    |
+| Mobility/Yoga |       0.60 | Low systemic strain.               |
+| Unknown       |       1.00 | Default.                           |
 
 ### 14.5 Daily strain score
 
@@ -1306,13 +1306,13 @@ acuteChronicRatio = acuteLoad / expectedSevenDayLoad
 
 Interpretation:
 
-| Ratio | Label | Meaning |
-|---:|---|---|
-| <0.50 | Very low | Much lower than normal. |
-| 0.50–0.79 | Below normal | Reduced load. |
-| 0.80–1.20 | Steady | Near normal productive range. |
-| 1.21–1.50 | Elevated | Higher than normal. Watch recovery. |
-| >1.50 | Very elevated | Large load increase; recovery may be constrained. |
+|     Ratio | Label         | Meaning                                           |
+| --------: | ------------- | ------------------------------------------------- |
+|     <0.50 | Very low      | Much lower than normal.                           |
+| 0.50–0.79 | Below normal  | Reduced load.                                     |
+| 0.80–1.20 | Steady        | Near normal productive range.                     |
+| 1.21–1.50 | Elevated      | Higher than normal. Watch recovery.               |
+|     >1.50 | Very elevated | Large load increase; recovery may be constrained. |
 
 ### 14.7 Recent high-intensity exposure
 
@@ -1333,13 +1333,13 @@ This should affect Training Readiness recommendations more than Recovery Score.
 
 ### 14.8 Acceptance criteria
 
-| ID | Acceptance Criteria |
-|---|---|
-| ALG-LOAD-AC-001 | Training load can compute from HR zones when available. |
+| ID              | Acceptance Criteria                                                                           |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| ALG-LOAD-AC-001 | Training load can compute from HR zones when available.                                       |
 | ALG-LOAD-AC-002 | If HR zones missing, fallback uses duration, active calories, workout type, and optional RPE. |
-| ALG-LOAD-AC-003 | Acute/chronic load is stored daily. |
-| ALG-LOAD-AC-004 | Training Readiness uses acute/chronic load and recent high-intensity exposure. |
-| ALG-LOAD-AC-005 | UI can explain whether load is below, steady, elevated, or very elevated. |
+| ALG-LOAD-AC-003 | Acute/chronic load is stored daily.                                                           |
+| ALG-LOAD-AC-004 | Training Readiness uses acute/chronic load and recent high-intensity exposure.                |
+| ALG-LOAD-AC-005 | UI can explain whether load is below, steady, elevated, or very elevated.                     |
 
 ---
 
@@ -1353,13 +1353,13 @@ Activity Score measures how well the user met daily movement/activity goals with
 
 ### 15.2 Components
 
-| Component | Weight | Notes |
-|---|---:|---|
-| Steps goal completion | 30% | User/custom default. |
-| Active calories goal | 25% | If available. |
-| Active/zone minutes | 25% | Movement intensity. |
-| Floors/distance | 10% | If available and relevant. |
-| Activity balance | 10% | Avoids rewarding extreme overreaching too much. |
+| Component             | Weight | Notes                                           |
+| --------------------- | -----: | ----------------------------------------------- |
+| Steps goal completion |    30% | User/custom default.                            |
+| Active calories goal  |    25% | If available.                                   |
+| Active/zone minutes   |    25% | Movement intensity.                             |
+| Floors/distance       |    10% | If available and relevant.                      |
+| Activity balance      |    10% | Avoids rewarding extreme overreaching too much. |
 
 ### 15.3 Activity goal score
 
@@ -1403,25 +1403,25 @@ In v1/v2, nutrition should be simple but useful. It should not block the core he
 
 ### 16.2 Nutrition phases
 
-| Phase | Features | Score behavior |
-|---|---|---|
-| v1 | Manual macros, water, caffeine, alcohol, tags | Basic adherence and timing scores. |
-| v1.5 | FoodData Central local catalog | More accurate food/macro logging. |
-| v2 | Saved meals, barcode/OCR/photo estimates | Better UX and macro confidence. |
-| v3 | Optional external integrations | Integrate if official access exists. |
+| Phase | Features                                      | Score behavior                       |
+| ----- | --------------------------------------------- | ------------------------------------ |
+| v1    | Manual macros, water, caffeine, alcohol, tags | Basic adherence and timing scores.   |
+| v1.5  | FoodData Central local catalog                | More accurate food/macro logging.    |
+| v2    | Saved meals, barcode/OCR/photo estimates      | Better UX and macro confidence.      |
+| v3    | Optional external integrations                | Integrate if official access exists. |
 
 ### 16.3 Components
 
 Initial formula:
 
-| Component | Weight | Notes |
-|---|---:|---|
-| Protein target adherence | 25% | Important for athletic/body composition goals. |
-| Calorie target adherence | 20% | Goal-dependent; optional if user does not track. |
-| Hydration adherence | 20% | Water logging. |
-| Caffeine timing | 15% | Especially sleep-impact risk. |
-| Alcohol recovery impact | 10% | Low/no alcohol favors recovery. |
-| Meal timing / late meal flag | 10% | Sleep/recovery context. |
+| Component                    | Weight | Notes                                            |
+| ---------------------------- | -----: | ------------------------------------------------ |
+| Protein target adherence     |    25% | Important for athletic/body composition goals.   |
+| Calorie target adherence     |    20% | Goal-dependent; optional if user does not track. |
+| Hydration adherence          |    20% | Water logging.                                   |
+| Caffeine timing              |    15% | Especially sleep-impact risk.                    |
+| Alcohol recovery impact      |    10% | Low/no alcohol favors recovery.                  |
+| Meal timing / late meal flag |    10% | Sleep/recovery context.                          |
 
 If user does not track nutrition, Nutrition Score should be `not_enough_data`, not guessed.
 
@@ -1468,7 +1468,10 @@ Track amount and latest caffeine time. Score should be personalized over time us
 Initial static logic:
 
 ```typescript
-function caffeineTimingScore(latestCaffeineLocalTime: string | null, bedtimeTargetLocalTime: string | null): number | null {
+function caffeineTimingScore(
+  latestCaffeineLocalTime: string | null,
+  bedtimeTargetLocalTime: string | null,
+): number | null {
   if (!latestCaffeineLocalTime || !bedtimeTargetLocalTime) return null;
   const hoursBeforeBed = differenceHours(bedtimeTargetLocalTime, latestCaffeineLocalTime);
   if (hoursBeforeBed >= 10) return 100;
@@ -1499,12 +1502,18 @@ Initial score:
 ```typescript
 function alcoholScore(drinkBucket: string): number {
   switch (drinkBucket) {
-    case 'none': return 100;
-    case '1': return 80;
-    case '2': return 60;
-    case '3_4': return 35;
-    case '5_plus': return 15;
-    default: return 50;
+    case 'none':
+      return 100;
+    case '1':
+      return 80;
+    case '2':
+      return 60;
+    case '3_4':
+      return 35;
+    case '5_plus':
+      return 15;
+    default:
+      return 50;
   }
 }
 ```
@@ -1606,21 +1615,21 @@ Body composition should help users understand weight, body fat, lean mass, and t
 
 ### 18.2 Inputs
 
-| Metric | Source |
-|---|---|
-| Weight | Google Health / HealthKit / Health Connect / manual / Hume via health store |
-| Body fat percentage | HealthKit/Health Connect/Hume if available |
-| Lean mass | Hume/HealthKit if available |
-| BMI | Derived if height/weight available, optional and low emphasis |
+| Metric              | Source                                                                      |
+| ------------------- | --------------------------------------------------------------------------- |
+| Weight              | Google Health / HealthKit / Health Connect / manual / Hume via health store |
+| Body fat percentage | HealthKit/Health Connect/Hume if available                                  |
+| Lean mass           | Hume/HealthKit if available                                                 |
+| BMI                 | Derived if height/weight available, optional and low emphasis               |
 
 ### 18.3 Trend calculation
 
 Use smoothed trend, not daily raw fluctuation.
 
 ```typescript
-bodyWeightTrend7 = ema(last7DailyWeights, 0.35)
-bodyWeightTrend30 = ema(last30DailyWeights, 0.15)
-bodyFatTrend30 = ema(last30BodyFatPct, 0.15)
+bodyWeightTrend7 = ema(last7DailyWeights, 0.35);
+bodyWeightTrend30 = ema(last30DailyWeights, 0.15);
+bodyFatTrend30 = ema(last30BodyFatPct, 0.15);
 ```
 
 ### 18.4 Body composition insights
@@ -1647,14 +1656,14 @@ Wellbeing Score is an optional home widget that blends major domains into a sing
 
 Initial formula:
 
-| Component | Weight |
-|---|---:|
-| Recovery Score | 30% |
-| Sleep Score | 25% |
-| Activity Balance | 15% |
-| Nutrition/Hydration Score | 15% |
-| Subjective Check-in | 10% |
-| Stress/Consistency Context | 5% |
+| Component                  | Weight |
+| -------------------------- | -----: |
+| Recovery Score             |    30% |
+| Sleep Score                |    25% |
+| Activity Balance           |    15% |
+| Nutrition/Hydration Score  |    15% |
+| Subjective Check-in        |    10% |
+| Stress/Consistency Context |     5% |
 
 If nutrition or subjective check-in is missing, reweight cautiously and mark confidence medium/low.
 
@@ -1679,26 +1688,26 @@ This is a key differentiating feature for Primis and should live inside the Slee
 
 ### 20.2 User inputs
 
-| Input | Required? | Notes |
-|---|---:|---|
-| Target wake time | Required | User-specified for next day. |
-| Wake flexibility | Optional | strict / flexible +/- 15 / flexible +/- 30. |
-| Desired sleep duration | Optional | Defaults to personal sleep need. |
-| Next-day training importance | Optional | none / moderate / intense / competition. |
-| Alarm strictness | Optional | hard alarm vs flexible. |
+| Input                        | Required? | Notes                                       |
+| ---------------------------- | --------: | ------------------------------------------- |
+| Target wake time             |  Required | User-specified for next day.                |
+| Wake flexibility             |  Optional | strict / flexible +/- 15 / flexible +/- 30. |
+| Desired sleep duration       |  Optional | Defaults to personal sleep need.            |
+| Next-day training importance |  Optional | none / moderate / intense / competition.    |
+| Alarm strictness             |  Optional | hard alarm vs flexible.                     |
 
 ### 20.3 Algorithm inputs
 
-| Input | Source |
-|---|---|
-| Historical sleep latency | sleep session if available / user input / inferred |
-| Personal sleep need | user target / historical high-recovery nights / default 8h |
-| Sleep debt | derived |
-| Sleep consistency | derived |
-| Chronotype/circadian tendency | historical bedtime/wake time distribution |
-| Sleep-cycle estimate | default 90 min; adapt over time if evidence exists |
-| Wake quality history | subjective morning energy + sleep score + recovery |
-| Next-day goals | user goals / manual input |
+| Input                         | Source                                                     |
+| ----------------------------- | ---------------------------------------------------------- |
+| Historical sleep latency      | sleep session if available / user input / inferred         |
+| Personal sleep need           | user target / historical high-recovery nights / default 8h |
+| Sleep debt                    | derived                                                    |
+| Sleep consistency             | derived                                                    |
+| Chronotype/circadian tendency | historical bedtime/wake time distribution                  |
+| Sleep-cycle estimate          | default 90 min; adapt over time if evidence exists         |
+| Wake quality history          | subjective morning energy + sleep score + recovery         |
+| Next-day goals                | user goals / manual input                                  |
 
 ### 20.4 Sleep latency estimate
 
@@ -1801,19 +1810,23 @@ Each candidate should receive a `bedtime_fit_score` from 0–100.
 
 Suggested components:
 
-| Component | Weight | Description |
-|---|---:|---|
-| Sleep duration fit | 35% | Matches personal sleep need and sleep debt. |
-| Cycle alignment | 20% | Wakes near estimated cycle boundary. |
-| Circadian compatibility | 20% | Not too far from normal bedtime unless needed. |
-| Recovery need | 15% | High sleep debt/low recovery favors earlier options. |
-| Practicality | 10% | Avoids unrealistic bedtime relative to current time/context. |
+| Component               | Weight | Description                                                  |
+| ----------------------- | -----: | ------------------------------------------------------------ |
+| Sleep duration fit      |    35% | Matches personal sleep need and sleep debt.                  |
+| Cycle alignment         |    20% | Wakes near estimated cycle boundary.                         |
+| Circadian compatibility |    20% | Not too far from normal bedtime unless needed.               |
+| Recovery need           |    15% | High sleep debt/low recovery favors earlier options.         |
+| Practicality            |    10% | Avoids unrealistic bedtime relative to current time/context. |
 
 ### 20.9 Sleep duration fit
 
 ```typescript
-function bedtimeDurationFitScore(candidateSleepHours: number, targetSleepNeed: number, sleepDebtHours: number): number {
-  const adjustedNeed = targetSleepNeed + clamp(sleepDebtHours * 0.20, 0, 0.75);
+function bedtimeDurationFitScore(
+  candidateSleepHours: number,
+  targetSleepNeed: number,
+  sleepDebtHours: number,
+): number {
+  const adjustedNeed = targetSleepNeed + clamp(sleepDebtHours * 0.2, 0, 0.75);
   return sleepDurationScore(candidateSleepHours, adjustedNeed);
 }
 ```
@@ -1821,7 +1834,10 @@ function bedtimeDurationFitScore(candidateSleepHours: number, targetSleepNeed: n
 ### 20.10 Circadian compatibility score
 
 ```typescript
-function circadianCompatibilityScore(candidateBedtimeMinutes: number, medianBedtimeMinutes: number): number {
+function circadianCompatibilityScore(
+  candidateBedtimeMinutes: number,
+  medianBedtimeMinutes: number,
+): number {
   const deviation = circularMinuteDifference(candidateBedtimeMinutes, medianBedtimeMinutes);
   if (deviation <= 30) return 100;
   if (deviation <= 60) return 85;
@@ -1836,9 +1852,15 @@ function circadianCompatibilityScore(candidateBedtimeMinutes: number, medianBedt
 If Recovery Score is low or sleep debt is high, earlier options should be ranked higher.
 
 ```typescript
-function recoveryNeedBonus(candidateSleepHours: number, targetSleepNeed: number, recoveryScore: number | null, sleepDebt: number): number {
+function recoveryNeedBonus(
+  candidateSleepHours: number,
+  targetSleepNeed: number,
+  recoveryScore: number | null,
+  sleepDebt: number,
+): number {
   let bonus = 0;
-  if (recoveryScore != null && recoveryScore < 60 && candidateSleepHours >= targetSleepNeed) bonus += 8;
+  if (recoveryScore != null && recoveryScore < 60 && candidateSleepHours >= targetSleepNeed)
+    bonus += 8;
   if (sleepDebt >= 2 && candidateSleepHours >= targetSleepNeed + 0.25) bonus += 8;
   return clamp(bonus, 0, 15);
 }
@@ -1926,14 +1948,14 @@ type BedtimeRecommendation = {
 
 ### 20.15 Acceptance criteria
 
-| ID | Acceptance Criteria |
-|---|---|
+| ID             | Acceptance Criteria                                                 |
+| -------------- | ------------------------------------------------------------------- |
 | ALG-BED-AC-001 | User can input target wake time and receive ranked bedtime windows. |
-| ALG-BED-AC-002 | Recommendations account for sleep latency. |
-| ALG-BED-AC-003 | Recommendations account for sleep debt and recovery state. |
-| ALG-BED-AC-004 | Recommendations do not claim exact sleep-cycle certainty. |
-| ALG-BED-AC-005 | Recommendation object includes assumptions and rationale. |
-| ALG-BED-AC-006 | Home widget can show best bedtime window. |
+| ALG-BED-AC-002 | Recommendations account for sleep latency.                          |
+| ALG-BED-AC-003 | Recommendations account for sleep debt and recovery state.          |
+| ALG-BED-AC-004 | Recommendations do not claim exact sleep-cycle certainty.           |
+| ALG-BED-AC-005 | Recommendation object includes assumptions and rationale.           |
+| ALG-BED-AC-006 | Home widget can show best bedtime window.                           |
 
 ---
 
@@ -2089,15 +2111,15 @@ Outcomes:
 
 Correlations should support lagged effects.
 
-| Input | Outcome lag |
-|---|---|
-| caffeine | same-night sleep, next-day recovery |
-| alcohol | same-night sleep, next-day HRV/RHR/recovery |
-| hydration | same-day activity, next-day recovery, digestion |
-| late meal | same-night sleep, next-day digestion/recovery |
-| hard workout | next-day HRV/RHR/soreness/recovery |
-| stress | same-night sleep, next-day recovery |
-| gut symptoms | same-day tags, previous-day nutrition |
+| Input        | Outcome lag                                     |
+| ------------ | ----------------------------------------------- |
+| caffeine     | same-night sleep, next-day recovery             |
+| alcohol      | same-night sleep, next-day HRV/RHR/recovery     |
+| hydration    | same-day activity, next-day recovery, digestion |
+| late meal    | same-night sleep, next-day digestion/recovery   |
+| hard workout | next-day HRV/RHR/soreness/recovery              |
+| stress       | same-night sleep, next-day recovery             |
+| gut symptoms | same-day tags, previous-day nutrition           |
 
 ### 22.4 Minimum sample requirements
 
@@ -2105,12 +2127,12 @@ Requirement ID: `ALG-CORR-002`
 
 Do not show correlations too early.
 
-| Evidence level | Minimum samples | Display behavior |
-|---|---:|---|
-| Not enough data | <6 paired samples | Do not show correlation. |
-| Early signal | 6–11 paired samples | Show cautiously: “early pattern.” |
-| Medium confidence | 12–24 paired samples | Show with confidence label. |
-| Higher confidence | 25+ paired samples | Show as a stronger personal trend. |
+| Evidence level    |      Minimum samples | Display behavior                   |
+| ----------------- | -------------------: | ---------------------------------- |
+| Not enough data   |    <6 paired samples | Do not show correlation.           |
+| Early signal      |  6–11 paired samples | Show cautiously: “early pattern.”  |
+| Medium confidence | 12–24 paired samples | Show with confidence label.        |
+| Higher confidence |   25+ paired samples | Show as a stronger personal trend. |
 
 ### 22.5 Correlation methods
 
@@ -2304,11 +2326,11 @@ AI should receive compact context packets:
 
 ### 24.5 Acceptance criteria
 
-| ID | Acceptance Criteria |
-|---|---|
-| ALG-AI-AC-001 | AI chat and summaries use score snapshots and insight candidates. |
-| ALG-AI-AC-002 | AI does not compute core score values from raw data. |
-| ALG-AI-AC-003 | AI responses can cite structured drivers from score components. |
+| ID            | Acceptance Criteria                                                        |
+| ------------- | -------------------------------------------------------------------------- |
+| ALG-AI-AC-001 | AI chat and summaries use score snapshots and insight candidates.          |
+| ALG-AI-AC-002 | AI does not compute core score values from raw data.                       |
+| ALG-AI-AC-003 | AI responses can cite structured drivers from score components.            |
 | ALG-AI-AC-004 | If data is missing, AI says what is missing and why confidence is limited. |
 
 ---
@@ -2359,15 +2381,15 @@ Requirement ID: `ALG-JOB-003`
 
 When a user logs manual input, water, caffeine, alcohol, nutrition, or gut data, recompute affected scores only:
 
-| Input changed | Recompute |
-|---|---|
-| Water | Nutrition, hydration insights |
-| Caffeine | Nutrition, sleep-risk insights, correlation candidates |
-| Alcohol | Nutrition, recovery correlation candidates |
-| Soreness | Training Readiness, recommendations |
-| Sleep session | Sleep, sleep debt, recovery, bedtime profile |
-| Workout | Training load, readiness, activity |
-| Weight/body comp | Body trend summaries |
+| Input changed    | Recompute                                              |
+| ---------------- | ------------------------------------------------------ |
+| Water            | Nutrition, hydration insights                          |
+| Caffeine         | Nutrition, sleep-risk insights, correlation candidates |
+| Alcohol          | Nutrition, recovery correlation candidates             |
+| Soreness         | Training Readiness, recommendations                    |
+| Sleep session    | Sleep, sleep debt, recovery, bedtime profile           |
+| Workout          | Training load, readiness, activity                     |
+| Weight/body comp | Body trend summaries                                   |
 
 ---
 
@@ -2437,15 +2459,15 @@ Requirement ID: `ALG-TEST-001`
 
 Create realistic fixture users:
 
-| Fixture | Description |
-|---|---|
-| `new_user_sparse_data` | Few days of data, many missing metrics. |
-| `consistent_athlete` | Stable sleep/training, high data completeness. |
-| `overreached_athlete` | Elevated training load, low HRV, high RHR. |
-| `poor_sleep_week` | Elevated sleep debt and irregular schedule. |
-| `nutrition_logger` | Manual macros/water/caffeine/alcohol logs. |
-| `shifted_bedtime_user` | Late chronotype / inconsistent bedtime. |
-| `hume_body_comp_user` | Body composition trend data available. |
+| Fixture                | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `new_user_sparse_data` | Few days of data, many missing metrics.        |
+| `consistent_athlete`   | Stable sleep/training, high data completeness. |
+| `overreached_athlete`  | Elevated training load, low HRV, high RHR.     |
+| `poor_sleep_week`      | Elevated sleep debt and irregular schedule.    |
+| `nutrition_logger`     | Manual macros/water/caffeine/alcohol logs.     |
+| `shifted_bedtime_user` | Late chronotype / inconsistent bedtime.        |
+| `hume_body_comp_user`  | Body composition trend data available.         |
 
 ### 27.3 Snapshot tests
 
@@ -2715,15 +2737,15 @@ Implement:
 
 These are not blockers for implementation but should be revisited after real data is available.
 
-| ID | Question | Initial stance |
-|---|---|---|
-| ALG-OPEN-001 | Does Google expose provider-level sleep/readiness scores? | Validate in Phase 0. Primis computes its own either way. |
-| ALG-OPEN-002 | How accurate is Fitbit Air HRV/RHR/sleep stage data in practice? | Use private beta observation; avoid overfitting. |
-| ALG-OPEN-003 | Should score weights become user-adjustable? | No for v1. User customizes dashboard/goals/tone, not formulas. |
-| ALG-OPEN-004 | How strongly should nutrition influence recovery? | Lightly in v1; correlations later. |
-| ALG-OPEN-005 | Should subjective mood/energy affect Wellbeing more than Recovery? | Yes. Recovery remains objective-heavy. |
-| ALG-OPEN-006 | Should Primis use population benchmarks later? | Maybe after public beta; personal baselines first. |
-| ALG-OPEN-007 | How should body composition affect coaching? | Trend insights first, not core readiness. |
+| ID           | Question                                                           | Initial stance                                                 |
+| ------------ | ------------------------------------------------------------------ | -------------------------------------------------------------- |
+| ALG-OPEN-001 | Does Google expose provider-level sleep/readiness scores?          | Validate in Phase 0. Primis computes its own either way.       |
+| ALG-OPEN-002 | How accurate is Fitbit Air HRV/RHR/sleep stage data in practice?   | Use private beta observation; avoid overfitting.               |
+| ALG-OPEN-003 | Should score weights become user-adjustable?                       | No for v1. User customizes dashboard/goals/tone, not formulas. |
+| ALG-OPEN-004 | How strongly should nutrition influence recovery?                  | Lightly in v1; correlations later.                             |
+| ALG-OPEN-005 | Should subjective mood/energy affect Wellbeing more than Recovery? | Yes. Recovery remains objective-heavy.                         |
+| ALG-OPEN-006 | Should Primis use population benchmarks later?                     | Maybe after public beta; personal baselines first.             |
+| ALG-OPEN-007 | How should body composition affect coaching?                       | Trend insights first, not core readiness.                      |
 
 ---
 
@@ -2770,35 +2792,35 @@ AI coding agents must treat this document as the scoring source of truth and sho
 
 The score engine MUST consume normalized records, but implementers need this provider mapping:
 
-| Google Health sleep field | Normalized field/table | Algorithm use |
-|---|---|---|
-| `sleep.interval` | `sleep_sessions.start_time_utc`, `sleep_sessions.end_time_utc` | Sleep session duration, local wake date, schedule. |
-| `sleep.type` | `sleep_sessions.provider_sleep_type` | Select stages vs classic fallback logic. |
-| `sleep.stages[]` | `sleep_stage_intervals` | Stage balance, interruptions, chart segments. |
-| `sleep.outOfBedSegments[]` | `sleep_out_of_bed_segments` | Interruptions, wake disruption, AI explanation. |
-| `sleep.metadata.processed` | `sleep_sessions.provider_processed` | Confidence and missing-data state. |
-| `sleep.metadata.stagesStatus` | `sleep_sessions.provider_stages_status` | Stage-confidence handling. |
-| `sleep.metadata.nap` | `sleep_sessions.is_nap` | Exclude/handle naps separately. |
-| `sleep.metadata.manuallyEdited` | `sleep_sessions.manually_edited` | Confidence and evidence note. |
-| `sleep.summary.stagesSummary[]` | `sleep_stage_summaries` | Stage totals and segment counts. |
-| `sleep.summary.minutesInSleepPeriod` | `sleep_sessions.minutes_in_sleep_period` | Time in bed / sleep period. |
-| `sleep.summary.minutesAfterWakeUp` | `sleep_sessions.minutes_after_wake_up` | Sleep quality and wake-after-sleep context. |
-| `sleep.summary.minutesToFallAsleep` | `sleep_sessions.minutes_to_fall_asleep` | Latency score and bedtime planner. |
-| `sleep.summary.minutesAsleep` | `sleep_sessions.minutes_asleep` | Sleep duration score. |
-| `sleep.summary.minutesAwake` | `sleep_sessions.minutes_awake` | Efficiency and interruptions. |
+| Google Health sleep field            | Normalized field/table                                         | Algorithm use                                      |
+| ------------------------------------ | -------------------------------------------------------------- | -------------------------------------------------- |
+| `sleep.interval`                     | `sleep_sessions.start_time_utc`, `sleep_sessions.end_time_utc` | Sleep session duration, local wake date, schedule. |
+| `sleep.type`                         | `sleep_sessions.provider_sleep_type`                           | Select stages vs classic fallback logic.           |
+| `sleep.stages[]`                     | `sleep_stage_intervals`                                        | Stage balance, interruptions, chart segments.      |
+| `sleep.outOfBedSegments[]`           | `sleep_out_of_bed_segments`                                    | Interruptions, wake disruption, AI explanation.    |
+| `sleep.metadata.processed`           | `sleep_sessions.provider_processed`                            | Confidence and missing-data state.                 |
+| `sleep.metadata.stagesStatus`        | `sleep_sessions.provider_stages_status`                        | Stage-confidence handling.                         |
+| `sleep.metadata.nap`                 | `sleep_sessions.is_nap`                                        | Exclude/handle naps separately.                    |
+| `sleep.metadata.manuallyEdited`      | `sleep_sessions.manually_edited`                               | Confidence and evidence note.                      |
+| `sleep.summary.stagesSummary[]`      | `sleep_stage_summaries`                                        | Stage totals and segment counts.                   |
+| `sleep.summary.minutesInSleepPeriod` | `sleep_sessions.minutes_in_sleep_period`                       | Time in bed / sleep period.                        |
+| `sleep.summary.minutesAfterWakeUp`   | `sleep_sessions.minutes_after_wake_up`                         | Sleep quality and wake-after-sleep context.        |
+| `sleep.summary.minutesToFallAsleep`  | `sleep_sessions.minutes_to_fall_asleep`                        | Latency score and bedtime planner.                 |
+| `sleep.summary.minutesAsleep`        | `sleep_sessions.minutes_asleep`                                | Sleep duration score.                              |
+| `sleep.summary.minutesAwake`         | `sleep_sessions.minutes_awake`                                 | Efficiency and interruptions.                      |
 
 ### 31.2 Required sleep fallback modes
 
 Sleep scoring MUST support these modes:
 
-| Mode | Conditions | Scoring behavior | Confidence |
-|---|---|---|---|
-| `stages_full` | `provider_sleep_type=STAGES`, stages present, summary present, stages status succeeded | Use full Sleep Score formula. | high/medium depending baseline depth |
-| `classic_sleep` | classic stages only: awake/restless/asleep | Use duration, efficiency, latency, restless/awake proxies; skip REM/deep balance. | medium/low |
-| `summary_only` | summary present but intervals missing | Use duration, latency, awake/asleep totals; skip timeline-specific stage balance. | medium/low |
-| `session_only` | only start/end interval present | Compute duration/timing only; mark provisional. | low |
-| `unprocessed_or_rejected` | stages status rejected/timeout/not processed | Compute safe fallback and expose reason. | low |
-| `missing_sleep` | no main sleep session | no Sleep Score; show missing-data state. | unknown |
+| Mode                      | Conditions                                                                             | Scoring behavior                                                                  | Confidence                           |
+| ------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
+| `stages_full`             | `provider_sleep_type=STAGES`, stages present, summary present, stages status succeeded | Use full Sleep Score formula.                                                     | high/medium depending baseline depth |
+| `classic_sleep`           | classic stages only: awake/restless/asleep                                             | Use duration, efficiency, latency, restless/awake proxies; skip REM/deep balance. | medium/low                           |
+| `summary_only`            | summary present but intervals missing                                                  | Use duration, latency, awake/asleep totals; skip timeline-specific stage balance. | medium/low                           |
+| `session_only`            | only start/end interval present                                                        | Compute duration/timing only; mark provisional.                                   | low                                  |
+| `unprocessed_or_rejected` | stages status rejected/timeout/not processed                                           | Compute safe fallback and expose reason.                                          | low                                  |
+| `missing_sleep`           | no main sleep session                                                                  | no Sleep Score; show missing-data state.                                          | unknown                              |
 
 ### 31.3 Sleep Score component updates
 
@@ -2846,16 +2868,16 @@ The UI must not be forced to calculate all segment offsets and lanes on render. 
 
 Primis MUST compute transparent equivalents when proprietary Google Health concepts are not exposed directly:
 
-| Google Health concept | Primis-derived equivalent |
-|---|---|
-| Sleep Score | `primis_sleep_score` |
-| Readiness | `primis_recovery_score` + `primis_training_readiness_score` |
-| Cardio Load | `primis_training_load` / `primis_cardio_load_equivalent` |
-| Vitals in range | `primis_personal_range_status` per metric |
-| Sound sleep | `primis_sound_sleep_minutes` from LIGHT/DEEP/REM with low disruption and steady HR if available |
-| Time to sound sleep | `primis_sleep_latency_minutes`, using provider `minutesToFallAsleep` first |
-| Restlessness | `primis_restlessness_minutes` / `primis_restless_segment_count` from RESTLESS/awake/brief disruptions |
-| Interruptions | `primis_interruption_count` from awake/out-of-bed segments above threshold |
+| Google Health concept | Primis-derived equivalent                                                                             |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| Sleep Score           | `primis_sleep_score`                                                                                  |
+| Readiness             | `primis_recovery_score` + `primis_training_readiness_score`                                           |
+| Cardio Load           | `primis_training_load` / `primis_cardio_load_equivalent`                                              |
+| Vitals in range       | `primis_personal_range_status` per metric                                                             |
+| Sound sleep           | `primis_sound_sleep_minutes` from LIGHT/DEEP/REM with low disruption and steady HR if available       |
+| Time to sound sleep   | `primis_sleep_latency_minutes`, using provider `minutesToFallAsleep` first                            |
+| Restlessness          | `primis_restlessness_minutes` / `primis_restless_segment_count` from RESTLESS/awake/brief disruptions |
+| Interruptions         | `primis_interruption_count` from awake/out-of-bed segments above threshold                            |
 
 ### 31.6 Sleep evidence generation
 
@@ -2894,7 +2916,6 @@ Add unit tests for:
 - missing HRV/RHR but complete sleep data
 - complete vitals but missing stage data
 - chart segment offset generation
-
 
 ### V1.1 source references added by this amendment
 

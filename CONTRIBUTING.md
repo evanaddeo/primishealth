@@ -63,17 +63,17 @@ config: add typed environment contract (CU-007)
 
 Valid area prefixes:
 
-| Prefix | When to use |
-|---|---|
-| `repo` | Repository structure, tooling config, workspace setup |
-| `docs` | Documentation only |
-| `config` | Environment, shared config packages |
-| `test` | Test infrastructure, fixtures, test conventions |
-| `ci` | GitHub Actions workflows |
-| `feat` | New product feature (Phase B+) |
-| `fix` | Bug fix |
-| `refactor` | Code restructuring without behavior change |
-| `chore` | Dependency updates, cleanup with no behavioral effect |
+| Prefix     | When to use                                           |
+| ---------- | ----------------------------------------------------- |
+| `repo`     | Repository structure, tooling config, workspace setup |
+| `docs`     | Documentation only                                    |
+| `config`   | Environment, shared config packages                   |
+| `test`     | Test infrastructure, fixtures, test conventions       |
+| `ci`       | GitHub Actions workflows                              |
+| `feat`     | New product feature (Phase B+)                        |
+| `fix`      | Bug fix                                               |
+| `refactor` | Code restructuring without behavior change            |
+| `chore`    | Dependency updates, cleanup with no behavioral effect |
 
 ---
 

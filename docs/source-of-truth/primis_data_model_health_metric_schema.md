@@ -81,18 +81,18 @@ The schema uses a **hybrid model**:
 
 ## 2. Design Principles
 
-| ID | Principle | Description |
-|---|---|---|
+| ID            | Principle                         | Description                                                                                                          |
+| ------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | DATA-PRIN-001 | Provider-agnostic canonical model | Google, HealthKit, Health Connect, Hume, FoodData Central, and manual input must map into Primis canonical entities. |
-| DATA-PRIN-002 | Raw + normalized storage | Keep raw provider payloads where cost allows; always keep normalized data needed for analytics. |
-| DATA-PRIN-003 | Objective data first | Core scores should be based primarily on objective health metrics. Manual inputs enrich context and correlations. |
-| DATA-PRIN-004 | Local-day correctness | Health analytics are day-boundary sensitive. Store both UTC timestamps and user-local date/timezone context. |
-| DATA-PRIN-005 | Canonical units | Convert provider units into canonical units for scoring and trend analysis. |
-| DATA-PRIN-006 | Missingness is data | Missing, stale, sparse, or low-confidence data must be represented explicitly. |
-| DATA-PRIN-007 | Query speed matters | Home, Sleep, Recovery, Activity, and AI context should read precomputed summaries, not scan raw time series. |
-| DATA-PRIN-008 | Reprocessability | Schema should support recalculating scores, insights, and summaries when algorithms improve. |
-| DATA-PRIN-009 | Auditability | Derived scores and AI recommendations must be traceable to component inputs. |
-| DATA-PRIN-010 | Privacy by schema | Tables must support deletion, retention policies, sensitivity classification, and consent-aware access. |
+| DATA-PRIN-002 | Raw + normalized storage          | Keep raw provider payloads where cost allows; always keep normalized data needed for analytics.                      |
+| DATA-PRIN-003 | Objective data first              | Core scores should be based primarily on objective health metrics. Manual inputs enrich context and correlations.    |
+| DATA-PRIN-004 | Local-day correctness             | Health analytics are day-boundary sensitive. Store both UTC timestamps and user-local date/timezone context.         |
+| DATA-PRIN-005 | Canonical units                   | Convert provider units into canonical units for scoring and trend analysis.                                          |
+| DATA-PRIN-006 | Missingness is data               | Missing, stale, sparse, or low-confidence data must be represented explicitly.                                       |
+| DATA-PRIN-007 | Query speed matters               | Home, Sleep, Recovery, Activity, and AI context should read precomputed summaries, not scan raw time series.         |
+| DATA-PRIN-008 | Reprocessability                  | Schema should support recalculating scores, insights, and summaries when algorithms improve.                         |
+| DATA-PRIN-009 | Auditability                      | Derived scores and AI recommendations must be traceable to component inputs.                                         |
+| DATA-PRIN-010 | Privacy by schema                 | Tables must support deletion, retention policies, sensitivity classification, and consent-aware access.              |
 
 ---
 
@@ -138,14 +138,14 @@ No public Hume developer API is assumed. Hume scale data should be integrated th
 
 ### 4.1 Primary stores
 
-| Store | Technology | Purpose |
-|---|---|---|
-| Normalized relational store | AWS RDS Postgres / Aurora Postgres | Users, provider connections, canonical metrics, summaries, scores, insights, settings. |
-| Raw payload archive | S3 + KMS | Raw provider responses and import files for reprocessing, audit, and data recovery. |
-| Secrets/token store | Secrets Manager / encrypted DB columns + KMS | OAuth refresh tokens, provider credentials, API keys. |
-| Mobile local cache | SQLite + MMKV/TanStack Query cache | Fast dashboard loading, offline recent summaries, widget layout, theme settings. |
-| Search index | Postgres full-text first; OpenSearch optional later | Food search, insight search, AI retrieval metadata. |
-| Vector store | Optional later: pgvector in Postgres or dedicated vector DB | AI retrieval over user notes, summaries, and long-term health insight memory. |
+| Store                       | Technology                                                  | Purpose                                                                                |
+| --------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Normalized relational store | AWS RDS Postgres / Aurora Postgres                          | Users, provider connections, canonical metrics, summaries, scores, insights, settings. |
+| Raw payload archive         | S3 + KMS                                                    | Raw provider responses and import files for reprocessing, audit, and data recovery.    |
+| Secrets/token store         | Secrets Manager / encrypted DB columns + KMS                | OAuth refresh tokens, provider credentials, API keys.                                  |
+| Mobile local cache          | SQLite + MMKV/TanStack Query cache                          | Fast dashboard loading, offline recent summaries, widget layout, theme settings.       |
+| Search index                | Postgres full-text first; OpenSearch optional later         | Food search, insight search, AI retrieval metadata.                                    |
+| Vector store                | Optional later: pgvector in Postgres or dedicated vector DB | AI retrieval over user notes, summaries, and long-term health insight memory.          |
 
 ### 4.2 Postgres approach
 
@@ -172,13 +172,13 @@ Do not require TimescaleDB in v1. Native Postgres partitioning is enough initial
 
 ### 5.1 ID conventions
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UUID or ULID | Primary key. Use consistent generation across backend. |
-| `user_id` | UUID/ULID | Required for all user-owned tables. |
-| `provider_connection_id` | UUID/ULID | Nullable for manual/internal records; required for provider-derived records. |
-| `source_record_id` | Text | Provider record identifier when available. |
-| `correlation_id` | UUID/ULID | Optional ID for tracing ingestion/sync/score runs. |
+| Column                   | Type         | Notes                                                                        |
+| ------------------------ | ------------ | ---------------------------------------------------------------------------- |
+| `id`                     | UUID or ULID | Primary key. Use consistent generation across backend.                       |
+| `user_id`                | UUID/ULID    | Required for all user-owned tables.                                          |
+| `provider_connection_id` | UUID/ULID    | Nullable for manual/internal records; required for provider-derived records. |
+| `source_record_id`       | Text         | Provider record identifier when available.                                   |
+| `correlation_id`         | UUID/ULID    | Optional ID for tracing ingestion/sync/score runs.                           |
 
 Recommendation: use **UUID v7** or ULID for time-sortable IDs if supported by the chosen backend libraries. Use regular UUIDs if implementation speed matters more.
 
@@ -213,37 +213,37 @@ Rules:
 
 Analytics use canonical units. UI may convert for display.
 
-| Metric type | Canonical unit | Display options |
-|---|---:|---|
-| Steps | count | count |
-| Floors | count | count |
-| Distance | meters | miles/km |
-| Duration | seconds | min/hr |
-| Energy | kcal | kcal |
-| Heart rate | bpm | bpm |
-| HRV | milliseconds | ms |
-| Oxygen saturation | percent | % |
-| Respiratory rate | breaths_per_minute | breaths/min |
-| VO2 max | ml_per_kg_min | ml/kg/min |
-| Temperature | celsius | °F/°C |
-| Weight | kilograms | lb/kg |
-| Body fat | percent | % |
-| Lean mass | kilograms | lb/kg |
-| Hydration | milliliters | oz/ml |
-| Caffeine | milligrams | mg |
-| Alcohol | standard_drinks | standard drinks |
-| Macronutrients | grams | g |
-| Sodium / micronutrients | milligrams or micrograms | mg/µg |
+| Metric type             |           Canonical unit | Display options |
+| ----------------------- | -----------------------: | --------------- |
+| Steps                   |                    count | count           |
+| Floors                  |                    count | count           |
+| Distance                |                   meters | miles/km        |
+| Duration                |                  seconds | min/hr          |
+| Energy                  |                     kcal | kcal            |
+| Heart rate              |                      bpm | bpm             |
+| HRV                     |             milliseconds | ms              |
+| Oxygen saturation       |                  percent | %               |
+| Respiratory rate        |       breaths_per_minute | breaths/min     |
+| VO2 max                 |            ml_per_kg_min | ml/kg/min       |
+| Temperature             |                  celsius | °F/°C           |
+| Weight                  |                kilograms | lb/kg           |
+| Body fat                |                  percent | %               |
+| Lean mass               |                kilograms | lb/kg           |
+| Hydration               |              milliliters | oz/ml           |
+| Caffeine                |               milligrams | mg              |
+| Alcohol                 |          standard_drinks | standard drinks |
+| Macronutrients          |                    grams | g               |
+| Sodium / micronutrients | milligrams or micrograms | mg/µg           |
 
 ### 5.4 Data sensitivity classification
 
-| Level | Name | Examples | Handling |
-|---|---|---|---|
-| S0 | Public/reference | FoodData Central public food records | No user privacy issue, but attribution/source version retained. |
-| S1 | User preferences/settings | Theme, widget layout, coaching tone | Protect as account data. |
-| S2 | Personal wellness data | Steps, sleep, calories, workouts, manual check-ins | Encrypt at rest; no logs; deletion supported. |
-| S3 | Sensitive health data | HRV, heart rate, SpO2, respiratory rate, body composition, bowel entries, AI health conversations | Strong access controls, encryption, no third-party leakage beyond authorized AI processing. |
-| S4 | Secrets/credentials | OAuth refresh tokens, API keys | KMS/Secrets Manager; never log; restricted service access. |
+| Level | Name                      | Examples                                                                                          | Handling                                                                                    |
+| ----- | ------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| S0    | Public/reference          | FoodData Central public food records                                                              | No user privacy issue, but attribution/source version retained.                             |
+| S1    | User preferences/settings | Theme, widget layout, coaching tone                                                               | Protect as account data.                                                                    |
+| S2    | Personal wellness data    | Steps, sleep, calories, workouts, manual check-ins                                                | Encrypt at rest; no logs; deletion supported.                                               |
+| S3    | Sensitive health data     | HRV, heart rate, SpO2, respiratory rate, body composition, bowel entries, AI health conversations | Strong access controls, encryption, no third-party leakage beyond authorized AI processing. |
+| S4    | Secrets/credentials       | OAuth refresh tokens, API keys                                                                    | KMS/Secrets Manager; never log; restricted service access.                                  |
 
 ### 5.5 Deletion and retention conventions
 
@@ -259,11 +259,11 @@ All user-owned tables must support user deletion. Deletion should be implemented
 
 Raw payload retention should be configurable:
 
-| Context | Default recommendation |
-|---|---|
-| Private/dev users | Keep raw data indefinitely unless manually deleted. |
-| Future public users | Keep raw payloads for 30–90 days by default; retain normalized summaries longer. |
-| User-selected extended retention | Allow if product/legal/privacy posture supports it. |
+| Context                          | Default recommendation                                                           |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| Private/dev users                | Keep raw data indefinitely unless manually deleted.                              |
+| Future public users              | Keep raw payloads for 30–90 days by default; retain normalized summaries longer. |
+| User-selected extended retention | Allow if product/legal/privacy posture supports it.                              |
 
 ---
 
@@ -697,102 +697,102 @@ This table defines the initial metric namespace. AI coding agents MUST use these
 
 #### Activity metrics
 
-| Metric code | Unit | Sampling | Aggregation | Notes |
-|---|---:|---|---|---|
-| `steps` | count | interval/daily | sum | Daily steps and interval step counts. |
-| `floors` | count | interval/daily | sum | Floors climbed. |
-| `distance_m` | meters | interval/daily | sum | Walking/running/general distance. |
-| `active_energy_kcal` | kcal | interval/daily | sum | Active calories. |
-| `resting_energy_kcal` | kcal | interval/daily | sum | Resting calories if provider exposes. |
-| `total_energy_kcal` | kcal | interval/daily | sum | Total calories burned. |
-| `active_minutes` | seconds | interval/daily | sum | Active duration. |
-| `sedentary_minutes` | seconds | interval/daily | sum | Sedentary duration. |
-| `active_zone_minutes` | seconds | interval/daily | sum | Fitbit-style zone minutes when exposed. |
-| `time_in_hr_zone` | seconds | interval/session | sum | Zone-level time; also stored in workout zone table. |
-| `calories_in_hr_zone` | kcal | interval/session | sum | If provider exposes zone energy. |
-| `vo2_max` | ml_per_kg_min | point/daily | latest | Cardiorespiratory fitness. |
-| `run_vo2_max` | ml_per_kg_min | point/session | latest | Running-specific VO2 if available. |
+| Metric code           |          Unit | Sampling         | Aggregation | Notes                                               |
+| --------------------- | ------------: | ---------------- | ----------- | --------------------------------------------------- |
+| `steps`               |         count | interval/daily   | sum         | Daily steps and interval step counts.               |
+| `floors`              |         count | interval/daily   | sum         | Floors climbed.                                     |
+| `distance_m`          |        meters | interval/daily   | sum         | Walking/running/general distance.                   |
+| `active_energy_kcal`  |          kcal | interval/daily   | sum         | Active calories.                                    |
+| `resting_energy_kcal` |          kcal | interval/daily   | sum         | Resting calories if provider exposes.               |
+| `total_energy_kcal`   |          kcal | interval/daily   | sum         | Total calories burned.                              |
+| `active_minutes`      |       seconds | interval/daily   | sum         | Active duration.                                    |
+| `sedentary_minutes`   |       seconds | interval/daily   | sum         | Sedentary duration.                                 |
+| `active_zone_minutes` |       seconds | interval/daily   | sum         | Fitbit-style zone minutes when exposed.             |
+| `time_in_hr_zone`     |       seconds | interval/session | sum         | Zone-level time; also stored in workout zone table. |
+| `calories_in_hr_zone` |          kcal | interval/session | sum         | If provider exposes zone energy.                    |
+| `vo2_max`             | ml_per_kg_min | point/daily      | latest      | Cardiorespiratory fitness.                          |
+| `run_vo2_max`         | ml_per_kg_min | point/session    | latest      | Running-specific VO2 if available.                  |
 
 #### Vitals metrics
 
-| Metric code | Unit | Sampling | Aggregation | Notes |
-|---|---:|---|---|---|
-| `heart_rate` | bpm | point | avg/min/max | High-volume; partition/index carefully. |
-| `resting_heart_rate` | bpm | daily | latest | Daily resting HR. |
-| `hrv_rmssd` | ms | point/daily | avg/latest | Use RMSSD when known. |
-| `hrv_daily_mean` | ms | daily | latest | Daily HRV summary. |
-| `oxygen_saturation` | percent | point/daily | avg/min | SpO2. |
-| `respiratory_rate` | breaths_per_minute | point/daily | avg/latest | Respiratory rate. |
-| `sleep_respiratory_rate` | breaths_per_minute | sleep_session/daily | avg | Overnight respiratory. |
-| `skin_temp_delta_c` | celsius | point/daily | latest | Skin temperature variation if available. |
-| `body_temp_c` | celsius | point | latest | Body temperature if available. |
+| Metric code              |               Unit | Sampling            | Aggregation | Notes                                    |
+| ------------------------ | -----------------: | ------------------- | ----------- | ---------------------------------------- |
+| `heart_rate`             |                bpm | point               | avg/min/max | High-volume; partition/index carefully.  |
+| `resting_heart_rate`     |                bpm | daily               | latest      | Daily resting HR.                        |
+| `hrv_rmssd`              |                 ms | point/daily         | avg/latest  | Use RMSSD when known.                    |
+| `hrv_daily_mean`         |                 ms | daily               | latest      | Daily HRV summary.                       |
+| `oxygen_saturation`      |            percent | point/daily         | avg/min     | SpO2.                                    |
+| `respiratory_rate`       | breaths_per_minute | point/daily         | avg/latest  | Respiratory rate.                        |
+| `sleep_respiratory_rate` | breaths_per_minute | sleep_session/daily | avg         | Overnight respiratory.                   |
+| `skin_temp_delta_c`      |            celsius | point/daily         | latest      | Skin temperature variation if available. |
+| `body_temp_c`            |            celsius | point               | latest      | Body temperature if available.           |
 
 #### Body composition metrics
 
-| Metric code | Unit | Sampling | Aggregation | Notes |
-|---|---:|---|---|---|
-| `weight_kg` | kg | point | latest | Scale/body weight. |
-| `body_fat_pct` | percent | point | latest | Body fat percentage. |
-| `lean_mass_kg` | kg | point | latest | Lean body mass. |
-| `fat_mass_kg` | kg | point | latest | Derived or provider value. |
-| `bmi` | kg_m2 | point | latest | Derived if height + weight. |
-| `bone_mass_kg` | kg | point | latest | If smart scale provides. |
-| `body_water_pct` | percent | point | latest | If smart scale provides. |
-| `visceral_fat_index` | index | point | latest | Provider-specific scale value. |
-| `basal_metabolic_rate_kcal` | kcal_per_day | point | latest | Scale/provider-derived BMR. |
-| `segmental_lean_mass` | json | point | latest | Optional JSON for arms/legs/trunk if available. |
-| `segmental_fat_mass` | json | point | latest | Optional JSON if available. |
+| Metric code                 |         Unit | Sampling | Aggregation | Notes                                           |
+| --------------------------- | -----------: | -------- | ----------- | ----------------------------------------------- |
+| `weight_kg`                 |           kg | point    | latest      | Scale/body weight.                              |
+| `body_fat_pct`              |      percent | point    | latest      | Body fat percentage.                            |
+| `lean_mass_kg`              |           kg | point    | latest      | Lean body mass.                                 |
+| `fat_mass_kg`               |           kg | point    | latest      | Derived or provider value.                      |
+| `bmi`                       |        kg_m2 | point    | latest      | Derived if height + weight.                     |
+| `bone_mass_kg`              |           kg | point    | latest      | If smart scale provides.                        |
+| `body_water_pct`            |      percent | point    | latest      | If smart scale provides.                        |
+| `visceral_fat_index`        |        index | point    | latest      | Provider-specific scale value.                  |
+| `basal_metabolic_rate_kcal` | kcal_per_day | point    | latest      | Scale/provider-derived BMR.                     |
+| `segmental_lean_mass`       |         json | point    | latest      | Optional JSON for arms/legs/trunk if available. |
+| `segmental_fat_mass`        |         json | point    | latest      | Optional JSON if available.                     |
 
 #### Sleep metrics
 
-| Metric code | Unit | Sampling | Aggregation | Notes |
-|---|---:|---|---|---|
-| `sleep_duration` | seconds | session/daily | sum | Total sleep duration. |
-| `time_in_bed` | seconds | session/daily | sum | Time from bed start to final wake. |
-| `sleep_efficiency` | percent | session/daily | avg | Sleep duration / time in bed. |
-| `deep_sleep_duration` | seconds | session/daily | sum | Stage duration. |
-| `rem_sleep_duration` | seconds | session/daily | sum | Stage duration. |
-| `light_sleep_duration` | seconds | session/daily | sum | Stage duration. |
-| `awake_duration` | seconds | session/daily | sum | Awake during sleep session. |
-| `sleep_latency` | seconds | session/daily | avg | Time to fall asleep. |
-| `wake_after_sleep_onset` | seconds | session/daily | sum | WASO. |
-| `sleep_consistency` | score_0_100 | daily | latest | Derived by Primis. |
-| `sleep_debt_seconds` | seconds | daily | latest | Derived. |
-| `chronotype_offset_minutes` | minutes | rolling | latest | Derived estimate. |
+| Metric code                 |        Unit | Sampling      | Aggregation | Notes                              |
+| --------------------------- | ----------: | ------------- | ----------- | ---------------------------------- |
+| `sleep_duration`            |     seconds | session/daily | sum         | Total sleep duration.              |
+| `time_in_bed`               |     seconds | session/daily | sum         | Time from bed start to final wake. |
+| `sleep_efficiency`          |     percent | session/daily | avg         | Sleep duration / time in bed.      |
+| `deep_sleep_duration`       |     seconds | session/daily | sum         | Stage duration.                    |
+| `rem_sleep_duration`        |     seconds | session/daily | sum         | Stage duration.                    |
+| `light_sleep_duration`      |     seconds | session/daily | sum         | Stage duration.                    |
+| `awake_duration`            |     seconds | session/daily | sum         | Awake during sleep session.        |
+| `sleep_latency`             |     seconds | session/daily | avg         | Time to fall asleep.               |
+| `wake_after_sleep_onset`    |     seconds | session/daily | sum         | WASO.                              |
+| `sleep_consistency`         | score_0_100 | daily         | latest      | Derived by Primis.                 |
+| `sleep_debt_seconds`        |     seconds | daily         | latest      | Derived.                           |
+| `chronotype_offset_minutes` |     minutes | rolling       | latest      | Derived estimate.                  |
 
 #### Nutrition/manual metrics
 
-| Metric code | Unit | Sampling | Aggregation | Notes |
-|---|---:|---|---|---|
-| `calories_in_kcal` | kcal | event/daily | sum | Manual/FDC/other nutrition. |
-| `protein_g` | grams | event/daily | sum | Daily protein. |
-| `carbs_g` | grams | event/daily | sum | Daily carbs. |
-| `fat_g` | grams | event/daily | sum | Daily fat. |
-| `fiber_g` | grams | event/daily | sum | Optional but useful. |
-| `sugar_g` | grams | event/daily | sum | Optional. |
-| `sodium_mg` | mg | event/daily | sum | Optional. |
-| `hydration_ml` | milliliters | event/daily | sum | Water/fluid. |
-| `caffeine_mg` | mg | event/daily | sum | Manual or inferred. |
-| `latest_caffeine_time` | timestamp | daily | latest | Derived from caffeine entries. |
-| `alcohol_standard_drinks` | standard_drinks | event/daily | sum | Manual. |
-| `latest_alcohol_time` | timestamp | daily | latest | Optional. |
-| `energy_subjective` | score_1_5 | daily/event | avg/latest | Manual check-in. |
-| `mood_subjective` | score_1_5 | daily/event | avg/latest | Manual check-in. |
-| `stress_subjective` | score_1_5 | daily/event | avg/latest | Manual check-in. |
-| `soreness_subjective` | score_0_5 | daily/event | avg/latest | Manual check-in. |
-| `productivity_subjective` | score_1_5 | daily/event | avg/latest | Optional. |
+| Metric code               |            Unit | Sampling    | Aggregation | Notes                          |
+| ------------------------- | --------------: | ----------- | ----------- | ------------------------------ |
+| `calories_in_kcal`        |            kcal | event/daily | sum         | Manual/FDC/other nutrition.    |
+| `protein_g`               |           grams | event/daily | sum         | Daily protein.                 |
+| `carbs_g`                 |           grams | event/daily | sum         | Daily carbs.                   |
+| `fat_g`                   |           grams | event/daily | sum         | Daily fat.                     |
+| `fiber_g`                 |           grams | event/daily | sum         | Optional but useful.           |
+| `sugar_g`                 |           grams | event/daily | sum         | Optional.                      |
+| `sodium_mg`               |              mg | event/daily | sum         | Optional.                      |
+| `hydration_ml`            |     milliliters | event/daily | sum         | Water/fluid.                   |
+| `caffeine_mg`             |              mg | event/daily | sum         | Manual or inferred.            |
+| `latest_caffeine_time`    |       timestamp | daily       | latest      | Derived from caffeine entries. |
+| `alcohol_standard_drinks` | standard_drinks | event/daily | sum         | Manual.                        |
+| `latest_alcohol_time`     |       timestamp | daily       | latest      | Optional.                      |
+| `energy_subjective`       |       score_1_5 | daily/event | avg/latest  | Manual check-in.               |
+| `mood_subjective`         |       score_1_5 | daily/event | avg/latest  | Manual check-in.               |
+| `stress_subjective`       |       score_1_5 | daily/event | avg/latest  | Manual check-in.               |
+| `soreness_subjective`     |       score_0_5 | daily/event | avg/latest  | Manual check-in.               |
+| `productivity_subjective` |       score_1_5 | daily/event | avg/latest  | Optional.                      |
 
 #### Derived score metrics
 
-| Metric code | Unit | Sampling | Aggregation | Notes |
-|---|---:|---|---|---|
-| `sleep_score` | score_0_100 | daily/session | latest | Primis-derived unless provider score explicitly stored. |
-| `recovery_score` | score_0_100 | daily | latest | Primis-derived. |
-| `training_readiness_score` | score_0_100 | daily | latest | Primis-derived. |
-| `strain_score` | score_0_100 | session/daily | latest/sum | Primis-derived. |
-| `nutrition_score` | score_0_100 | daily | latest | Phase 2+. |
-| `wellbeing_score` | score_0_100 | daily | latest | Optional home widget. |
-| `bedtime_adherence_score` | score_0_100 | daily | latest | Phase 2+. |
+| Metric code                |        Unit | Sampling      | Aggregation | Notes                                                   |
+| -------------------------- | ----------: | ------------- | ----------- | ------------------------------------------------------- |
+| `sleep_score`              | score_0_100 | daily/session | latest      | Primis-derived unless provider score explicitly stored. |
+| `recovery_score`           | score_0_100 | daily         | latest      | Primis-derived.                                         |
+| `training_readiness_score` | score_0_100 | daily         | latest      | Primis-derived.                                         |
+| `strain_score`             | score_0_100 | session/daily | latest/sum  | Primis-derived.                                         |
+| `nutrition_score`          | score_0_100 | daily         | latest      | Phase 2+.                                               |
+| `wellbeing_score`          | score_0_100 | daily         | latest      | Optional home widget.                                   |
+| `bedtime_adherence_score`  | score_0_100 | daily         | latest      | Phase 2+.                                               |
 
 ---
 
@@ -2021,30 +2021,30 @@ create table mobile_cache_manifests (
 
 This matrix is intentionally conservative. Availability must be validated per provider/user.
 
-| Canonical metric/domain | Google Health API | HealthKit | Health Connect | Hume via HealthKit | Manual | FoodData Central |
-|---|---|---|---|---|---|---|
-| Steps | Expected | Expected | Expected | No | Manual optional | No |
-| Floors | Expected | Possible | Possible | No | Manual optional | No |
-| Active calories | Expected | Expected | Expected | No | No | No |
-| Resting calories | Expected/Possible | Expected/Possible | Possible | No | No | No |
-| Total calories burned | Expected | Derived/Possible | Possible | No | No | No |
-| Heart rate | Expected | Expected | Expected | No | No | No |
-| HRV | Expected | Expected | Expected/Possible | No | No | No |
-| Resting HR | Expected | Expected/Possible | Possible | No | No | No |
-| SpO2 | Expected/Possible | Expected/Possible | Expected/Possible | No | No | No |
-| Respiratory rate | Expected/Possible | Expected/Possible | Expected/Possible | No | No | No |
-| VO2 max | Expected/Possible | Expected/Possible | Possible | No | No | No |
-| Sleep sessions | Expected | Expected | Expected | No | Manual optional | No |
-| Sleep stages | Expected/Possible | Expected/Possible | Possible | No | No | No |
-| Provider sleep score | Unverified | No | No | No | No | No |
-| Provider readiness | Unverified | No | No | No | No | No |
-| Weight | Expected/Possible | Expected | Expected | Expected if written | Manual | No |
-| Body fat | Expected/Possible | Expected | Expected/Possible | Expected if written | Manual | No |
-| Lean mass | Possible | Expected/Possible | Possible | Expected if written | Manual | No |
-| Nutrition logs | Expected/Possible | Expected/Possible | Expected/Possible | No | Yes | Source catalog |
-| Hydration | Expected/Possible | Expected/Possible | Expected/Possible | No | Yes | No |
-| Caffeine/alcohol | Possible via nutrition | Possible | Possible | No | Yes | Food reference only |
-| Poop/digestion | No | Limited/Possible | Limited/Possible | No | Yes | No |
+| Canonical metric/domain | Google Health API      | HealthKit         | Health Connect    | Hume via HealthKit  | Manual          | FoodData Central    |
+| ----------------------- | ---------------------- | ----------------- | ----------------- | ------------------- | --------------- | ------------------- |
+| Steps                   | Expected               | Expected          | Expected          | No                  | Manual optional | No                  |
+| Floors                  | Expected               | Possible          | Possible          | No                  | Manual optional | No                  |
+| Active calories         | Expected               | Expected          | Expected          | No                  | No              | No                  |
+| Resting calories        | Expected/Possible      | Expected/Possible | Possible          | No                  | No              | No                  |
+| Total calories burned   | Expected               | Derived/Possible  | Possible          | No                  | No              | No                  |
+| Heart rate              | Expected               | Expected          | Expected          | No                  | No              | No                  |
+| HRV                     | Expected               | Expected          | Expected/Possible | No                  | No              | No                  |
+| Resting HR              | Expected               | Expected/Possible | Possible          | No                  | No              | No                  |
+| SpO2                    | Expected/Possible      | Expected/Possible | Expected/Possible | No                  | No              | No                  |
+| Respiratory rate        | Expected/Possible      | Expected/Possible | Expected/Possible | No                  | No              | No                  |
+| VO2 max                 | Expected/Possible      | Expected/Possible | Possible          | No                  | No              | No                  |
+| Sleep sessions          | Expected               | Expected          | Expected          | No                  | Manual optional | No                  |
+| Sleep stages            | Expected/Possible      | Expected/Possible | Possible          | No                  | No              | No                  |
+| Provider sleep score    | Unverified             | No                | No                | No                  | No              | No                  |
+| Provider readiness      | Unverified             | No                | No                | No                  | No              | No                  |
+| Weight                  | Expected/Possible      | Expected          | Expected          | Expected if written | Manual          | No                  |
+| Body fat                | Expected/Possible      | Expected          | Expected/Possible | Expected if written | Manual          | No                  |
+| Lean mass               | Possible               | Expected/Possible | Possible          | Expected if written | Manual          | No                  |
+| Nutrition logs          | Expected/Possible      | Expected/Possible | Expected/Possible | No                  | Yes             | Source catalog      |
+| Hydration               | Expected/Possible      | Expected/Possible | Expected/Possible | No                  | Yes             | No                  |
+| Caffeine/alcohol        | Possible via nutrition | Possible          | Possible          | No                  | Yes             | Food reference only |
+| Poop/digestion          | No                     | Limited/Possible  | Limited/Possible  | No                  | Yes             | No                  |
 
 Legend:
 
@@ -2063,13 +2063,13 @@ When multiple providers supply the same metric, Primis should preserve per-sourc
 
 Example default priority:
 
-| Metric | Priority |
-|---|---|
-| Fitbit-derived Google Health sleep | `google_health` first for Fitbit users |
-| iPhone/Apple Watch activity | `healthkit` first if user chooses Apple as primary device |
-| Hume body composition | `hume_via_healthkit` / `healthkit` first for body composition |
-| Manual weight | lower priority than scale/provider unless user selects manual override |
-| Nutrition manual entry | user-entered nutrition should be authoritative for logged meals |
+| Metric                             | Priority                                                               |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| Fitbit-derived Google Health sleep | `google_health` first for Fitbit users                                 |
+| iPhone/Apple Watch activity        | `healthkit` first if user chooses Apple as primary device              |
+| Hume body composition              | `hume_via_healthkit` / `healthkit` first for body composition          |
+| Manual weight                      | lower priority than scale/provider unless user selects manual override |
+| Nutrition manual entry             | user-entered nutrition should be authoritative for logged meals        |
 
 ### 21.2 `user_metric_source_preferences`
 
@@ -2125,12 +2125,12 @@ Use `confidence_score` as an internal 0.0-1.0 value. It should affect whether in
 
 Example thresholds:
 
-| Confidence | Meaning | UI behavior |
-|---:|---|---|
-| 0.85-1.00 | Strong | Normal display. |
-| 0.65-0.84 | Moderate | Display with caveat if needed. |
-| 0.40-0.64 | Low | Use in AI context carefully; avoid firm recommendations. |
-| <0.40 | Very low | Do not use in major scores unless necessary. |
+| Confidence | Meaning  | UI behavior                                              |
+| ---------: | -------- | -------------------------------------------------------- |
+|  0.85-1.00 | Strong   | Normal display.                                          |
+|  0.65-0.84 | Moderate | Display with caveat if needed.                           |
+|  0.40-0.64 | Low      | Use in AI context carefully; avoid firm recommendations. |
+|      <0.40 | Very low | Do not use in major scores unless necessary.             |
 
 ### 22.3 Missing data handling
 
@@ -2139,8 +2139,8 @@ Scores should store missing inputs:
 ```json
 {
   "missing_inputs": [
-    {"metric_code": "hrv_rmssd", "reason": "permission_missing"},
-    {"metric_code": "sleep_respiratory_rate", "reason": "no_data_yet"}
+    { "metric_code": "hrv_rmssd", "reason": "permission_missing" },
+    { "metric_code": "sleep_respiratory_rate", "reason": "no_data_yet" }
   ]
 }
 ```
@@ -2454,17 +2454,17 @@ caffeine_entries insert
 
 ## 27. Security and Privacy Requirements by Table Group
 
-| Table group | Sensitivity | Requirements |
-|---|---|---|
-| Users/auth identities | S1-S2 | Encrypt DB at rest, minimal PII, no passwords in app DB. |
-| Provider connections | S4 | Token refs only, KMS/Secrets Manager, strict IAM. |
-| Raw payloads | S2-S3 | S3 SSE-KMS, user-prefix deletion, no public access. |
-| Metrics/sleep/vitals | S2-S3 | No logs, protected APIs, deletion support. |
-| Bowel/manual notes | S3 | Extra care in AI prompts/logging; avoid unnecessary display. |
-| AI context/messages | S3 | Retention controls, no raw logs, model-provider disclosure. |
-| FoodData Central catalog | S0 | Public/reference data. |
-| User-created foods | S1-S2 | Private by default. |
-| Dashboard/theme | S1 | Standard account protection. |
+| Table group              | Sensitivity | Requirements                                                 |
+| ------------------------ | ----------- | ------------------------------------------------------------ |
+| Users/auth identities    | S1-S2       | Encrypt DB at rest, minimal PII, no passwords in app DB.     |
+| Provider connections     | S4          | Token refs only, KMS/Secrets Manager, strict IAM.            |
+| Raw payloads             | S2-S3       | S3 SSE-KMS, user-prefix deletion, no public access.          |
+| Metrics/sleep/vitals     | S2-S3       | No logs, protected APIs, deletion support.                   |
+| Bowel/manual notes       | S3          | Extra care in AI prompts/logging; avoid unnecessary display. |
+| AI context/messages      | S3          | Retention controls, no raw logs, model-provider disclosure.  |
+| FoodData Central catalog | S0          | Public/reference data.                                       |
+| User-created foods       | S1-S2       | Private by default.                                          |
+| Dashboard/theme          | S1          | Standard account protection.                                 |
 
 ---
 
@@ -2521,16 +2521,16 @@ Test:
 
 ## 29. Open Questions / TBD
 
-| ID | Question | Current recommendation |
-|---|---|---|
-| DM-TBD-001 | Exact Google Health API metric availability for Fitbit Air | Phase 0 data-availability spike before depending on metric. |
-| DM-TBD-002 | Whether Google exposes provider sleep/readiness/cardio load scores | Treat as unverified; compute Primis scores. |
-| DM-TBD-003 | Whether Hume writes all desired fields into Apple Health | Verify after device/app setup. Use `provider_data_availability`. |
-| DM-TBD-004 | ORM choice | Keep schema SQL-first; map to chosen ORM later. |
-| DM-TBD-005 | Vector search timing | Not required v1; use structured retrieval first. |
-| DM-TBD-006 | Raw payload retention for public users | Default 30-90 days later; private users can keep indefinitely. |
-| DM-TBD-007 | FoodData Central import cadence | Monthly or quarterly initially. |
-| DM-TBD-008 | Whether to expose confidence to users | Internal by default; surface only when helpful. |
+| ID         | Question                                                           | Current recommendation                                           |
+| ---------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| DM-TBD-001 | Exact Google Health API metric availability for Fitbit Air         | Phase 0 data-availability spike before depending on metric.      |
+| DM-TBD-002 | Whether Google exposes provider sleep/readiness/cardio load scores | Treat as unverified; compute Primis scores.                      |
+| DM-TBD-003 | Whether Hume writes all desired fields into Apple Health           | Verify after device/app setup. Use `provider_data_availability`. |
+| DM-TBD-004 | ORM choice                                                         | Keep schema SQL-first; map to chosen ORM later.                  |
+| DM-TBD-005 | Vector search timing                                               | Not required v1; use structured retrieval first.                 |
+| DM-TBD-006 | Raw payload retention for public users                             | Default 30-90 days later; private users can keep indefinitely.   |
+| DM-TBD-007 | FoodData Central import cadence                                    | Monthly or quarterly initially.                                  |
+| DM-TBD-008 | Whether to expose confidence to users                              | Internal by default; surface only when helpful.                  |
 
 ---
 
@@ -2685,15 +2685,15 @@ create table sleep_stage_intervals (
 
 Stage-type mapping:
 
-| Google stage | Canonical stage |
-|---|---|
-| `AWAKE` | `awake` |
-| `LIGHT` | `light` |
-| `DEEP` | `deep` |
-| `REM` | `rem` |
-| `ASLEEP` | `asleep` |
-| `RESTLESS` | `restless` |
-| unspecified/unknown | `unknown` |
+| Google stage        | Canonical stage |
+| ------------------- | --------------- |
+| `AWAKE`             | `awake`         |
+| `LIGHT`             | `light`         |
+| `DEEP`              | `deep`          |
+| `REM`               | `rem`           |
+| `ASLEEP`            | `asleep`        |
+| `RESTLESS`          | `restless`      |
+| unspecified/unknown | `unknown`       |
 
 ### 27.5 New table: `sleep_out_of_bed_segments`
 
@@ -2760,20 +2760,20 @@ Mobile MUST consume these chart-ready records for primary sleep rendering instea
 
 Add these metric definitions if not already present:
 
-| Metric code | Unit | Category | Sampling | Notes |
-|---|---:|---|---|---|
-| `device_battery_level_pct` | percent | device | point | From paired devices. |
-| `device_last_sync_age_seconds` | seconds | device | point | Derived from `lastSyncTime`. |
-| `sleep_minutes_in_period` | minutes | sleep | session | Google `minutesInSleepPeriod`. |
-| `sleep_minutes_after_wake_up` | minutes | sleep | session | Google `minutesAfterWakeUp`. |
-| `sleep_minutes_to_fall_asleep` | minutes | sleep | session | Google `minutesToFallAsleep`. |
-| `sleep_minutes_asleep` | minutes | sleep | session | Google `minutesAsleep`. |
-| `sleep_minutes_awake` | minutes | sleep | session | Google `minutesAwake`. |
-| `sleep_stage_segment_count` | count | sleep | session | Per stage summary count. |
-| `hrv_deep_sleep_rmssd_ms` | ms | vitals | daily | Google daily HRV deep-sleep RMSSD field. |
-| `non_rem_heart_rate_bpm` | bpm | vitals | daily | Google daily HRV non-REM HR field. |
-| `hrv_entropy` | unitless | vitals | daily | Google daily HRV entropy field. |
-| `sleep_temperature_derivation_c` | celsius | vitals | daily | Google daily sleep temperature derivations. |
+| Metric code                      |     Unit | Category | Sampling | Notes                                       |
+| -------------------------------- | -------: | -------- | -------- | ------------------------------------------- |
+| `device_battery_level_pct`       |  percent | device   | point    | From paired devices.                        |
+| `device_last_sync_age_seconds`   |  seconds | device   | point    | Derived from `lastSyncTime`.                |
+| `sleep_minutes_in_period`        |  minutes | sleep    | session  | Google `minutesInSleepPeriod`.              |
+| `sleep_minutes_after_wake_up`    |  minutes | sleep    | session  | Google `minutesAfterWakeUp`.                |
+| `sleep_minutes_to_fall_asleep`   |  minutes | sleep    | session  | Google `minutesToFallAsleep`.               |
+| `sleep_minutes_asleep`           |  minutes | sleep    | session  | Google `minutesAsleep`.                     |
+| `sleep_minutes_awake`            |  minutes | sleep    | session  | Google `minutesAwake`.                      |
+| `sleep_stage_segment_count`      |    count | sleep    | session  | Per stage summary count.                    |
+| `hrv_deep_sleep_rmssd_ms`        |       ms | vitals   | daily    | Google daily HRV deep-sleep RMSSD field.    |
+| `non_rem_heart_rate_bpm`         |      bpm | vitals   | daily    | Google daily HRV non-REM HR field.          |
+| `hrv_entropy`                    | unitless | vitals   | daily    | Google daily HRV entropy field.             |
+| `sleep_temperature_derivation_c` |  celsius | vitals   | daily    | Google daily sleep temperature derivations. |
 
 ### 27.9 Fixture requirements
 
@@ -2791,7 +2791,6 @@ Rules:
 - `synthetic` contains app-useful fake data and must be visibly labeled synthetic.
 - `redacted_real` contains real API payloads after validation and must be redacted.
 - Tests must not rely on user-identifying payloads.
-
 
 ### V1.1 source references added by this amendment
 

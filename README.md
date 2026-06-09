@@ -86,4 +86,4 @@ primis/
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for commit conventions, branch naming, and agent boundary rules. *(Added in CU-002.)*
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for commit conventions, branch naming, and agent boundary rules. _(Added in CU-002.)_
