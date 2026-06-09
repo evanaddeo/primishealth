@@ -1,0 +1,20 @@
+{
+  "name": "@primis/root",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Primis — health data aggregation, deterministic scoring, and AI-native coaching platform",
+  "scripts": {
+    "install": "pnpm install",
+    "lint": "echo \"not implemented — configure in CU-004\"",
+    "typecheck": "echo \"not implemented — configure in CU-003\"",
+    "test": "echo \"not implemented — configure in CU-005\"",
+    "format": "echo \"not implemented — configure in CU-004\"",
+    "format:check": "echo \"not implemented — configure in CU-004\"",
+    "build": "echo \"not implemented — configure per-package in later phases\""
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
