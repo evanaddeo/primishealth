@@ -12,6 +12,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@primis/core-types": "workspace:*",
     "zod": "^3.23.8"
   },
   "devDependencies": {
