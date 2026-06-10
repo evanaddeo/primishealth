@@ -21,11 +21,7 @@ import {
   SLEEP_METRIC_CODES,
   VITALS_METRIC_CODES,
 } from '../src/categories.js';
-import {
-  METRIC_DEFINITIONS,
-  UnknownMetricCodeError,
-  getMetric,
-} from '../src/registry.js';
+import { METRIC_DEFINITIONS, UnknownMetricCodeError, getMetric } from '../src/registry.js';
 
 // ---------------------------------------------------------------------------
 // Expected counts per category (from Data Model §9.2)
@@ -73,7 +69,10 @@ describe('METRIC_DEFINITIONS', () => {
   it('every entry has a non-empty displayName', () => {
     for (const [key, def] of Object.entries(METRIC_DEFINITIONS)) {
       expect(def.displayName, `metric "${key}" has empty displayName`).toBeTruthy();
-      expect(def.displayName.trim().length, `metric "${key}" displayName is whitespace`).toBeGreaterThan(0);
+      expect(
+        def.displayName.trim().length,
+        `metric "${key}" displayName is whitespace`,
+      ).toBeGreaterThan(0);
     }
   });
 
@@ -90,7 +89,10 @@ describe('METRIC_DEFINITIONS', () => {
       'score',
     ]);
     for (const [key, def] of Object.entries(METRIC_DEFINITIONS)) {
-      expect(validCategories.has(def.category), `metric "${key}" has invalid category "${def.category}"`).toBe(true);
+      expect(
+        validCategories.has(def.category),
+        `metric "${key}" has invalid category "${def.category}"`,
+      ).toBe(true);
     }
   });
 
@@ -106,7 +108,13 @@ describe('METRIC_DEFINITIONS', () => {
 
   it('every entry has a valid defaultAggregation', () => {
     const validMethods = new Set([
-      'sum', 'avg', 'min', 'max', 'latest', 'duration_weighted_avg', 'none',
+      'sum',
+      'avg',
+      'min',
+      'max',
+      'latest',
+      'duration_weighted_avg',
+      'none',
     ]);
     for (const [key, def] of Object.entries(METRIC_DEFINITIONS)) {
       expect(
@@ -147,9 +155,7 @@ describe('METRIC_DEFINITIONS', () => {
 describe('category counts', () => {
   it(`has exactly ${EXPECTED_COUNTS.activity} activity metrics`, () => {
     expect(ACTIVITY_METRIC_CODES).toHaveLength(EXPECTED_COUNTS.activity);
-    const activityDefs = Object.values(METRIC_DEFINITIONS).filter(
-      (d) => d.category === 'activity',
-    );
+    const activityDefs = Object.values(METRIC_DEFINITIONS).filter((d) => d.category === 'activity');
     expect(activityDefs).toHaveLength(EXPECTED_COUNTS.activity);
   });
 
@@ -211,7 +217,9 @@ describe('ALL_METRIC_CODES', () => {
   it('every code in METRIC_DEFINITIONS is in ALL_METRIC_CODES', () => {
     const allSet = new Set<string>(ALL_METRIC_CODES);
     for (const code of Object.keys(METRIC_DEFINITIONS)) {
-      expect(allSet.has(code), `"${code}" from METRIC_DEFINITIONS not in ALL_METRIC_CODES`).toBe(true);
+      expect(allSet.has(code), `"${code}" from METRIC_DEFINITIONS not in ALL_METRIC_CODES`).toBe(
+        true,
+      );
     }
   });
 });

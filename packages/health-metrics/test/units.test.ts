@@ -146,7 +146,11 @@ describe('convertUnit — hydration', () => {
 
   it('round-trips ml → fl_oz → ml within 0.01 epsilon', () => {
     const original = 2000;
-    const roundTripped = convertUnit(convertUnit(original, 'milliliters', 'fl_oz'), 'fl_oz', 'milliliters');
+    const roundTripped = convertUnit(
+      convertUnit(original, 'milliliters', 'fl_oz'),
+      'fl_oz',
+      'milliliters',
+    );
     expectApprox(roundTripped, original, 0.01);
   });
 });
@@ -178,7 +182,11 @@ describe('convertUnit — temperature', () => {
 
   it('round-trips celsius → fahrenheit → celsius within 0.0001 epsilon', () => {
     const original = 36.6;
-    const roundTripped = convertUnit(convertUnit(original, 'celsius', 'fahrenheit'), 'fahrenheit', 'celsius');
+    const roundTripped = convertUnit(
+      convertUnit(original, 'celsius', 'fahrenheit'),
+      'fahrenheit',
+      'celsius',
+    );
     expectApprox(roundTripped, original);
   });
 });

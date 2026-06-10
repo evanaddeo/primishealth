@@ -12,7 +12,12 @@
  * or user-baseline ranges are fully specified in the Scoring Spec.
  */
 
-import type { AggregationMethod, MetricCategory, SamplingType, ValueType } from '@primis/core-types';
+import type {
+  AggregationMethod,
+  MetricCategory,
+  SamplingType,
+  ValueType,
+} from '@primis/core-types';
 
 // ---------------------------------------------------------------------------
 // MetricDefinition interface

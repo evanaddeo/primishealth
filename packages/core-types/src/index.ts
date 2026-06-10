@@ -10,4 +10,5 @@
 export * from './ai.js';
 export * from './metrics.js';
 export * from './provider.js';
+export * from './redaction.js';
 export * from './scores.js';

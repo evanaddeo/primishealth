@@ -105,58 +105,59 @@ export class UnitConversionError extends Error {
  * | seconds     | hours       | ÷ 3600                |
  * | hours       | seconds     | × 3600                |
  */
-export const UNIT_CONVERSIONS: Readonly<Record<string, Readonly<Record<string, (value: number) => number>>>> =
-  Object.freeze({
-    kg: Object.freeze({
-      lb: (v: number): number => v * 2.20462,
-    }),
+export const UNIT_CONVERSIONS: Readonly<
+  Record<string, Readonly<Record<string, (value: number) => number>>>
+> = Object.freeze({
+  kg: Object.freeze({
+    lb: (v: number): number => v * 2.20462,
+  }),
 
-    lb: Object.freeze({
-      kg: (v: number): number => v * 0.453592,
-    }),
+  lb: Object.freeze({
+    kg: (v: number): number => v * 0.453592,
+  }),
 
-    meters: Object.freeze({
-      km: (v: number): number => v / 1000,
-      miles: (v: number): number => v * 0.000621371,
-    }),
+  meters: Object.freeze({
+    km: (v: number): number => v / 1000,
+    miles: (v: number): number => v * 0.000621371,
+  }),
 
-    km: Object.freeze({
-      meters: (v: number): number => v * 1000,
-    }),
+  km: Object.freeze({
+    meters: (v: number): number => v * 1000,
+  }),
 
-    miles: Object.freeze({
-      meters: (v: number): number => v * 1609.344,
-    }),
+  miles: Object.freeze({
+    meters: (v: number): number => v * 1609.344,
+  }),
 
-    milliliters: Object.freeze({
-      fl_oz: (v: number): number => v * 0.033814,
-    }),
+  milliliters: Object.freeze({
+    fl_oz: (v: number): number => v * 0.033814,
+  }),
 
-    fl_oz: Object.freeze({
-      milliliters: (v: number): number => v * 29.5735,
-    }),
+  fl_oz: Object.freeze({
+    milliliters: (v: number): number => v * 29.5735,
+  }),
 
-    celsius: Object.freeze({
-      fahrenheit: (v: number): number => (v * 9) / 5 + 32,
-    }),
+  celsius: Object.freeze({
+    fahrenheit: (v: number): number => (v * 9) / 5 + 32,
+  }),
 
-    fahrenheit: Object.freeze({
-      celsius: (v: number): number => ((v - 32) * 5) / 9,
-    }),
+  fahrenheit: Object.freeze({
+    celsius: (v: number): number => ((v - 32) * 5) / 9,
+  }),
 
-    seconds: Object.freeze({
-      minutes: (v: number): number => v / 60,
-      hours: (v: number): number => v / 3600,
-    }),
+  seconds: Object.freeze({
+    minutes: (v: number): number => v / 60,
+    hours: (v: number): number => v / 3600,
+  }),
 
-    minutes: Object.freeze({
-      seconds: (v: number): number => v * 60,
-    }),
+  minutes: Object.freeze({
+    seconds: (v: number): number => v * 60,
+  }),
 
-    hours: Object.freeze({
-      seconds: (v: number): number => v * 3600,
-    }),
-  });
+  hours: Object.freeze({
+    seconds: (v: number): number => v * 3600,
+  }),
+});
 
 // ---------------------------------------------------------------------------
 // convertUnit
@@ -216,29 +217,30 @@ export function convertUnit(value: number, from: string, to: string): number {
  * Units with no meaningful display alternatives (e.g. `bpm`, `percent`, `kcal`)
  * list only the canonical string itself.
  */
-export const DISPLAY_UNIT_OPTIONS: Readonly<Record<CanonicalUnit, readonly string[]>> = Object.freeze({
-  count: ['count'],
-  meters: ['meters', 'km', 'miles'],
-  seconds: ['seconds', 'minutes', 'hours'],
-  minutes: ['minutes', 'seconds'],
-  kcal: ['kcal'],
-  bpm: ['bpm'],
-  ms: ['ms'],
-  percent: ['percent'],
-  breaths_per_minute: ['breaths_per_minute'],
-  ml_per_kg_min: ['ml_per_kg_min'],
-  celsius: ['celsius', 'fahrenheit'],
-  kg: ['kg', 'lb'],
-  kg_m2: ['kg_m2'],
-  milliliters: ['milliliters', 'fl_oz'],
-  milligrams: ['milligrams'],
-  standard_drinks: ['standard_drinks'],
-  grams: ['grams'],
-  score_0_100: ['score_0_100'],
-  score_1_5: ['score_1_5'],
-  score_0_5: ['score_0_5'],
-  kcal_per_day: ['kcal_per_day'],
-  index: ['index'],
-  json: ['json'],
-  timestamp: ['timestamp'],
-} satisfies Record<CanonicalUnit, readonly string[]>);
+export const DISPLAY_UNIT_OPTIONS: Readonly<Record<CanonicalUnit, readonly string[]>> =
+  Object.freeze({
+    count: ['count'],
+    meters: ['meters', 'km', 'miles'],
+    seconds: ['seconds', 'minutes', 'hours'],
+    minutes: ['minutes', 'seconds'],
+    kcal: ['kcal'],
+    bpm: ['bpm'],
+    ms: ['ms'],
+    percent: ['percent'],
+    breaths_per_minute: ['breaths_per_minute'],
+    ml_per_kg_min: ['ml_per_kg_min'],
+    celsius: ['celsius', 'fahrenheit'],
+    kg: ['kg', 'lb'],
+    kg_m2: ['kg_m2'],
+    milliliters: ['milliliters', 'fl_oz'],
+    milligrams: ['milligrams'],
+    standard_drinks: ['standard_drinks'],
+    grams: ['grams'],
+    score_0_100: ['score_0_100'],
+    score_1_5: ['score_1_5'],
+    score_0_5: ['score_0_5'],
+    kcal_per_day: ['kcal_per_day'],
+    index: ['index'],
+    json: ['json'],
+    timestamp: ['timestamp'],
+  } satisfies Record<CanonicalUnit, readonly string[]>);

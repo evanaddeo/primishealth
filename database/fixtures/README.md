@@ -106,7 +106,55 @@ fixtures:
 
 ---
 
-## 7. Enforcement
+## 7. Redaction Tooling (CU-013)
+
+Use `scripts/redact-fixture.ts` to strip sensitive fields from a provider API response
+before committing it as a fixture. The script reads JSON from stdin and writes the
+redacted result to stdout.
+
+```bash
+# Redact a raw provider payload before committing:
+pnpm tsx scripts/redact-fixture.ts < raw_fixture.json > database/fixtures/provider/google_health/redacted/activity.json
+
+# Inline quick check:
+echo '{"access_token":"ya29.abc","steps":8200}' | pnpm tsx scripts/redact-fixture.ts
+# → {"access_token":"[REDACTED_TOKEN]","steps":8200}
+```
+
+### What the script redacts
+
+The script applies every rule in `SENSITIVE_FIELD_PATTERNS` from
+`packages/core-types/src/redaction.ts`. Covered categories:
+
+| Pattern name  | Field name examples                                           | Replacement            |
+| ------------- | ------------------------------------------------------------- | ---------------------- |
+| `oauth_token` | `access_token`, `refresh_token`, `id_token`, `token`          | `[REDACTED_TOKEN]`     |
+| `api_key`     | `api_key`, `apiKey`, `client_secret`, `secret_key`            | `[REDACTED_KEY]`       |
+| `email`       | `email`, `userEmail`                                          | `[REDACTED_EMAIL]`     |
+| `user_id`     | `user_id`, `sub`, `subject`, `owner_id`                       | `[REDACTED_UUID]`      |
+| `name`        | `name`, `display_name`, `first_name`, `last_name`, `username` | `[REDACTED_NAME]`      |
+| `device_id`   | `device_id`, `udid`, `push_token`, `apns_token`, `fcm_token`  | `[REDACTED_DEVICE_ID]` |
+
+Numeric health values (steps, HRV, heart rate, sleep duration, SpO2 %) are **not**
+redacted — they are not personally identifying on their own and must remain realistic
+for parser and scoring tests to be useful.
+
+### Policy reminder
+
+- **Real fixtures (`redacted_real/`)**: run through `redact-fixture.ts` before committing,
+  then verify manually using the §5 checklist.
+- **Synthetic fixtures (`redacted/`)**: hand-craft with fake IDs and the `.invalid` TLD
+  for email placeholders; no real data should be present to begin with.
+- When uncertain whether a field is sensitive: treat it as sensitive and redact it.
+
+### Pattern reference
+
+See `packages/core-types/src/redaction.ts` for the canonical `SENSITIVE_FIELD_PATTERNS`
+array and the `redactFixture()` pure function that backs this script.
+
+---
+
+## 8. Enforcement
 
 Verify before every commit:
 
