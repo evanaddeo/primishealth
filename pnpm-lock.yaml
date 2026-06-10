@@ -27,6 +27,16 @@ importers:
         specifier: ^1
         version: 1.6.1(@types/node@20.19.42)
 
+  packages/api-contracts:
+    dependencies:
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      vitest:
+        specifier: ^1.6.1
+        version: 1.6.1(@types/node@20.19.42)
+
   packages/config:
     dependencies:
       zod:
