@@ -56,6 +56,9 @@ importers:
       '@primis/design-system':
         specifier: workspace:*
         version: link:../../packages/design-system
+      '@primis/health-metrics':
+        specifier: workspace:*
+        version: link:../../packages/health-metrics
       '@tanstack/react-query':
         specifier: ^5.101.0
         version: 5.101.0(react@19.2.7)

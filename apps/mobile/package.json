@@ -16,6 +16,7 @@
     "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",
     "@primis/design-system": "workspace:*",
+    "@primis/health-metrics": "workspace:*",
     "@tanstack/react-query": "^5.101.0",
     "expo": "^56.0.11",
     "expo-dev-client": "^56.0.20",
