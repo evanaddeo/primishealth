@@ -6,5 +6,5 @@
     "moduleResolution": "bundler",
     "types": ["react", "react-native"]
   },
-  "include": ["app", "src", "app.config.ts", "babel.config.js", "metro.config.js"]
+  "include": ["app", "src", "test", "app.config.ts", "babel.config.js", "metro.config.js"]
 }

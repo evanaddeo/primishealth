@@ -15,16 +15,20 @@
     "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",
     "@primis/design-system": "workspace:*",
+    "@tanstack/react-query": "^5.101.0",
     "expo": "^56.0.11",
     "expo-dev-client": "^56.0.20",
     "expo-router": "^56.2.10",
+    "expo-sqlite": "^56.0.5",
     "expo-status-bar": "^56.0.4",
     "react": "19.2.7",
     "react-native": "0.86.0",
     "react-native-gesture-handler": "^3.0.1",
+    "react-native-mmkv": "^4.3.1",
     "react-native-reanimated": "^4.4.1",
     "react-native-safe-area-context": "^5.8.0",
-    "react-native-screens": "^4.25.2"
+    "react-native-screens": "^4.25.2",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@babel/core": "^7.27.4",
