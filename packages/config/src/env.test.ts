@@ -22,6 +22,8 @@ function without(obj: NodeJS.ProcessEnv, ...keys: string[]): NodeJS.ProcessEnv {
 const VALID_PUBLIC: NodeJS.ProcessEnv = {
   NODE_ENV: 'development',
   APP_ENV: 'local',
+  EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
+  EXPO_PUBLIC_MOCK_MODE: 'true',
 };
 
 /** Full set of valid backend env vars (mirrors .env.example placeholder values). */
@@ -48,6 +50,8 @@ describe('loadPublicEnv', () => {
     const env = loadPublicEnv(VALID_PUBLIC);
     expect(env.NODE_ENV).toBe('development');
     expect(env.APP_ENV).toBe('local');
+    expect(env.EXPO_PUBLIC_API_BASE_URL).toBe('http://localhost:3000');
+    expect(env.EXPO_PUBLIC_MOCK_MODE).toBe('true');
   });
 
   it('applies default NODE_ENV when absent', () => {
@@ -81,6 +85,32 @@ describe('loadPublicEnv', () => {
     expect(() => loadPublicEnv({ APP_ENV: 'not-a-valid-env' })).toThrowError(
       '[config] Invalid public environment variables',
     );
+  });
+
+  it('defaults EXPO_PUBLIC_API_BASE_URL to http://localhost:3000 when absent', () => {
+    const env = loadPublicEnv(without(VALID_PUBLIC, 'EXPO_PUBLIC_API_BASE_URL'));
+    expect(env.EXPO_PUBLIC_API_BASE_URL).toBe('http://localhost:3000');
+  });
+
+  it('accepts a valid EXPO_PUBLIC_API_BASE_URL', () => {
+    const env = loadPublicEnv({ ...VALID_PUBLIC, EXPO_PUBLIC_API_BASE_URL: 'https://api.primis.app' });
+    expect(env.EXPO_PUBLIC_API_BASE_URL).toBe('https://api.primis.app');
+  });
+
+  it('throws when EXPO_PUBLIC_API_BASE_URL is not a valid URL', () => {
+    expect(() =>
+      loadPublicEnv({ ...VALID_PUBLIC, EXPO_PUBLIC_API_BASE_URL: 'not-a-url' }),
+    ).toThrowError('[config] Invalid public environment variables');
+  });
+
+  it('defaults EXPO_PUBLIC_MOCK_MODE to "true" when absent', () => {
+    const env = loadPublicEnv(without(VALID_PUBLIC, 'EXPO_PUBLIC_MOCK_MODE'));
+    expect(env.EXPO_PUBLIC_MOCK_MODE).toBe('true');
+  });
+
+  it('accepts EXPO_PUBLIC_MOCK_MODE "false"', () => {
+    const env = loadPublicEnv({ ...VALID_PUBLIC, EXPO_PUBLIC_MOCK_MODE: 'false' });
+    expect(env.EXPO_PUBLIC_MOCK_MODE).toBe('false');
   });
 });
 

@@ -10,10 +10,27 @@ import { z } from 'zod';
  *
  * Extend this schema for any variable that is genuinely non-sensitive and
  * required at mobile build time. Never move backend secrets into this schema.
+ *
+ * `EXPO_PUBLIC_*` variables are inlined by Expo's Metro bundler at build time.
+ * They must be present in the environment when `expo start` / `expo build` runs.
+ * Do NOT use `EXPO_PUBLIC_*` for secrets — they are visible in the app bundle.
  */
 const publicEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   APP_ENV: z.enum(['local', 'dev', 'staging', 'prod']).default('local'),
+  /**
+   * Base URL for the Primis backend API, inlined into the mobile bundle by Metro.
+   * Defaults to `http://localhost:3000` for local development.
+   * Set to the real API gateway URL in staging/production builds.
+   */
+  EXPO_PUBLIC_API_BASE_URL: z.string().url().optional().default('http://localhost:3000'),
+  /**
+   * When `'true'`, the API client skips real network calls and throws MockModeError.
+   * CU-023 mock data provider intercepts these errors for offline UI work.
+   * Defaults to `'true'` so local development never requires a running backend.
+   * Must be set to `'false'` in staging and production build pipelines.
+   */
+  EXPO_PUBLIC_MOCK_MODE: z.string().optional().default('true'),
 });
 
 // ---------------------------------------------------------------------------

@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@primis/api-contracts": "workspace:*",
     "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",
     "@primis/design-system": "workspace:*",

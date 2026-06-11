@@ -44,6 +44,9 @@ importers:
 
   apps/mobile:
     dependencies:
+      '@primis/api-contracts':
+        specifier: workspace:*
+        version: link:../../packages/api-contracts
       '@primis/config':
         specifier: workspace:*
         version: link:../../packages/config
