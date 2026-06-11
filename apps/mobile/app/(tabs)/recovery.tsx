@@ -1,11 +1,12 @@
-import { Text, View } from 'react-native';
-
-// TODO(CU-018): replace with token-driven Screen and Text primitives
+import { Screen, Text } from '@primis/design-system';
 
 export default function RecoveryScreen() {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Recovery — placeholder (CU-016)</Text>
-    </View>
+    <Screen testID="screen-recovery">
+      <Text variant="titleLarge">Recovery</Text>
+      <Text variant="bodyMedium" color="secondary">
+        Placeholder — CU-018
+      </Text>
+    </Screen>
   );
 }

@@ -1,16 +1,11 @@
-import React, { createContext, useContext, type ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 
 import {
   createTheme,
-  DEFAULT_THEME,
+  ThemeContext,
   type AccentColor,
-  type Theme,
   type ThemeMode,
 } from '@primis/design-system';
-
-// ── Context ───────────────────────────────────────────────────────────────────
-
-const ThemeContext = createContext<Theme | null>(null);
 
 // ── Provider ──────────────────────────────────────────────────────────────────
 
@@ -29,10 +24,13 @@ interface ThemeProviderProps {
 }
 
 /**
- * Provides the resolved Primis Theme to all descendant components via React context.
+ * Provides the resolved Primis Theme to all descendant components via ThemeContext.
  *
- * Must be placed near the root of the app (inside GestureHandlerRootView and SafeAreaProvider).
- * ThemeProvider state persistence is deferred to CU-021 when the MMKV settings store is available.
+ * ThemeContext is defined in @primis/design-system so that primitives can call useTheme()
+ * without a circular dependency on apps/mobile.
+ *
+ * Must be placed near the app root (inside GestureHandlerRootView and SafeAreaProvider).
+ * State persistence is deferred to CU-021 when the MMKV settings store is available.
  */
 export function ThemeProvider({
   children,
@@ -44,29 +42,8 @@ export function ThemeProvider({
   return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
+// ── Re-exports ────────────────────────────────────────────────────────────────
 
-/**
- * Returns the active resolved Theme from the nearest ThemeProvider.
- *
- * @throws {Error} If called outside a ThemeProvider (guards against missing provider).
- */
-export function useTheme(): Theme {
-  const theme = useContext(ThemeContext);
-  if (theme === null) {
-    throw new Error(
-      'useTheme() must be called inside a <ThemeProvider>. ' +
-        'Ensure ThemeProvider wraps the app root in app/_layout.tsx.',
-    );
-  }
-  return theme;
-}
-
-/**
- * Returns the active Theme or the DEFAULT_THEME if no provider is present.
- * Prefer useTheme() in production code — this variant is useful for isolated
- * component stories and tests that do not mount a full provider tree.
- */
-export function useThemeSafe(): Theme {
-  return useContext(ThemeContext) ?? DEFAULT_THEME;
-}
+// Re-exported so mobile screens can import useTheme from the provider module
+// without knowing about the design-system internals.
+export { useTheme, useThemeSafe } from '@primis/design-system';

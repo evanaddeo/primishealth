@@ -1,11 +1,12 @@
-import { Text, View } from 'react-native';
-
-// TODO(CU-018): replace with token-driven Screen and Text primitives
+import { Screen, Text } from '@primis/design-system';
 
 export default function NutritionScreen() {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Nutrition — placeholder (CU-016)</Text>
-    </View>
+    <Screen testID="screen-nutrition">
+      <Text variant="titleLarge">Nutrition</Text>
+      <Text variant="bodyMedium" color="secondary">
+        Placeholder — CU-018
+      </Text>
+    </Screen>
   );
 }

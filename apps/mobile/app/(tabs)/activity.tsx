@@ -1,11 +1,12 @@
-import { Text, View } from 'react-native';
-
-// TODO(CU-018): replace with token-driven Screen and Text primitives
+import { Screen, Text } from '@primis/design-system';
 
 export default function ActivityScreen() {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Activity — placeholder (CU-016)</Text>
-    </View>
+    <Screen testID="screen-activity">
+      <Text variant="titleLarge">Activity</Text>
+      <Text variant="bodyMedium" color="secondary">
+        Placeholder — CU-018
+      </Text>
+    </Screen>
   );
 }
