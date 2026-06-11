@@ -5,10 +5,14 @@
  * Theme exports: Theme type, createTheme(), DEFAULT_THEME.
  * Theme context: ThemeContext, useTheme(), useThemeSafe() for component consumption.
  * UI primitives: Screen, Card, Text, Button, MetricValue, StatusBadge, ProgressBar.
+ * Motion: timing presets, transition presets, reduced-motion resolver helpers.
  */
 
 // Token modules
 export * from './tokens/index.js';
+
+// Motion primitives — timing and transition presets (CU-019)
+export * from './motion/index.js';
 
 // Theme composition
 export { createTheme, DEFAULT_THEME } from './theme.js';
