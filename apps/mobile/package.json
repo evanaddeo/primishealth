@@ -14,6 +14,7 @@
   "dependencies": {
     "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",
+    "@primis/design-system": "workspace:*",
     "expo": "^56.0.11",
     "expo-dev-client": "^56.0.20",
     "expo-router": "^56.2.10",

@@ -2,13 +2,15 @@ import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-// TODO(CU-017): wrap with ThemeProvider once design tokens are available
+import { ThemeProvider } from '../src/providers/ThemeProvider';
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <Stack screenOptions={{ headerShown: false }} />
+        <ThemeProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
