@@ -7,17 +7,34 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2022,
     sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
-  plugins: ['@typescript-eslint'],
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
+  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'react-native'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+  ],
+  settings: {
+    react: {
+      version: 'detect',
+    },
+  },
   rules: {
     // Disable base rule — @typescript-eslint/no-unused-vars is the TypeScript-aware replacement
     'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': 'error',
+    // _-prefixed identifiers are intentional stubs (e.g. placeholder props in chart scaffolds
+    // that will be wired in Phase G). Standard TypeScript convention.
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     'no-console': ['warn', { allow: ['error'] }],
     '@typescript-eslint/no-explicit-any': 'error',
     // Too noisy at the foundation stage; re-evaluate at Phase B
     '@typescript-eslint/explicit-function-return-type': 'off',
+    // React 17+ JSX transform — no need to import React in every file
+    'react/react-in-jsx-scope': 'off',
   },
   ignorePatterns: ['dist/', 'node_modules/', '*.js'],
 };

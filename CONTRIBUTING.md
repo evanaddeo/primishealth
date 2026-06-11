@@ -74,6 +74,8 @@ Valid area prefixes:
 | `fix`      | Bug fix                                               |
 | `refactor` | Code restructuring without behavior change            |
 | `chore`    | Dependency updates, cleanup with no behavioral effect |
+| `mobile`   | Mobile app code (`apps/mobile`)                       |
+| `design`   | Design system code (`packages/design-system`)         |
 
 ---
 

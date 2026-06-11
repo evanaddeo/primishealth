@@ -1,0 +1,55 @@
+{
+  "$schema": "https://raw.githubusercontent.com/expo/eas-cli/main/packages/eas-json/schema/eas.schema.json",
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "_comment": "Phase Z: provision real Apple development certificate and provisioning profile via EAS credentials.",
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "dev",
+      "env": {
+        "APP_ENV": "development"
+      },
+      "ios": {
+        "resourceClass": "m-medium",
+        "simulator": false
+      }
+    },
+    "preview": {
+      "_comment": "Phase Z: provision real ad-hoc/enterprise distribution certificate and provisioning profile.",
+      "distribution": "internal",
+      "channel": "preview",
+      "env": {
+        "APP_ENV": "preview"
+      },
+      "ios": {
+        "resourceClass": "m-medium"
+      }
+    },
+    "production": {
+      "_comment": "Phase Z: provision real App Store distribution certificate, provisioning profile, and ASC credentials.",
+      "distribution": "store",
+      "channel": "production",
+      "autoIncrement": true,
+      "env": {
+        "APP_ENV": "production"
+      },
+      "ios": {
+        "resourceClass": "m-medium"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "_comment": "Phase Z: replace all PLACEHOLDER values with real Apple credentials before running eas submit.",
+      "ios": {
+        "appleId": "PLACEHOLDER_APPLE_ID",
+        "ascAppId": "PLACEHOLDER_ASC_APP_ID",
+        "appleTeamId": "PLACEHOLDER_APPLE_TEAM_ID"
+      }
+    }
+  }
+}

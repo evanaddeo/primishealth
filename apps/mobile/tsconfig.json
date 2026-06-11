@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "jsx": "react-native",
+    "moduleResolution": "bundler",
+    "types": ["react", "react-native"]
+  },
+  "include": ["app", "src", "test", "app.config.ts", "babel.config.js", "metro.config.js"]
+}

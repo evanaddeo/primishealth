@@ -1,0 +1,29 @@
+/**
+ * @primis/design-system — public API
+ *
+ * Token exports: pure TypeScript objects, no React imports.
+ * Theme exports: Theme type, createTheme(), DEFAULT_THEME.
+ * Theme context: ThemeContext, useTheme(), useThemeSafe() for component consumption.
+ * UI primitives: Screen, Card, Text, Button, MetricValue, StatusBadge, ProgressBar.
+ * Motion: timing presets, transition presets, reduced-motion resolver helpers.
+ * Charts: LineChart, StageTimeline, RingProgress + shared data types and resolvers (CU-020).
+ */
+
+// Token modules
+export * from './tokens/index.js';
+
+// Motion primitives — timing and transition presets (CU-019)
+export * from './motion/index.js';
+
+// Theme composition
+export { createTheme, DEFAULT_THEME } from './theme.js';
+export type { ThemeMode, AccentColor, Theme } from './theme.js';
+
+// Theme context — used by all design-system components and re-exported for mobile screens
+export { ThemeContext, useTheme, useThemeSafe } from './ThemeContext.js';
+
+// UI primitives
+export * from './components/index.js';
+
+// Chart primitives — chart-ready data components (CU-020)
+export * from './charts/index.js';

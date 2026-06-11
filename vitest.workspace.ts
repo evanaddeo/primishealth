@@ -7,4 +7,8 @@ import { defineWorkspace } from 'vitest/config';
  * Packages without tests yet do not need to provide a config — the glob
  * simply produces no matches for them.
  */
-export default defineWorkspace(['packages/*/vitest.config.ts', 'services/*/vitest.config.ts']);
+export default defineWorkspace([
+  'apps/*/vitest.config.ts',
+  'packages/*/vitest.config.ts',
+  'services/*/vitest.config.ts',
+]);

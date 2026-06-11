@@ -1,0 +1,27 @@
+{
+  "name": "@primis/design-system",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-native": ">=0.73"
+  },
+  "dependencies": {
+    "@primis/core-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.1",
+    "react-native": "0.86.0",
+    "typescript": "^5.8.3",
+    "vitest": "^1.6.1"
+  }
+}
