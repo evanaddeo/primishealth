@@ -206,10 +206,15 @@ describe('PrimisApiClient — successful responses', () => {
 
   it('unwraps ApiSuccessResponse envelope and returns data', async () => {
     const payload = { score: 82, date: '2026-06-11' };
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(makeFetchResponse(200, {
-      success: true,
-      data: payload,
-    })));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        makeFetchResponse(200, {
+          success: true,
+          data: payload,
+        }),
+      ),
+    );
 
     const client = makeClient();
     const result = await client.get<typeof payload>(API_ENDPOINTS.DASHBOARD);
@@ -218,10 +223,12 @@ describe('PrimisApiClient — successful responses', () => {
   });
 
   it('sends the correct method and URL', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(makeFetchResponse(200, {
-      success: true,
-      data: { ok: true },
-    }));
+    const fetchMock = vi.fn().mockResolvedValue(
+      makeFetchResponse(200, {
+        success: true,
+        data: { ok: true },
+      }),
+    );
     vi.stubGlobal('fetch', fetchMock);
 
     const client = makeClient({ baseUrl: 'https://api.example.com' });
@@ -234,10 +241,12 @@ describe('PrimisApiClient — successful responses', () => {
   });
 
   it('includes Content-Type and Accept headers', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(makeFetchResponse(200, {
-      success: true,
-      data: {},
-    }));
+    const fetchMock = vi.fn().mockResolvedValue(
+      makeFetchResponse(200, {
+        success: true,
+        data: {},
+      }),
+    );
     vi.stubGlobal('fetch', fetchMock);
 
     const client = makeClient();
@@ -250,10 +259,12 @@ describe('PrimisApiClient — successful responses', () => {
   });
 
   it('does NOT include Authorization header when getAuthToken returns null', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(makeFetchResponse(200, {
-      success: true,
-      data: {},
-    }));
+    const fetchMock = vi.fn().mockResolvedValue(
+      makeFetchResponse(200, {
+        success: true,
+        data: {},
+      }),
+    );
     vi.stubGlobal('fetch', fetchMock);
 
     const client = makeClient({ getAuthToken: () => Promise.resolve(null) });
@@ -265,10 +276,12 @@ describe('PrimisApiClient — successful responses', () => {
   });
 
   it('injects Authorization header when getAuthToken returns a token', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(makeFetchResponse(200, {
-      success: true,
-      data: {},
-    }));
+    const fetchMock = vi.fn().mockResolvedValue(
+      makeFetchResponse(200, {
+        success: true,
+        data: {},
+      }),
+    );
     vi.stubGlobal('fetch', fetchMock);
 
     const client = makeClient({ getAuthToken: () => Promise.resolve('test-token-abc') });
@@ -280,10 +293,12 @@ describe('PrimisApiClient — successful responses', () => {
   });
 
   it('JSON-serializes the body for post()', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(makeFetchResponse(201, {
-      success: true,
-      data: { id: '123' },
-    }));
+    const fetchMock = vi.fn().mockResolvedValue(
+      makeFetchResponse(201, {
+        success: true,
+        data: { id: '123' },
+      }),
+    );
     vi.stubGlobal('fetch', fetchMock);
 
     const client = makeClient();
@@ -305,10 +320,15 @@ describe('PrimisApiClient — error responses', () => {
   });
 
   it('throws ApiClientError for a 401 response with a valid error body', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(makeFetchResponse(401, {
-      success: false,
-      error: { code: 'UNAUTHORIZED', message: 'Token expired' },
-    })));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        makeFetchResponse(401, {
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Token expired' },
+        }),
+      ),
+    );
 
     const client = makeClient();
     const err = await client.get('/v1/dashboard').catch((e: unknown) => e);
@@ -319,10 +339,15 @@ describe('PrimisApiClient — error responses', () => {
   });
 
   it('throws ApiClientError for a 404 response', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(makeFetchResponse(404, {
-      success: false,
-      error: { code: 'NOT_FOUND', message: 'Dashboard not found' },
-    })));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        makeFetchResponse(404, {
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'Dashboard not found' },
+        }),
+      ),
+    );
 
     const client = makeClient();
     const err = await client.get('/v1/dashboard').catch((e: unknown) => e);
@@ -344,10 +369,15 @@ describe('PrimisApiClient — error responses', () => {
   });
 
   it('throws ApiClientError when 2xx response has a malformed envelope', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(makeFetchResponse(200, {
-      success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Unexpected' },
-    })));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        makeFetchResponse(200, {
+          success: false,
+          error: { code: 'INTERNAL_ERROR', message: 'Unexpected' },
+        }),
+      ),
+    );
 
     const client = makeClient();
     const err = await client.get('/v1/dashboard').catch((e: unknown) => e);

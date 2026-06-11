@@ -57,19 +57,19 @@ Specifically, Phase C delivers:
 
 ### 2.1 What Phase A created (CU-001–007)
 
-| Asset | Location |
-| --- | --- |
-| pnpm workspace | `pnpm-workspace.yaml` (apps/*, services/*, packages/*, infrastructure/*) |
-| Strict TypeScript config | `tsconfig.base.json` |
-| ESLint config | `.eslintrc.cjs` (v8 legacy format, `@typescript-eslint/recommended`) |
-| Prettier config | `.prettierrc` / `.prettierignore` |
-| Editor config | `.editorconfig` |
-| Vitest workspace | `vitest.workspace.ts` (see ADR-0001 — NOT `vitest.config.ts`) |
-| GitHub Actions CI | `.github/workflows/ci.yml` |
-| Environment contract | `packages/config/src/env.ts` (loadPublicEnv, loadBackendEnv) |
-| Agent instructions | `.ai-agent-instructions.md` |
-| Contribution guide | `CONTRIBUTING.md` |
-| Docs guide | `docs/README.md` |
+| Asset                    | Location                                                                 |
+| ------------------------ | ------------------------------------------------------------------------ |
+| pnpm workspace           | `pnpm-workspace.yaml` (apps/_, services/_, packages/_, infrastructure/_) |
+| Strict TypeScript config | `tsconfig.base.json`                                                     |
+| ESLint config            | `.eslintrc.cjs` (v8 legacy format, `@typescript-eslint/recommended`)     |
+| Prettier config          | `.prettierrc` / `.prettierignore`                                        |
+| Editor config            | `.editorconfig`                                                          |
+| Vitest workspace         | `vitest.workspace.ts` (see ADR-0001 — NOT `vitest.config.ts`)            |
+| GitHub Actions CI        | `.github/workflows/ci.yml`                                               |
+| Environment contract     | `packages/config/src/env.ts` (loadPublicEnv, loadBackendEnv)             |
+| Agent instructions       | `.ai-agent-instructions.md`                                              |
+| Contribution guide       | `CONTRIBUTING.md`                                                        |
+| Docs guide               | `docs/README.md`                                                         |
 
 > **ADR-0001 critical note:** The root Vitest workspace file is `vitest.workspace.ts`, not
 > `vitest.config.ts`. This was resolved during CU-005 because `defineWorkspace` returns an array
@@ -80,12 +80,12 @@ Specifically, Phase C delivers:
 
 ### 2.2 What Phase B created (CU-008–013)
 
-| Package | Exports |
-| --- | --- |
-| `@primis/core-types` | `ProviderCode`, `ScoreType`, `ScoreState`, `ScoreConfidence`, `ScoreBand`, `scoreToBand()`, `AiIntent`, `ContextDomain`, `MetricCategory`, `MissingReason`, `DataSensitivityLevel`, `RedactionLevel` |
-| `@primis/health-metrics` | `METRIC_DEFINITIONS` registry, `convertUnit()`, unit constants |
-| `@primis/api-contracts` | `ApiSuccessResponse`, `ApiErrorResponse`, `makeSuccessResponse`, `makeErrorResponse`, `ApiError`, `ApiErrorCode`, `PaginationMeta`, `ScoreSnapshotDto`, `ScoreSnapshotDtoSchema`, `SCORE_SNAPSHOT_FIXTURE`, `ScoreComponentDto`, `ScoreDriverDto`, `MissingMetricDto`, `ScoreQualityMetadataDto`, `ProviderFreshnessDto`, `BaselineStatus` |
-| `@primis/config` | `loadPublicEnv()`, `loadBackendEnv()`, `PublicEnv`, `BackendEnv` |
+| Package                  | Exports                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@primis/core-types`     | `ProviderCode`, `ScoreType`, `ScoreState`, `ScoreConfidence`, `ScoreBand`, `scoreToBand()`, `AiIntent`, `ContextDomain`, `MetricCategory`, `MissingReason`, `DataSensitivityLevel`, `RedactionLevel`                                                                                                                                       |
+| `@primis/health-metrics` | `METRIC_DEFINITIONS` registry, `convertUnit()`, unit constants                                                                                                                                                                                                                                                                             |
+| `@primis/api-contracts`  | `ApiSuccessResponse`, `ApiErrorResponse`, `makeSuccessResponse`, `makeErrorResponse`, `ApiError`, `ApiErrorCode`, `PaginationMeta`, `ScoreSnapshotDto`, `ScoreSnapshotDtoSchema`, `SCORE_SNAPSHOT_FIXTURE`, `ScoreComponentDto`, `ScoreDriverDto`, `MissingMetricDto`, `ScoreQualityMetadataDto`, `ProviderFreshnessDto`, `BaselineStatus` |
+| `@primis/config`         | `loadPublicEnv()`, `loadBackendEnv()`, `PublicEnv`, `BackendEnv`                                                                                                                                                                                                                                                                           |
 
 ### 2.3 Current `apps/mobile` and `packages/design-system` state
 
@@ -101,24 +101,24 @@ CU-017 initializes `packages/design-system` as a real shared package.
 
 ### 2.4 Existing ADRs that affect Phase C
 
-| ADR | Relevance |
-| --- | --- |
-| `ADR-0001-vitest-workspace-file-name.md` | Workspace config is `vitest.workspace.ts`; all new packages use `vitest.config.ts` with `defineConfig`. |
-| `ADR-001-provider-code-naming.md` | Provider codes are `healthkit`, `health_connect`, `google_health`, etc. Mock data must use these exact strings when referencing provider sources. |
-| `ADR-002-ai-intent-count-discrepancy.md` | `AiIntent` has 20 values. If mock AI data references intent types, use values from `@primis/core-types`. |
+| ADR                                      | Relevance                                                                                                                                         |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADR-0001-vitest-workspace-file-name.md` | Workspace config is `vitest.workspace.ts`; all new packages use `vitest.config.ts` with `defineConfig`.                                           |
+| `ADR-001-provider-code-naming.md`        | Provider codes are `healthkit`, `health_connect`, `google_health`, etc. Mock data must use these exact strings when referencing provider sources. |
+| `ADR-002-ai-intent-count-discrepancy.md` | `AiIntent` has 20 values. If mock AI data references intent types, use values from `@primis/core-types`.                                          |
 
 ### 2.5 Relevant conventions
 
-| Convention | Rule |
-| --- | --- |
-| Commit message format | `<area>: <short imperative summary> (<CU-ID>)` |
-| Branch naming | `cu/<cu-id-lowercase>-<short-name>` |
-| Valid area prefixes (current) | `repo`, `docs`, `config`, `test`, `ci`, `feat`, `fix`, `refactor`, `chore` |
-| Area prefix gap | `mobile:` and `design:` are used in the impl spec but absent from `CONTRIBUTING.md`. CU-014 must add them. |
-| Test files | `*.test.ts` co-located in `src/` or in a `test/` subdirectory; never `.spec.ts` |
-| Vitest workspace glob | `vitest.workspace.ts` currently covers `packages/*/vitest.config.ts` and `services/*/vitest.config.ts`. Must add `apps/*/vitest.config.ts` in CU-014. |
-| Secrets policy | `.env` never committed; `.env.example` with `PLACEHOLDER` values only |
-| Data sensitivity | S1 (user preferences) may be stored locally; S2/S3 health values require encryption or secure storage; S4 secrets never in code |
+| Convention                    | Rule                                                                                                                                                  |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Commit message format         | `<area>: <short imperative summary> (<CU-ID>)`                                                                                                        |
+| Branch naming                 | `cu/<cu-id-lowercase>-<short-name>`                                                                                                                   |
+| Valid area prefixes (current) | `repo`, `docs`, `config`, `test`, `ci`, `feat`, `fix`, `refactor`, `chore`                                                                            |
+| Area prefix gap               | `mobile:` and `design:` are used in the impl spec but absent from `CONTRIBUTING.md`. CU-014 must add them.                                            |
+| Test files                    | `*.test.ts` co-located in `src/` or in a `test/` subdirectory; never `.spec.ts`                                                                       |
+| Vitest workspace glob         | `vitest.workspace.ts` currently covers `packages/*/vitest.config.ts` and `services/*/vitest.config.ts`. Must add `apps/*/vitest.config.ts` in CU-014. |
+| Secrets policy                | `.env` never committed; `.env.example` with `PLACEHOLDER` values only                                                                                 |
+| Data sensitivity              | S1 (user preferences) may be stored locally; S2/S3 health values require encryption or secure storage; S4 secrets never in code                       |
 
 ---
 
@@ -127,17 +127,17 @@ CU-017 initializes `packages/design-system` as a real shared package.
 Before implementing any CU in Phase C, the executing agent MUST read the sections listed in the
 handoff prompt for that CU **plus** the following baseline reading:
 
-| Priority | Document | Sections to read for Phase C | Why |
-| --- | --- | --- | --- |
-| 1 | `primis_full_implementation_spec_commit_plan.md` | §0–§5, Phase C CU-014–023, §9 | Commit sequencing authority; commit format; branch naming; verification commands; DoD |
-| 2 | `primis_mvp_build_plan_milestones.md` | §0, §0.5, §3.5, §4, §12 (M6) | Health-data-model-first constraint; Expo/RN constraints; M6 work items |
-| 3 | `primis_technical_architecture_document.md` | §0, §3.4, §6.1, §7, §8, §18 | Mobile stack decisions; Expo Dev Client constraint; module structure; env strategy |
-| 7 | `primis_ui_ux_design_system_spec.md` | §0, §5–§14 | Design tokens; navigation; components; motion; charts; accessibility; loading/empty/stale states |
-| 8 | `primis_product_requirements_document.md` | §0, §8, §9 (onboarding/home/theme flows only) | Home IA, user journeys for shell/mock scope only |
-| 4 | `primis_data_model_health_metric_schema.md` | §0, §5.4 | Data sensitivity levels S0–S4; fixture redaction rules for mock data |
-| 5 | `primis_scoring_algorithms_spec.md` | §0, §6 (score state/confidence/band), §8.4 | ScoreState, ScoreBand, ScoreConfidence, MissingReason for mock data and score-card props |
-| 6 | `primis_ai_context_engine_spec.md` | §0, §7.2 | Safety rules (no raw health data in logs/AI prompts); AiIntent values for mock AI data only |
-| 9 | `primis_google_health_api_feature_parity_matrix.md` | Skim metric names only | Understand future provider metric names when creating mock metric references; do NOT implement Google Health sync |
+| Priority | Document                                            | Sections to read for Phase C                  | Why                                                                                                               |
+| -------- | --------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 1        | `primis_full_implementation_spec_commit_plan.md`    | §0–§5, Phase C CU-014–023, §9                 | Commit sequencing authority; commit format; branch naming; verification commands; DoD                             |
+| 2        | `primis_mvp_build_plan_milestones.md`               | §0, §0.5, §3.5, §4, §12 (M6)                  | Health-data-model-first constraint; Expo/RN constraints; M6 work items                                            |
+| 3        | `primis_technical_architecture_document.md`         | §0, §3.4, §6.1, §7, §8, §18                   | Mobile stack decisions; Expo Dev Client constraint; module structure; env strategy                                |
+| 7        | `primis_ui_ux_design_system_spec.md`                | §0, §5–§14                                    | Design tokens; navigation; components; motion; charts; accessibility; loading/empty/stale states                  |
+| 8        | `primis_product_requirements_document.md`           | §0, §8, §9 (onboarding/home/theme flows only) | Home IA, user journeys for shell/mock scope only                                                                  |
+| 4        | `primis_data_model_health_metric_schema.md`         | §0, §5.4                                      | Data sensitivity levels S0–S4; fixture redaction rules for mock data                                              |
+| 5        | `primis_scoring_algorithms_spec.md`                 | §0, §6 (score state/confidence/band), §8.4    | ScoreState, ScoreBand, ScoreConfidence, MissingReason for mock data and score-card props                          |
+| 6        | `primis_ai_context_engine_spec.md`                  | §0, §7.2                                      | Safety rules (no raw health data in logs/AI prompts); AiIntent values for mock AI data only                       |
+| 9        | `primis_google_health_api_feature_parity_matrix.md` | Skim metric names only                        | Understand future provider metric names when creating mock metric references; do NOT implement Google Health sync |
 
 > Source priority for conflict resolution: spec (1) > milestone plan (2) > TAD (3) > data model (4) > scoring spec (5) > AI spec (6) > UI/UX spec (7) > PRD (8).
 
@@ -164,10 +164,10 @@ Phase B complete (CU-001–CU-013, all packages linting/testing green)
 
 **Package dependency summary for Phase C:**
 
-| Package / App | New dependencies introduced in Phase C |
-| --- | --- |
-| `apps/mobile` | `expo`, `expo-dev-client`, `expo-router`, `react-native`, `react`, `react-native-reanimated`, `react-native-gesture-handler`, `@tanstack/react-query`, `zustand`, `react-native-mmkv`, `expo-sqlite`, `@primis/core-types`, `@primis/api-contracts`, `@primis/config`, `@primis/design-system`, `@testing-library/react-native` |
-| `packages/design-system` | `react`, `react-native`, `react-native-reanimated`, `react-native-skia`, `@primis/core-types` |
+| Package / App            | New dependencies introduced in Phase C                                                                                                                                                                                                                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/mobile`            | `expo`, `expo-dev-client`, `expo-router`, `react-native`, `react`, `react-native-reanimated`, `react-native-gesture-handler`, `@tanstack/react-query`, `zustand`, `react-native-mmkv`, `expo-sqlite`, `@primis/core-types`, `@primis/api-contracts`, `@primis/config`, `@primis/design-system`, `@testing-library/react-native` |
+| `packages/design-system` | `react`, `react-native`, `react-native-reanimated`, `react-native-skia`, `@primis/core-types`                                                                                                                                                                                                                                   |
 
 ---
 
@@ -599,6 +599,7 @@ apps/mobile/src/test/setup.ts               SKIP — defer until RNTL component 
 **Tab screen files** (`index.tsx`, `sleep.tsx`, `recovery.tsx`, `activity.tsx`, `nutrition.tsx`, `coach.tsx`):
 
 Each must:
+
 - Render `<View style={{ flex: 1 }}>` with a centered `<Text>` placeholder:
   e.g., `"Home — placeholder (CU-016)"`
 - Import `View` and `Text` from `react-native`
@@ -938,7 +939,9 @@ Replace `<View><Text>Home — placeholder</Text></View>` with:
 ```tsx
 <Screen>
   <Text variant="titleLarge">Home</Text>
-  <Text variant="bodyMedium" color="secondary">Placeholder — CU-018</Text>
+  <Text variant="bodyMedium" color="secondary">
+    Placeholder — CU-018
+  </Text>
 </Screen>
 ```
 
@@ -1059,6 +1062,7 @@ export const EASINGS = motionTokens.easings;
 - `metricUpdateTransition()`: subtle opacity pulse using `standard` duration
 
 Each function:
+
 - Returns a Reanimated `AnimatedStyle` or `WithTimingConfig` / `WithSpringConfig`
 - Checks the `reducedMotion` flag before applying — if true, returns instant values
 - Is a pure function (no React hooks called inside)
@@ -1338,9 +1342,9 @@ apps/mobile/test/settingsStore.test.ts           CREATE (store action and select
 ```typescript
 interface SettingsState {
   themeMode: 'dark' | 'light' | 'system';
-  accentColor: AccentColor;           // from @primis/design-system
-  coachTone: string;                  // placeholder string; values defined in Phase I
-  summaryTone: string;                // placeholder string; values defined in Phase I
+  accentColor: AccentColor; // from @primis/design-system
+  coachTone: string; // placeholder string; values defined in Phase I
+  summaryTone: string; // placeholder string; values defined in Phase I
   onboardingComplete: boolean;
 }
 ```
@@ -1354,7 +1358,7 @@ interface SettingsState {
 
 ```typescript
 interface WidgetState {
-  widgetOrder: string[];     // widget IDs in display order
+  widgetOrder: string[]; // widget IDs in display order
   hiddenWidgets: Set<string>; // widget IDs that are toggled off
 }
 ```
@@ -1371,10 +1375,10 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,      // 5 minutes
-      gcTime: 30 * 60 * 1000,        // 30 minutes
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 30 * 60 * 1000, // 30 minutes
       retry: 2,
-      refetchOnWindowFocus: false,   // React Native has no browser window
+      refetchOnWindowFocus: false, // React Native has no browser window
     },
   },
 });
@@ -1392,7 +1396,7 @@ export const queryClient = new QueryClient({
 - **Security note**: Do not store raw provider payloads or personal identifiers in this cache.
   Only store precomputed/aggregated dashboard data (S2 sensitivity at most). Future phases
   may add encryption if needed. Add a comment: `// TODO(ADR): evaluate SQLite encryption if
-  cache stores S3 data in Phase G`
+cache stores S3 data in Phase G`
 - No real health data is cached in Phase C (mock data only flows in CU-023)
 
 **`app/_layout.tsx`** update:
@@ -1400,6 +1404,7 @@ export const queryClient = new QueryClient({
 Wrap existing providers with `<QueryClientProvider client={queryClient}>`.
 
 Provider nesting order (outer to inner):
+
 1. `GestureHandlerRootView`
 2. `SafeAreaProvider`
 3. `ThemeProvider`
@@ -1558,7 +1563,7 @@ Named endpoint path constants (Phase C: only dashboard endpoint listed):
 ```typescript
 export const API_ENDPOINTS = {
   HEALTH: '/health',
-  DASHBOARD: '/v1/dashboard',       // Phase D backend provides this
+  DASHBOARD: '/v1/dashboard', // Phase D backend provides this
   SCORE_SNAPSHOT: '/v1/scores/:type', // Phase D
 } as const;
 ```
@@ -1719,12 +1724,12 @@ interface MockDashboard {
 
 **Mock data requirements per state:**
 
-| State | recoveryScore.state | recoveryScore.value | sleepScore.state | activitySummary |
-| --- | --- | --- | --- | --- |
-| Normal | `'available'` | 82 | `'available'` (78) | 7500 steps, 450 kcal |
-| Low Recovery | `'available'` | 34 (very_low band) | `'available'` (65) | 5200 steps, 340 kcal |
-| Stale Data | `'stale_data'` | null | `'stale_data'` (null) | N/A (stale) |
-| Missing Data | `'not_enough_data'` | null | `'not_enough_data'` (null) | zero/unknown |
+| State        | recoveryScore.state | recoveryScore.value | sleepScore.state           | activitySummary      |
+| ------------ | ------------------- | ------------------- | -------------------------- | -------------------- |
+| Normal       | `'available'`       | 82                  | `'available'` (78)         | 7500 steps, 450 kcal |
+| Low Recovery | `'available'`       | 34 (very_low band)  | `'available'` (65)         | 5200 steps, 340 kcal |
+| Stale Data   | `'stale_data'`      | null                | `'stale_data'` (null)      | N/A (stale)          |
+| Missing Data | `'not_enough_data'` | null                | `'not_enough_data'` (null) | zero/unknown         |
 
 **Specific requirements for each state:**
 
@@ -1741,9 +1746,9 @@ interface MockDashboard {
 
 ```typescript
 interface MockAiSummary {
-  readonly intent: AiIntent;        // from @primis/core-types
-  readonly summary: string;         // 1–2 sentence plain text
-  readonly isMock: true;            // must be literally `true` — development-only guard
+  readonly intent: AiIntent; // from @primis/core-types
+  readonly summary: string; // 1–2 sentence plain text
+  readonly isMock: true; // must be literally `true` — development-only guard
 }
 ```
 
@@ -1767,6 +1772,7 @@ interface MockAiSummary {
 These files are DEVELOPMENT ONLY. Mock data is used when EXPO_PUBLIC_MOCK_MODE=true.
 
 Mock data conforms to @primis/api-contracts DTO schemas. It must NEVER contain:
+
 - Real user data, health observations, or OAuth tokens
 - Raw provider API payloads
 - Production-like user IDs or identifiers
@@ -1832,24 +1838,24 @@ git grep -r "sk-\|AKIA\|ya29\." apps/mobile/src/mocks/
 
 These guardrails apply to EVERY CU in Phase C. An agent must verify each one before committing.
 
-| Guardrail | Rule |
-| --- | --- |
-| No backend routes | Do not create Express routes, Lambda handlers, or API Gateway endpoints. |
-| No database migrations | Do not create SQL DDL, ORM schema files, or migration scripts. |
-| No provider sync | Do not implement Google Health, Fitbit, HealthKit, or Health Connect connectors. |
-| No scoring formulas | Do not implement scoring algorithms, baseline calculations, or data-quality formulas. |
-| No AI provider calls | Do not call OpenAI, Anthropic, or any LLM API. Do not write AI prompts. |
-| No real Apple credentials | `eas.json`, `app.config.ts`, and all source files must contain only `PLACEHOLDER_*` strings for Apple team ID, bundle ID, push cert, and App Store Connect keys. |
-| No real EAS project ID | Do not run `eas init` or commit a real EAS project ID. |
-| No Expo Go assumptions | The app must target Expo Dev Client. No code should assume Expo Go compatibility. |
-| No raw health payloads | No mock file, test fixture, or source file may contain raw provider API payloads (Google Health, Fitbit, HealthKit, Health Connect, Hume). |
-| No unredacted personal data | No real user IDs, email addresses, device identifiers, or OAuth tokens may be committed. |
-| No ad hoc styles after CU-017 | Once design tokens exist (after CU-017 is merged), every new component or screen must use token values. No hardcoded hex colors or magic spacing numbers. The one `// TODO(CU-017)` placeholder in CU-016 may remain until CU-018 replaces it. |
-| No secrets in `.env` | `.env` and `.env.local` must not be committed. `.env.example` contains only `PLACEHOLDER` values. |
-| No S4 data in any file | OAuth tokens, API keys, push certificates, and signing credentials must never appear in source code, config files, or comments. |
-| Mock data is dev-only | All mock data files must have `isMock: true` guards and `README.md` disclaimers. |
-| DTOs must validate | All mock `ScoreSnapshotDto` objects must pass `ScoreSnapshotDtoSchema.parse()` in tests — no ad hoc type assertions to skip validation. |
-| Metric codes must be canonical | Any metric code referenced in mocks or UI must exist in `METRIC_DEFINITIONS` from `@primis/health-metrics`. |
+| Guardrail                      | Rule                                                                                                                                                                                                                                           |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| No backend routes              | Do not create Express routes, Lambda handlers, or API Gateway endpoints.                                                                                                                                                                       |
+| No database migrations         | Do not create SQL DDL, ORM schema files, or migration scripts.                                                                                                                                                                                 |
+| No provider sync               | Do not implement Google Health, Fitbit, HealthKit, or Health Connect connectors.                                                                                                                                                               |
+| No scoring formulas            | Do not implement scoring algorithms, baseline calculations, or data-quality formulas.                                                                                                                                                          |
+| No AI provider calls           | Do not call OpenAI, Anthropic, or any LLM API. Do not write AI prompts.                                                                                                                                                                        |
+| No real Apple credentials      | `eas.json`, `app.config.ts`, and all source files must contain only `PLACEHOLDER_*` strings for Apple team ID, bundle ID, push cert, and App Store Connect keys.                                                                               |
+| No real EAS project ID         | Do not run `eas init` or commit a real EAS project ID.                                                                                                                                                                                         |
+| No Expo Go assumptions         | The app must target Expo Dev Client. No code should assume Expo Go compatibility.                                                                                                                                                              |
+| No raw health payloads         | No mock file, test fixture, or source file may contain raw provider API payloads (Google Health, Fitbit, HealthKit, Health Connect, Hume).                                                                                                     |
+| No unredacted personal data    | No real user IDs, email addresses, device identifiers, or OAuth tokens may be committed.                                                                                                                                                       |
+| No ad hoc styles after CU-017  | Once design tokens exist (after CU-017 is merged), every new component or screen must use token values. No hardcoded hex colors or magic spacing numbers. The one `// TODO(CU-017)` placeholder in CU-016 may remain until CU-018 replaces it. |
+| No secrets in `.env`           | `.env` and `.env.local` must not be committed. `.env.example` contains only `PLACEHOLDER` values.                                                                                                                                              |
+| No S4 data in any file         | OAuth tokens, API keys, push certificates, and signing credentials must never appear in source code, config files, or comments.                                                                                                                |
+| Mock data is dev-only          | All mock data files must have `isMock: true` guards and `README.md` disclaimers.                                                                                                                                                               |
+| DTOs must validate             | All mock `ScoreSnapshotDto` objects must pass `ScoreSnapshotDtoSchema.parse()` in tests — no ad hoc type assertions to skip validation.                                                                                                        |
+| Metric codes must be canonical | Any metric code referenced in mocks or UI must exist in `METRIC_DEFINITIONS` from `@primis/health-metrics`.                                                                                                                                    |
 
 **Standard secret-scan commands to run before each commit:**
 
@@ -1924,18 +1930,18 @@ CU-SPECIFIC DOCS TO READ:
 
 **Per-CU reference cheat sheet:**
 
-| CU | Area prefix | Key doc sections | Specific pitfalls to mention |
-| --- | --- | --- | --- |
-| CU-014 | `mobile:` | TAD §3.4, §6.1; MVP §3.5 | `"main": "expo-router/entry"`, Reanimated plugin last, ADR-0001 glob update, vitest env is `node` not `jsdom` |
-| CU-015 | `mobile:` | TAD §6.1; MVP §3.5 | Do not run `eas init`, all fields are `PLACEHOLDER_*` |
-| CU-016 | `mobile:` | UX Spec §5 | `(tabs)` group syntax, `GestureHandlerRootView` at root, 6 tabs exact |
-| CU-017 | `design:` | UX Spec §8–§12.2 | peerDeps not deps, ThemeContext in design-system not mobile, token-only colors |
-| CU-018 | `design:` | UX Spec §11 | Touch target 44pt min, useTheme in design-system, mock RN in design-system tests |
-| CU-019 | `design:` | UX Spec §12 | Reanimated is peerDep, mock AccessibilityInfo in tests, plugin already in babel |
-| CU-020 | `design:` | UX Spec §13 | No Skia yet, `null` in ChartPoint.y, non-Apple-rings RingProgress |
-| CU-021 | `mobile:` | TAD §6.1, ARCH-MOBILE-001/002 | MMKV mock in tests, Set serialization, `refetchOnWindowFocus: false` |
-| CU-022 | `mobile:` | TAD §6.1, ARCH-CODE-006 | `EXPO_PUBLIC_*` build-time, update @primis/config schema |
-| CU-023 | `mobile:` | UX Spec §6.1, §7; Scoring §6 | `MissingReason` from core-types, `localDate` YYYY-MM-DD, `isMock: true` literal |
+| CU     | Area prefix | Key doc sections              | Specific pitfalls to mention                                                                                  |
+| ------ | ----------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| CU-014 | `mobile:`   | TAD §3.4, §6.1; MVP §3.5      | `"main": "expo-router/entry"`, Reanimated plugin last, ADR-0001 glob update, vitest env is `node` not `jsdom` |
+| CU-015 | `mobile:`   | TAD §6.1; MVP §3.5            | Do not run `eas init`, all fields are `PLACEHOLDER_*`                                                         |
+| CU-016 | `mobile:`   | UX Spec §5                    | `(tabs)` group syntax, `GestureHandlerRootView` at root, 6 tabs exact                                         |
+| CU-017 | `design:`   | UX Spec §8–§12.2              | peerDeps not deps, ThemeContext in design-system not mobile, token-only colors                                |
+| CU-018 | `design:`   | UX Spec §11                   | Touch target 44pt min, useTheme in design-system, mock RN in design-system tests                              |
+| CU-019 | `design:`   | UX Spec §12                   | Reanimated is peerDep, mock AccessibilityInfo in tests, plugin already in babel                               |
+| CU-020 | `design:`   | UX Spec §13                   | No Skia yet, `null` in ChartPoint.y, non-Apple-rings RingProgress                                             |
+| CU-021 | `mobile:`   | TAD §6.1, ARCH-MOBILE-001/002 | MMKV mock in tests, Set serialization, `refetchOnWindowFocus: false`                                          |
+| CU-022 | `mobile:`   | TAD §6.1, ARCH-CODE-006       | `EXPO_PUBLIC_*` build-time, update @primis/config schema                                                      |
+| CU-023 | `mobile:`   | UX Spec §6.1, §7; Scoring §6  | `MissingReason` from core-types, `localDate` YYYY-MM-DD, `isMock: true` literal                               |
 
 ---
 
@@ -2041,19 +2047,19 @@ Phase C is complete when ALL of the following are true:
 
 ## 9. Known Risks / Decisions to Defer
 
-| Risk / Decision | Status | Where to resolve |
-| --- | --- | --- |
-| Mobile test environment (Vitest/node vs Jest for RNTL) | **Open — see OQ-001.** Phase C uses Vitest/node for all pure tests. RNTL component rendering tests are deferred to Phase G; runner choice (Vitest vs Jest/Expo Jest) resolved via ADR at that point. | Phase G; create ADR when RNTL tests are first introduced |
-| Exact hex values for light theme and accent colors | Spec provides dark palette; light and accent are described but not fully specified. Use reasonable values with `// TODO(design):` comments. | Founder design review before Phase G |
-| Zustand v4 vs v5 API | Zustand v5 changed the API. Verify the version compatible with `react-native-mmkv` zustand middleware. | CU-021 — check at install time |
-| SQLite encryption for dashboard cache | Phase C cache may hold S2-sensitivity precomputed snapshots. If Phase G moves S3 data to cache, encryption (e.g., SQLite with sqlcipher) must be evaluated. | Phase J hardening (CU pre-beta) |
-| React Native Skia native config | Skia requires `@shopify/react-native-skia` with native linking. CU-020 uses placeholder implementations. Skia must be set up with a dev build before Phase G uses it. | CU-020 notes TODO; Phase G CU agent sets up Skia properly |
-| Icon library selection | No icon library is chosen in Phase C. Tab icons are text-only placeholders. | Phase G or a dedicated icon CU before Phase G |
-| `expo-sqlite` v12+ async API changes | Expo SQLite API changed significantly in SDK 50+. Verify API surface at install time. | CU-021 — check at install time |
-| `CONTRIBUTING.md` area prefix gap | `mobile:` and `design:` are used by the impl spec but were absent from `CONTRIBUTING.md`. CU-014 must add them. | CU-014 |
-| ThemeContext location (design-system vs mobile) | Pitfall section of CU-018 discusses; recommend defining `ThemeContext` in `packages/design-system` rather than `apps/mobile`. If agent makes a different choice, document in an ADR. | CU-017 or CU-018 — agent decision |
-| `useReducedMotion` hook test coverage | Testing `AccessibilityInfo.isReduceMotionEnabled` requires native bridge mocking in unit tests. Agent must mock `react-native` or test at integration level. | CU-019 — agent decision |
-| `@primis/mobile` app build on simulator | `pnpm --filter @primis/mobile start` launches Metro but a dev client build on simulator requires `eas build --profile development`. Dev client build is a manual Phase Z action; plan only requires Metro to start cleanly. | Phase Z manual setup |
+| Risk / Decision                                        | Status                                                                                                                                                                                                                      | Where to resolve                                          |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Mobile test environment (Vitest/node vs Jest for RNTL) | **Open — see OQ-001.** Phase C uses Vitest/node for all pure tests. RNTL component rendering tests are deferred to Phase G; runner choice (Vitest vs Jest/Expo Jest) resolved via ADR at that point.                        | Phase G; create ADR when RNTL tests are first introduced  |
+| Exact hex values for light theme and accent colors     | Spec provides dark palette; light and accent are described but not fully specified. Use reasonable values with `// TODO(design):` comments.                                                                                 | Founder design review before Phase G                      |
+| Zustand v4 vs v5 API                                   | Zustand v5 changed the API. Verify the version compatible with `react-native-mmkv` zustand middleware.                                                                                                                      | CU-021 — check at install time                            |
+| SQLite encryption for dashboard cache                  | Phase C cache may hold S2-sensitivity precomputed snapshots. If Phase G moves S3 data to cache, encryption (e.g., SQLite with sqlcipher) must be evaluated.                                                                 | Phase J hardening (CU pre-beta)                           |
+| React Native Skia native config                        | Skia requires `@shopify/react-native-skia` with native linking. CU-020 uses placeholder implementations. Skia must be set up with a dev build before Phase G uses it.                                                       | CU-020 notes TODO; Phase G CU agent sets up Skia properly |
+| Icon library selection                                 | No icon library is chosen in Phase C. Tab icons are text-only placeholders.                                                                                                                                                 | Phase G or a dedicated icon CU before Phase G             |
+| `expo-sqlite` v12+ async API changes                   | Expo SQLite API changed significantly in SDK 50+. Verify API surface at install time.                                                                                                                                       | CU-021 — check at install time                            |
+| `CONTRIBUTING.md` area prefix gap                      | `mobile:` and `design:` are used by the impl spec but were absent from `CONTRIBUTING.md`. CU-014 must add them.                                                                                                             | CU-014                                                    |
+| ThemeContext location (design-system vs mobile)        | Pitfall section of CU-018 discusses; recommend defining `ThemeContext` in `packages/design-system` rather than `apps/mobile`. If agent makes a different choice, document in an ADR.                                        | CU-017 or CU-018 — agent decision                         |
+| `useReducedMotion` hook test coverage                  | Testing `AccessibilityInfo.isReduceMotionEnabled` requires native bridge mocking in unit tests. Agent must mock `react-native` or test at integration level.                                                                | CU-019 — agent decision                                   |
+| `@primis/mobile` app build on simulator                | `pnpm --filter @primis/mobile start` launches Metro but a dev client build on simulator requires `eas build --profile development`. Dev client build is a manual Phase Z action; plan only requires Metro to start cleanly. | Phase Z manual setup                                      |
 
 ---
 
@@ -2114,7 +2120,7 @@ Phase C is complete when ALL of the following are true:
 >
 > **Assumption**: Use the default order from UI/UX Spec §6.1.2:
 > `['recovery_score', 'sleep_score', 'sleep_debt', 'steps_activity', 'calories_burned',
-> 'training_readiness', 'hrv_trend', 'todays_recommendation']`
+'training_readiness', 'hrv_trend', 'todays_recommendation']`
 > These are string widget IDs. If the spec list changes in a later design decision, update
 > the default in `widgetStore` and create a migration.
 
@@ -2136,13 +2142,13 @@ Phase C, even as stubs.
 
 Phase D — Backend Local Foundation and Database (CU-024 onward) will create:
 
-| CU | Title | First file |
-| --- | --- | --- |
-| CU-024 | Add backend API service skeleton | `services/api/src/app.ts` |
-| CU-025 | Add local Docker Postgres setup | `docker-compose.yml` |
-| CU-026 | Add SQL migration framework and Kysely DB layer | `database/migrations/000001_init.sql` |
+| CU     | Title                                               | First file                                            |
+| ------ | --------------------------------------------------- | ----------------------------------------------------- |
+| CU-024 | Add backend API service skeleton                    | `services/api/src/app.ts`                             |
+| CU-025 | Add local Docker Postgres setup                     | `docker-compose.yml`                                  |
+| CU-026 | Add SQL migration framework and Kysely DB layer     | `database/migrations/000001_init.sql`                 |
 | CU-027 | Implement identity, preferences, and consent tables | `database/migrations/000002_identity_preferences.sql` |
-| CU-028 | Implement provider connection and sync tables | `database/migrations/000003_provider_sync.sql` |
+| CU-028 | Implement provider connection and sync tables       | `database/migrations/000003_provider_sync.sql`        |
 
 **Phase D dependencies on Phase C:**
 
@@ -2167,4 +2173,4 @@ Phase D — Backend Local Foundation and Database (CU-024 onward) will create:
 
 ---
 
-*End of Phase C — Mobile Shell and Design System Plan*
+_End of Phase C — Mobile Shell and Design System Plan_

@@ -21,12 +21,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text as RNText,
-  ActivityIndicator,
-  StyleSheet,
-} from 'react-native';
+import { View, Text as RNText, ActivityIndicator, StyleSheet } from 'react-native';
 
 import { useTheme } from '../ThemeContext.js';
 import {
@@ -279,11 +274,7 @@ export function StageTimeline({
 
       {/* ── Time labels (detailed only) ── */}
       {isDetailed && (
-        <TimeLabels
-          start={startTimeLabel}
-          mid={midpointTimeLabel}
-          end={endTimeLabel}
-        />
+        <TimeLabels start={startTimeLabel} mid={midpointTimeLabel} end={endTimeLabel} />
       )}
 
       {/* ── Empty-state hint (below bar) ── */}

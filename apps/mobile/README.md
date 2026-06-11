@@ -45,11 +45,11 @@ pnpm typecheck
 
 Three build profiles are declared in `eas.json`:
 
-| Profile       | Distribution | Update channel | Purpose                                   |
-| ------------- | ------------ | -------------- | ----------------------------------------- |
-| `development` | internal     | `dev`          | Dev Client build for local/team testing   |
-| `preview`     | internal     | `preview`      | Ad-hoc/TestFlight-adjacent review builds  |
-| `production`  | store        | `production`   | App Store submission builds               |
+| Profile       | Distribution | Update channel | Purpose                                  |
+| ------------- | ------------ | -------------- | ---------------------------------------- |
+| `development` | internal     | `dev`          | Dev Client build for local/team testing  |
+| `preview`     | internal     | `preview`      | Ad-hoc/TestFlight-adjacent review builds |
+| `production`  | store        | `production`   | App Store submission builds              |
 
 ### Running a build (after Phase Z setup)
 

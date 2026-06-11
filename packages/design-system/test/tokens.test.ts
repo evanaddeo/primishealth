@@ -2,7 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { spacing } from '../src/tokens/spacing.js';
 import { typeScale, fontWeight } from '../src/tokens/typography.js';
 import { radius } from '../src/tokens/radius.js';
-import { colors, darkColors, lightColors, accentColors, statusColors } from '../src/tokens/color.js';
+import {
+  colors,
+  darkColors,
+  lightColors,
+  accentColors,
+  statusColors,
+} from '../src/tokens/color.js';
 import { shadows } from '../src/tokens/shadow.js';
 import { motion, durations, easings } from '../src/tokens/motion.js';
 import { createTheme, DEFAULT_THEME } from '../src/theme.js';
@@ -10,7 +16,16 @@ import { createTheme, DEFAULT_THEME } from '../src/theme.js';
 // ── Spacing ───────────────────────────────────────────────────────────────────
 describe('spacing tokens', () => {
   const EXPECTED_KEYS: Array<keyof typeof spacing> = [
-    'xxs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl',
+    'xxs',
+    'xs',
+    'sm',
+    'md',
+    'lg',
+    'xl',
+    '2xl',
+    '3xl',
+    '4xl',
+    '5xl',
   ];
 
   it('has all required keys', () => {
@@ -37,8 +52,16 @@ describe('spacing tokens', () => {
 // ── Typography ────────────────────────────────────────────────────────────────
 describe('typeScale tokens', () => {
   const EXPECTED_VARIANTS = [
-    'displayLarge', 'displayMedium', 'titleLarge', 'titleMedium', 'titleSmall',
-    'bodyLarge', 'bodyMedium', 'bodySmall', 'caption', 'micro',
+    'displayLarge',
+    'displayMedium',
+    'titleLarge',
+    'titleMedium',
+    'titleSmall',
+    'bodyLarge',
+    'bodyMedium',
+    'bodySmall',
+    'caption',
+    'micro',
   ] as const;
 
   it('has all required type scale variants', () => {
@@ -80,7 +103,14 @@ describe('fontWeight tokens', () => {
 // ── Radius ────────────────────────────────────────────────────────────────────
 describe('radius tokens', () => {
   const EXPECTED_KEYS: Array<keyof typeof radius> = [
-    'none', 'xs', 'sm', 'md', 'lg', 'xl', 'pill', 'full',
+    'none',
+    'xs',
+    'sm',
+    'md',
+    'lg',
+    'xl',
+    'pill',
+    'full',
   ];
 
   it('has all required radius keys', () => {
@@ -107,8 +137,14 @@ describe('radius tokens', () => {
 // ── Colors ────────────────────────────────────────────────────────────────────
 describe('dark color tokens', () => {
   const EXPECTED_DARK_KEYS: Array<keyof typeof darkColors> = [
-    'bg', 'surface', 'surfaceElevated', 'textPrimary', 'textSecondary',
-    'textMuted', 'borderSubtle', 'overlay',
+    'bg',
+    'surface',
+    'surfaceElevated',
+    'textPrimary',
+    'textSecondary',
+    'textMuted',
+    'borderSubtle',
+    'overlay',
   ];
 
   it('has all required dark color keys', () => {
@@ -129,8 +165,14 @@ describe('dark color tokens', () => {
 
 describe('light color tokens', () => {
   const EXPECTED_LIGHT_KEYS: Array<keyof typeof lightColors> = [
-    'bg', 'surface', 'surfaceElevated', 'textPrimary', 'textSecondary',
-    'textMuted', 'borderSubtle', 'overlay',
+    'bg',
+    'surface',
+    'surfaceElevated',
+    'textPrimary',
+    'textSecondary',
+    'textMuted',
+    'borderSubtle',
+    'overlay',
   ];
 
   it('has all required light color keys', () => {
@@ -143,7 +185,12 @@ describe('light color tokens', () => {
 
 describe('accent color tokens', () => {
   const EXPECTED_ACCENT_KEYS: Array<keyof typeof accentColors> = [
-    'electricBlue', 'signalGreen', 'violet', 'amber', 'crimson', 'monochrome',
+    'electricBlue',
+    'signalGreen',
+    'violet',
+    'amber',
+    'crimson',
+    'monochrome',
   ];
 
   it('has all 6 accent presets', () => {
@@ -160,7 +207,12 @@ describe('accent color tokens', () => {
 
 describe('semantic status color tokens', () => {
   const EXPECTED_STATUS_KEYS: Array<keyof typeof statusColors> = [
-    'excellent', 'good', 'caution', 'low', 'attention', 'neutral',
+    'excellent',
+    'good',
+    'caution',
+    'low',
+    'attention',
+    'neutral',
   ];
 
   it('has all 6 semantic status keys', () => {
@@ -200,7 +252,11 @@ describe('shadow tokens', () => {
 describe('motion tokens', () => {
   it('has all duration keys', () => {
     const keys: Array<keyof typeof durations> = [
-      'instant', 'fast', 'standard', 'expressive', 'slow',
+      'instant',
+      'fast',
+      'standard',
+      'expressive',
+      'slow',
     ];
     for (const key of keys) {
       expect(durations).toHaveProperty(key);
@@ -247,7 +303,12 @@ describe('createTheme()', () => {
 
   it('resolves all 6 accent presets without throwing', () => {
     const accents = [
-      'electricBlue', 'signalGreen', 'violet', 'amber', 'crimson', 'monochrome',
+      'electricBlue',
+      'signalGreen',
+      'violet',
+      'amber',
+      'crimson',
+      'monochrome',
     ] as const;
     for (const accent of accents) {
       expect(() => createTheme('dark', accent)).not.toThrow();

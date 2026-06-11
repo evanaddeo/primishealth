@@ -67,7 +67,7 @@ export async function saveDashboardSnapshot(key: string, snapshot: unknown): Pro
     `INSERT OR REPLACE INTO dashboard_cache (id, data, cached_at) VALUES (?, ?, ?);`,
     key,
     data,
-    cachedAt
+    cachedAt,
   );
 }
 
@@ -81,7 +81,7 @@ export async function getDashboardSnapshot(key: string): Promise<unknown | null>
   const db = await getDb();
   const row = await db.getFirstAsync<CacheRow>(
     `SELECT id, data, cached_at FROM dashboard_cache WHERE id = ?;`,
-    key
+    key,
   );
   if (row === null) return null;
   return JSON.parse(row.data) as unknown;

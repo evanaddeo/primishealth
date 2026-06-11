@@ -16,8 +16,4 @@ export {
   type SettingsStore,
 } from './settingsStore';
 
-export {
-  useWidgetStore,
-  DEFAULT_WIDGET_ORDER,
-  type WidgetStore,
-} from './widgetStore';
+export { useWidgetStore, DEFAULT_WIDGET_ORDER, type WidgetStore } from './widgetStore';

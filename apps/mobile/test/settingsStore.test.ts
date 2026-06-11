@@ -18,9 +18,13 @@ vi.mock('react-native-mmkv', () => {
   const storage = new Map<string, string>();
   const mockMMKV = {
     getString: (key: string): string | undefined => storage.get(key),
-    set: (key: string, value: string): void => { storage.set(key, value); },
+    set: (key: string, value: string): void => {
+      storage.set(key, value);
+    },
     remove: (key: string): boolean => storage.delete(key),
-    clearAll: (): void => { storage.clear(); },
+    clearAll: (): void => {
+      storage.clear();
+    },
   };
   return {
     createMMKV: vi.fn(() => mockMMKV),
@@ -29,10 +33,7 @@ vi.mock('react-native-mmkv', () => {
 
 // ── Imports (after mock declaration) ──────────────────────────────────────────
 
-import {
-  SETTINGS_DEFAULTS,
-  useSettingsStore,
-} from '../src/state/settingsStore';
+import { SETTINGS_DEFAULTS, useSettingsStore } from '../src/state/settingsStore';
 import { DEFAULT_WIDGET_ORDER, useWidgetStore } from '../src/state/widgetStore';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────

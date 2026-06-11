@@ -36,11 +36,7 @@ export interface StatusBadgeProps {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function StatusBadge({
-  status,
-  label,
-  testID,
-}: StatusBadgeProps): React.JSX.Element {
+export function StatusBadge({ status, label, testID }: StatusBadgeProps): React.JSX.Element {
   const { colors, radius, typography } = useTheme();
 
   const displayLabel = label ?? resolveStatusLabel(status);
@@ -50,10 +46,7 @@ export function StatusBadge({
   return (
     <View
       testID={testID}
-      style={[
-        styles.badge,
-        { backgroundColor: bgColor, borderRadius: radius.pill },
-      ]}
+      style={[styles.badge, { backgroundColor: bgColor, borderRadius: radius.pill }]}
       accessible
       accessibilityRole="text"
       accessibilityLabel={`Status: ${displayLabel}`}

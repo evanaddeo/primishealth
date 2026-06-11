@@ -9,11 +9,7 @@
  * full public API, or from this sub-module when you only need motion.
  */
 
-export {
-  TIMING_PRESETS,
-  REDUCED_MOTION_TIMING,
-  resolveTimingConfig,
-} from './timing.js';
+export { TIMING_PRESETS, REDUCED_MOTION_TIMING, resolveTimingConfig } from './timing.js';
 export type { TimingConfig, TimingPresetKey } from './timing.js';
 
 export {

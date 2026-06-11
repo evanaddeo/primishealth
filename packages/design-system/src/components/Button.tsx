@@ -47,6 +47,8 @@ interface SizeConfig {
   lineHeight: number;
 }
 
+// TODO(design): align paddingHorizontal values with spacing tokens once button
+// size spec is finalised with founder. 28 does not map to any current token.
 const SIZE_CONFIG: Record<ButtonSize, SizeConfig> = {
   sm: { height: 44, paddingHorizontal: 16, fontSize: 14, lineHeight: 20 },
   md: { height: 52, paddingHorizontal: 24, fontSize: 16, lineHeight: 22 },
@@ -94,11 +96,7 @@ export function Button({
 
 // ── Style resolvers ───────────────────────────────────────────────────────────
 
-function resolveContainerStyle(
-  variant: ButtonVariant,
-  theme: Theme,
-  cfg: SizeConfig,
-): ViewStyle {
+function resolveContainerStyle(variant: ButtonVariant, theme: Theme, cfg: SizeConfig): ViewStyle {
   const { colors, radius } = theme;
   const base: ViewStyle = {
     minHeight: 44, // UX-BTN-001: never below 44pt touch target
@@ -126,11 +124,7 @@ function resolveContainerStyle(
   }
 }
 
-function resolveLabelStyle(
-  variant: ButtonVariant,
-  theme: Theme,
-  cfg: SizeConfig,
-): TextStyle {
+function resolveLabelStyle(variant: ButtonVariant, theme: Theme, cfg: SizeConfig): TextStyle {
   const { colors, typography } = theme;
   const base: TextStyle = {
     fontSize: cfg.fontSize,

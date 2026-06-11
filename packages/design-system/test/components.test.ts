@@ -63,8 +63,7 @@ describe('resolveStatusLabel() — ScoreState values', () => {
   it('maps stale_data', () => expect(resolveStatusLabel('stale_data')).toBe('Data Stale'));
   it('maps provider_unavailable', () =>
     expect(resolveStatusLabel('provider_unavailable')).toBe('Unavailable'));
-  it('maps calculation_error', () =>
-    expect(resolveStatusLabel('calculation_error')).toBe('Error'));
+  it('maps calculation_error', () => expect(resolveStatusLabel('calculation_error')).toBe('Error'));
 });
 
 describe('resolveStatusLabel() — fallback', () => {
@@ -99,9 +98,7 @@ describe('resolveStatusForeground()', () => {
     expect(resolveStatusForeground('missing_required_data', statusColors)).toBe(
       statusColors.attention,
     );
-    expect(resolveStatusForeground('calculation_error', statusColors)).toBe(
-      statusColors.attention,
-    );
+    expect(resolveStatusForeground('calculation_error', statusColors)).toBe(statusColors.attention);
   });
 
   it('provider_unavailable / unknown → status.neutral', () => {

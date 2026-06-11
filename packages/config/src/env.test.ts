@@ -93,7 +93,10 @@ describe('loadPublicEnv', () => {
   });
 
   it('accepts a valid EXPO_PUBLIC_API_BASE_URL', () => {
-    const env = loadPublicEnv({ ...VALID_PUBLIC, EXPO_PUBLIC_API_BASE_URL: 'https://api.primis.app' });
+    const env = loadPublicEnv({
+      ...VALID_PUBLIC,
+      EXPO_PUBLIC_API_BASE_URL: 'https://api.primis.app',
+    });
     expect(env.EXPO_PUBLIC_API_BASE_URL).toBe('https://api.primis.app');
   });
 

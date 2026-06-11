@@ -31,11 +31,11 @@ import type { ChartState, SleepStage } from './types.js';
  *   finalized, as §24.3 specifies intent without exact hex values.
  */
 export const STAGE_COLORS: Readonly<Record<SleepStage, string>> = {
-  awake: statusColors.caution,      // amber — alert/wake, avoids medical panic red
+  awake: statusColors.caution, // amber — alert/wake, avoids medical panic red
   // TODO(ADR): REM hex is provisional; §24.3 specifies "cool/light blue-violet"
-  rem: '#6366F1',                   // indigo/blue-violet
+  rem: '#6366F1', // indigo/blue-violet
   light: accentColors.electricBlue, // calm electric blue
-  deep: accentColors.violet,        // deep violet/indigo
+  deep: accentColors.violet, // deep violet/indigo
 };
 
 /**
@@ -72,10 +72,7 @@ export const STAGE_LABELS: Readonly<Record<SleepStage, string>> = {
  * @param segmentDurationMs - Duration of the individual segment (endMs - startMs).
  * @param totalDurationMs   - Total session duration (full timeline width).
  */
-export function resolveSegmentFraction(
-  segmentDurationMs: number,
-  totalDurationMs: number,
-): number {
+export function resolveSegmentFraction(segmentDurationMs: number, totalDurationMs: number): number {
   if (totalDurationMs <= 0 || segmentDurationMs <= 0) return 0;
   return Math.min(1, segmentDurationMs / totalDurationMs);
 }

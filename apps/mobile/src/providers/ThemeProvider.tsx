@@ -1,11 +1,6 @@
 import React, { type ReactNode } from 'react';
 
-import {
-  createTheme,
-  ThemeContext,
-  type AccentColor,
-  type ThemeMode,
-} from '@primis/design-system';
+import { createTheme, ThemeContext, type AccentColor, type ThemeMode } from '@primis/design-system';
 
 // ── Provider ──────────────────────────────────────────────────────────────────
 

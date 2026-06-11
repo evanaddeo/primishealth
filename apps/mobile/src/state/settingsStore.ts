@@ -77,7 +77,7 @@ export type SettingsStore = SettingsState & SettingsActions;
 // ── Defaults ───────────────────────────────────────────────────────────────────
 
 export const SETTINGS_DEFAULTS: SettingsState = {
-  themeMode: 'dark',          // UX-THEME-002: Dark Performance is the default mode
+  themeMode: 'dark', // UX-THEME-002: Dark Performance is the default mode
   accentColor: 'electricBlue',
   coachTone: 'motivating',
   summaryTone: 'concise',
@@ -116,6 +116,6 @@ export const useSettingsStore = create<SettingsStore>()(
     {
       name: STORAGE_KEYS.SETTINGS,
       storage: createJSONStorage(() => settingsStorageAdapter),
-    }
-  )
+    },
+  ),
 );

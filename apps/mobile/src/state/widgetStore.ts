@@ -120,6 +120,6 @@ export const useWidgetStore = create<WidgetStore>()(
           hiddenWidgets: new Set<string>(p.hiddenWidgets ?? []),
         };
       },
-    }
-  )
+    },
+  ),
 );

@@ -57,9 +57,7 @@ export function Text({
 
   const scale = typography.scale[variant];
   const resolvedColor = resolveTextColor(color, colors);
-  const fontWeight = weight
-    ? typography.weight[weight]
-    : resolveDefaultWeight(variant);
+  const fontWeight = weight ? typography.weight[weight] : resolveDefaultWeight(variant);
 
   const textStyle: TextStyle = {
     fontSize: scale.fontSize,

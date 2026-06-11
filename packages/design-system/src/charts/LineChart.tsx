@@ -19,6 +19,7 @@ import React from 'react';
 import { View, Text as RNText, ActivityIndicator, StyleSheet } from 'react-native';
 
 import { useTheme } from '../ThemeContext.js';
+import { spacing } from '../tokens/spacing.js';
 import { resolveChartStateLabel, resolveChartEmptyHint } from './chartResolvers.js';
 import type { ChartPoint, ChartState } from './types.js';
 
@@ -192,10 +193,7 @@ export function LineChart({
             <View style={styles.dotsRow} accessibilityElementsHidden>
               {data.map((point, index) =>
                 point.y !== null ? (
-                  <View
-                    key={index}
-                    style={[styles.dot, { backgroundColor: colors.accent }]}
-                  />
+                  <View key={index} style={[styles.dot, { backgroundColor: colors.accent }]} />
                 ) : (
                   /* Gap marker — visible spacing so absence is intentional, not a bug */
                   <View key={index} style={styles.dotGap} />
@@ -219,7 +217,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   unitLabel: {
     fontWeight: '600',
@@ -234,7 +232,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
   },
   baselineBand: {
     position: 'absolute',
@@ -248,7 +246,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
     flex: 1,
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing.sm,
   },
   dot: {
     width: DOT_SIZE,

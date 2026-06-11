@@ -85,11 +85,7 @@ export function RingProgress({
     <View
       testID={testID}
       accessibilityRole="progressbar"
-      accessibilityValue={
-        state === 'data'
-          ? { min: 0, max: 100, now: clampedValue }
-          : undefined
-      }
+      accessibilityValue={state === 'data' ? { min: 0, max: 100, now: clampedValue } : undefined}
       accessibilityLabel={
         accessibilityLabel ??
         `${data.label}${data.sublabel != null ? ` ${data.sublabel}` : ''} — ${clampedValue}%`
@@ -98,7 +94,13 @@ export function RingProgress({
     >
       {state === 'loading' ? (
         /* Loading state — spinner centered within the ring footprint */
-        <View style={[styles.ring, styles.centeredOverlay, { width: size, height: size, borderRadius: size / 2 }]}>
+        <View
+          style={[
+            styles.ring,
+            styles.centeredOverlay,
+            { width: size, height: size, borderRadius: size / 2 },
+          ]}
+        >
           <ActivityIndicator color={colors.textMuted} size="small" />
         </View>
       ) : overlayLabel !== null ? (
@@ -151,8 +153,14 @@ export function RingProgress({
             style={[
               styles.valueLabel,
               {
-                fontSize: size < 64 ? typography.scale.bodySmall.fontSize : typography.scale.titleSmall.fontSize,
-                lineHeight: size < 64 ? typography.scale.bodySmall.lineHeight : typography.scale.titleSmall.lineHeight,
+                fontSize:
+                  size < 64
+                    ? typography.scale.bodySmall.fontSize
+                    : typography.scale.titleSmall.fontSize,
+                lineHeight:
+                  size < 64
+                    ? typography.scale.bodySmall.lineHeight
+                    : typography.scale.titleSmall.lineHeight,
                 fontWeight: typography.weight.bold as '700',
                 color: colors.textPrimary,
                 fontVariant: ['tabular-nums'],

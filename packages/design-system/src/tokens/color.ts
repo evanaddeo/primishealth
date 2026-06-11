@@ -52,11 +52,11 @@ export const accentColors = {
 // dark.surface and light.surface. Orange for "low" avoids medical panic (§8.4).
 export const statusColors = {
   excellent: '#00D48F', // Excellent / Ready — vibrant green
-  good: '#4ADE80',      // Good / Stable — softer green
-  caution: '#F59E0B',   // Caution / Moderate — amber
-  low: '#F97316',       // Low / Recover — orange, not red (UX-COLOR-002)
+  good: '#4ADE80', // Good / Stable — softer green
+  caution: '#F59E0B', // Caution / Moderate — amber
+  low: '#F97316', // Low / Recover — orange, not red (UX-COLOR-002)
   attention: '#EF4444', // Critical / Attention — red
-  neutral: '#6F7A89',   // Neutral / Unknown — muted (matches dark textMuted)
+  neutral: '#6F7A89', // Neutral / Unknown — muted (matches dark textMuted)
 } as const;
 
 // ── Composed export used by token tests and createTheme() ─────────────────────
