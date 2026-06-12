@@ -10,8 +10,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "build": "echo \"not implemented — configure per-package in later phases\"",
-    "db:migrate": "tsx scripts/db-migrate.ts",
-    "db:seed": "tsx scripts/db-seed.ts",
+    "db:migrate": "tsx --env-file .env scripts/db-migrate.ts",
+    "db:seed": "tsx --env-file .env scripts/db-seed.ts",
     "db:reset": "bash scripts/db-reset.sh"
   },
   "pnpm": {
