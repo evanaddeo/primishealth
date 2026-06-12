@@ -386,6 +386,349 @@ export type NewDataRetentionPreferences = Insertable<DataRetentionPreferencesTab
 export type DataRetentionPreferencesUpdate = Updateable<DataRetentionPreferencesTable>;
 
 // ---------------------------------------------------------------------------
+// provider_connections (000003_provider_sync.sql — §8.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * A user-authorized integration with a health data provider.
+ *
+ * SECURITY CRITICAL:
+ *   `access_token_secret_ref` and `refresh_token_secret_ref` store AWS Secrets Manager
+ *   ARN reference strings ONLY — never raw OAuth tokens. In local dev these are NULL.
+ *   ARN format: arn:aws:secretsmanager:{region}:{account}:secret:{path}
+ *
+ * Provider codes are validated by a DB CHECK constraint against ADR-001 canonical values.
+ */
+export interface ProviderConnectionsTable {
+  /** Internal UUID primary key. */
+  id: UuidPk;
+  /** FK to `users.id`. */
+  user_id: string;
+  /**
+   * Canonical provider code per ADR-001.
+   * Allowed: 'google_health' | 'healthkit' | 'health_connect' |
+   *   'hume_via_healthkit' | 'hume_direct_unverified' |
+   *   'fooddata_central' | 'manual' | 'primis_internal'
+   */
+  provider_code: string;
+  /**
+   * Connection lifecycle status.
+   * Allowed: 'active' | 'needs_reauth' | 'revoked' | 'error' | 'disabled'
+   */
+  connection_status: Generated<string>;
+  /** Provider-assigned account identifier (e.g. Google account sub). */
+  external_account_id: NullableCol<string>;
+  /** Human-readable label for this connection (e.g. "Evan's Fitbit"). */
+  display_name: NullableCol<string>;
+  /** OAuth scopes actually granted by the user. */
+  scopes_granted: Generated<string[]>;
+  /** OAuth scopes requested at authorization time. */
+  scopes_requested: Generated<string[]>;
+  /**
+   * AWS Secrets Manager ARN reference for the access token.
+   * NEVER a raw token value. NULL in local dev.
+   */
+  access_token_secret_ref: NullableCol<string>;
+  /**
+   * AWS Secrets Manager ARN reference for the refresh token.
+   * NEVER a raw token value. NULL in local dev.
+   */
+  refresh_token_secret_ref: NullableCol<string>;
+  /** UTC expiry of the access token (if known). */
+  token_expires_at: NullableCol<Date>;
+  /** Timestamp of the most recent successful sync for this connection. */
+  last_successful_sync_at: NullableCol<Date>;
+  /** Timestamp of the most recent failed sync for this connection. */
+  last_failed_sync_at: NullableCol<Date>;
+  /** Machine-readable error code from the last failure, if any. */
+  last_error_code: NullableCol<string>;
+  /** Human-readable error message from the last failure, if any. */
+  last_error_message: NullableCol<string>;
+  /** Free-form extension metadata. */
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+  /** Set when the connection is soft-deleted. */
+  deleted_at: NullableCol<Date>;
+}
+
+/** Full row shape returned by SELECT queries on `provider_connections`. */
+export type ProviderConnection = Selectable<ProviderConnectionsTable>;
+/** Shape accepted by INSERT queries on `provider_connections`. */
+export type NewProviderConnection = Insertable<ProviderConnectionsTable>;
+/** Shape accepted by UPDATE queries on `provider_connections`. */
+export type ProviderConnectionUpdate = Updateable<ProviderConnectionsTable>;
+
+// ---------------------------------------------------------------------------
+// provider_data_availability (000003_provider_sync.sql — §8.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Tracks whether a specific provider data type is confirmed available for a user.
+ *
+ * One row per `(user_id, provider_code, provider_data_type, canonical_metric_code)`.
+ * Note: the unique constraint uses SQL NULL semantics — two NULLs in
+ * `canonical_metric_code` are treated as distinct, so rows with a NULL
+ * canonical_metric_code will not conflict with each other.
+ */
+export interface ProviderDataAvailabilityTable {
+  /** Internal UUID primary key. */
+  id: UuidPk;
+  /** FK to `users.id`. */
+  user_id: string;
+  /** FK to `provider_connections.id`; nullable for provider-wide entries. */
+  provider_connection_id: NullableCol<string>;
+  /** Canonical provider code per ADR-001. */
+  provider_code: string;
+  /** Provider-native data type identifier (e.g. 'daily-heart-rate-variability'). */
+  provider_data_type: string;
+  /** Resolved canonical metric code from `metric_definitions`; null if unknown. */
+  canonical_metric_code: NullableCol<string>;
+  /**
+   * Availability status.
+   * Allowed: 'available' | 'unavailable' | 'permission_missing' |
+   *   'no_data_yet' | 'provider_unverified' | 'deprecated' | 'error'
+   */
+  status: string;
+  /** UTC timestamp when data was first seen for this type. */
+  first_available_at: NullableCol<Date>;
+  /** UTC timestamp of the most recent record seen for this type. */
+  last_seen_at: NullableCol<Date>;
+  /**
+   * Count of records observed so far.
+   * bigint in Postgres; node-postgres returns bigint columns as strings
+   * to avoid JavaScript precision loss on values exceeding Number.MAX_SAFE_INTEGER.
+   */
+  sample_count: ColumnType<string, number | string | undefined, number | string>;
+  /** Machine-readable error code if status is 'error'. */
+  last_error_code: NullableCol<string>;
+  /** Human-readable notes about this availability entry. */
+  notes: NullableCol<string>;
+  /** Free-form extension metadata. */
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+/** Full row shape returned by SELECT queries on `provider_data_availability`. */
+export type ProviderDataAvailability = Selectable<ProviderDataAvailabilityTable>;
+/** Shape accepted by INSERT queries on `provider_data_availability`. */
+export type NewProviderDataAvailability = Insertable<ProviderDataAvailabilityTable>;
+/** Shape accepted by UPDATE queries on `provider_data_availability`. */
+export type ProviderDataAvailabilityUpdate = Updateable<ProviderDataAvailabilityTable>;
+
+// ---------------------------------------------------------------------------
+// provider_metric_mappings (000003_provider_sync.sql — §8.4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Static or semi-static mapping from a provider data type to a canonical metric code.
+ *
+ * Seeded with 15 documented Google Health API mappings (verification_status = 'unverified').
+ * Only change verification_status to 'verified' after Phase AA live-payload validation.
+ */
+export interface ProviderMetricMappingsTable {
+  /** Internal UUID primary key. */
+  id: UuidPk;
+  /** Canonical provider code per ADR-001. */
+  provider_code: string;
+  /** Provider-native data type identifier (e.g. 'daily-resting-heart-rate'). */
+  provider_data_type: string;
+  /** Canonical metric code from `metric_definitions`. */
+  canonical_metric_code: string;
+  /** Canonical storage unit (e.g. 'bpm', 'seconds', 'kcal'). */
+  canonical_unit: string;
+  /** Optional JSON mapping rules for value translation. */
+  value_mapping: Generated<Record<string, unknown>>;
+  /** Whether this mapping is currently in use for normalization. */
+  is_active: Generated<boolean>;
+  /**
+   * Mapping verification state.
+   * Allowed: 'verified' | 'unverified' | 'deprecated'
+   */
+  verification_status: Generated<string>;
+  /** Human-readable notes about this mapping. */
+  notes: NullableCol<string>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+/** Full row shape returned by SELECT queries on `provider_metric_mappings`. */
+export type ProviderMetricMapping = Selectable<ProviderMetricMappingsTable>;
+/** Shape accepted by INSERT queries on `provider_metric_mappings`. */
+export type NewProviderMetricMapping = Insertable<ProviderMetricMappingsTable>;
+/** Shape accepted by UPDATE queries on `provider_metric_mappings`. */
+export type ProviderMetricMappingUpdate = Updateable<ProviderMetricMappingsTable>;
+
+// ---------------------------------------------------------------------------
+// provider_sync_jobs (000003_provider_sync.sql — §8.5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Tracks individual provider sync attempts.
+ *
+ * Append-only: create a new row for each retry rather than mutating a completed job.
+ * Status lifecycle: queued → running → succeeded | partial_success | failed | cancelled
+ * No `updated_at` column — status transitions are tracked via started_at / finished_at.
+ */
+export interface ProviderSyncJobsTable {
+  /** Internal UUID primary key. */
+  id: UuidPk;
+  /** FK to `users.id`. */
+  user_id: string;
+  /** FK to `provider_connections.id`. */
+  provider_connection_id: string;
+  /**
+   * Sync job category.
+   * Allowed: 'initial_backfill' | 'incremental' | 'manual_refresh' |
+   *   'webhook' | 'reprocess'
+   */
+  job_type: string;
+  /**
+   * Current job status.
+   * Allowed: 'queued' | 'running' | 'succeeded' | 'partial_success' |
+   *   'failed' | 'cancelled'
+   */
+  status: string;
+  /** Start of the data window being synced (UTC). */
+  sync_window_start_utc: NullableCol<Date>;
+  /** End of the data window being synced (UTC). */
+  sync_window_end_utc: NullableCol<Date>;
+  /** UTC timestamp when the job started processing. */
+  started_at: NullableCol<Date>;
+  /** UTC timestamp when the job completed (any terminal state). */
+  finished_at: NullableCol<Date>;
+  /** Number of raw records fetched from the provider. */
+  records_fetched: Generated<number>;
+  /** Number of records successfully normalized into observations. */
+  records_normalized: Generated<number>;
+  /** Number of raw payloads archived to S3. */
+  payloads_archived: Generated<number>;
+  /** Machine-readable error code if status is 'failed' or 'partial_success'. */
+  error_code: NullableCol<string>;
+  /** Human-readable error message for failed jobs. */
+  error_message: NullableCol<string>;
+  /** Number of retry attempts for this job. */
+  retry_count: Generated<number>;
+  /** Correlation UUID for distributed tracing across sync pipeline stages. */
+  correlation_id: NullableCol<string>;
+  /** Free-form extension metadata. */
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+}
+
+/** Full row shape returned by SELECT queries on `provider_sync_jobs`. */
+export type ProviderSyncJob = Selectable<ProviderSyncJobsTable>;
+/** Shape accepted by INSERT queries on `provider_sync_jobs`. */
+export type NewProviderSyncJob = Insertable<ProviderSyncJobsTable>;
+/** Shape accepted by UPDATE queries on `provider_sync_jobs`. */
+export type ProviderSyncJobUpdate = Updateable<ProviderSyncJobsTable>;
+
+// ---------------------------------------------------------------------------
+// provider_sync_cursors (000003_provider_sync.sql — §8.6)
+// ---------------------------------------------------------------------------
+
+/**
+ * Stores the sync position (watermark) for each connection + data type pair.
+ *
+ * Enables idempotent incremental syncs: each sync run reads the cursor, fetches
+ * records after the high watermark, then upserts the cursor with the new position.
+ * One row per `(provider_connection_id, provider_data_type)` — enforced by unique constraint.
+ */
+export interface ProviderSyncCursorsTable {
+  /** Internal UUID primary key. */
+  id: UuidPk;
+  /** FK to `provider_connections.id`. */
+  provider_connection_id: string;
+  /** Provider-native data type identifier this cursor applies to. */
+  provider_data_type: string;
+  /**
+   * Provider-specific pagination or sync cursor value (opaque string).
+   * Interpretation varies by provider API.
+   */
+  cursor_value: NullableCol<string>;
+  /** Start of the last successfully synced window (UTC). */
+  last_synced_start_utc: NullableCol<Date>;
+  /** End of the last successfully synced window (UTC). */
+  last_synced_end_utc: NullableCol<Date>;
+  /** The latest data timestamp confirmed as synced (UTC). */
+  high_watermark_utc: NullableCol<Date>;
+  /** Free-form extension metadata. */
+  metadata: Generated<Record<string, unknown>>;
+  updated_at: UpdatedAt;
+}
+
+/** Full row shape returned by SELECT queries on `provider_sync_cursors`. */
+export type ProviderSyncCursor = Selectable<ProviderSyncCursorsTable>;
+/** Shape accepted by INSERT queries on `provider_sync_cursors`. */
+export type NewProviderSyncCursor = Insertable<ProviderSyncCursorsTable>;
+/** Shape accepted by UPDATE queries on `provider_sync_cursors`. */
+export type ProviderSyncCursorUpdate = Updateable<ProviderSyncCursorsTable>;
+
+// ---------------------------------------------------------------------------
+// raw_provider_payloads (000003_provider_sync.sql — §8.7)
+// ---------------------------------------------------------------------------
+
+/**
+ * Metadata for raw provider payloads archived to S3.
+ *
+ * NO raw payload JSON is written to the database. This table stores only the
+ * S3 object reference (bucket + key), content hash, and envelope metadata.
+ *
+ * S3 key convention (Data Model §8.7):
+ *   s3://primis-raw-health-data/{env}/user_id={id}/provider={code}/
+ *     data_type={type}/year={yyyy}/month={mm}/day={dd}/{payload_id}.json.gz
+ */
+export interface RawProviderPayloadsTable {
+  /** Internal UUID primary key (also used as the payload_id in the S3 key). */
+  id: UuidPk;
+  /** FK to `users.id`. */
+  user_id: string;
+  /** FK to `provider_connections.id`; nullable for batch/system-level imports. */
+  provider_connection_id: NullableCol<string>;
+  /** Canonical provider code per ADR-001. */
+  provider_code: string;
+  /** Provider-native data type identifier (e.g. 'sleep', 'daily-resting-heart-rate'). */
+  provider_data_type: string;
+  /** FK to the `provider_sync_jobs.id` that produced this payload. */
+  sync_job_id: NullableCol<string>;
+  /** S3 bucket name (without protocol prefix). */
+  s3_bucket: string;
+  /**
+   * S3 object key path following the Data Model §8.7 convention.
+   * Example: prod/user_id=abc/provider=google_health/data_type=sleep/year=2026/...
+   */
+  s3_key: string;
+  /** SHA-256 hex digest of the raw payload (pre-compression). */
+  content_sha256: string;
+  /** Whether the S3 object is gzip-compressed (default true). */
+  compressed: Generated<boolean>;
+  /**
+   * AWS KMS key ARN reference used for envelope encryption, if any.
+   * NEVER the raw encryption key itself.
+   */
+  encryption_key_ref: NullableCol<string>;
+  /** Start of the data time window covered by this payload (UTC). */
+  payload_start_time_utc: NullableCol<Date>;
+  /** End of the data time window covered by this payload (UTC). */
+  payload_end_time_utc: NullableCol<Date>;
+  /** Number of individual data records in this payload. */
+  record_count: NullableCol<number>;
+  /** Schema version of the payload format (for future deserialization). */
+  schema_version: NullableCol<string>;
+  /** UTC timestamp after which this payload may be deleted per retention policy. */
+  retained_until: NullableCol<Date>;
+  /** Free-form extension metadata. */
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+}
+
+/** Full row shape returned by SELECT queries on `raw_provider_payloads`. */
+export type RawProviderPayload = Selectable<RawProviderPayloadsTable>;
+/** Shape accepted by INSERT queries on `raw_provider_payloads`. */
+export type NewRawProviderPayload = Insertable<RawProviderPayloadsTable>;
+
+// ---------------------------------------------------------------------------
 // Database interface
 // ---------------------------------------------------------------------------
 
@@ -415,6 +758,14 @@ export interface Database {
   nutrition_philosophy_preferences: NutritionPhilosophyPreferencesTable;
   consent_records: ConsentRecordsTable;
   data_retention_preferences: DataRetentionPreferencesTable;
+
+  // CU-028: Provider connection and sync tables
+  provider_connections: ProviderConnectionsTable;
+  provider_data_availability: ProviderDataAvailabilityTable;
+  provider_metric_mappings: ProviderMetricMappingsTable;
+  provider_sync_jobs: ProviderSyncJobsTable;
+  provider_sync_cursors: ProviderSyncCursorsTable;
+  raw_provider_payloads: RawProviderPayloadsTable;
 }
 
 // Re-export Generated and Kysely DML helpers for use in table definitions added by later CUs.
