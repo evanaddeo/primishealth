@@ -53,13 +53,13 @@ psql postgres://primis:primis@localhost:5432/primis_dev
 
 ## Connection Details (Local Only)
 
-| Field    | Value                                        |
-| -------- | -------------------------------------------- |
-| Host     | `localhost`                                  |
-| Port     | `5432` (override with `POSTGRES_PORT` in `.env`) |
-| User     | `primis`                                     |
-| Password | `primis`                                     |
-| Database | `primis_dev`                                 |
+| Field    | Value                                                |
+| -------- | ---------------------------------------------------- |
+| Host     | `localhost`                                          |
+| Port     | `5432` (override with `POSTGRES_PORT` in `.env`)     |
+| User     | `primis`                                             |
+| Password | `primis`                                             |
+| Database | `primis_dev`                                         |
 | URL      | `postgres://primis:primis@localhost:5432/primis_dev` |
 
 These are **local development credentials only**. No production credentials are ever stored here

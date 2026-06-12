@@ -17,10 +17,13 @@
     "@primis/api-contracts": "workspace:*",
     "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",
-    "hono": "^4.12.25"
+    "hono": "^4.12.25",
+    "kysely": "^0.29.2",
+    "pg": "^8.21.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "@types/pg": "^8.20.0",
     "tsx": "^4.22.4",
     "vitest": "^1.6.1"
   }
