@@ -5,7 +5,7 @@
  *   - CU-027: identity, preferences, consent tables
  *   - CU-028: provider connection and sync tables
  *   - CU-029: metric registry and observation tables
- *   - CU-030: domain tables (sleep, activity, body, manual, nutrition)
+ *   - CU-030: domain tables (sleep, activity, body composition, manual inputs, nutrition)
  *   - CU-031: score, insight, AI, and dashboard tables
  *
  * The `Database` interface is intentionally maintained by hand rather than generated
@@ -1066,6 +1066,899 @@ export type NewRollingMetricBaseline = Insertable<RollingMetricBaselinesTable>;
 export type RollingMetricBaselineUpdate = Updateable<RollingMetricBaselinesTable>;
 
 // ---------------------------------------------------------------------------
+// sleep_sessions (000005_domain_tables.sql — §11.1)
+// ---------------------------------------------------------------------------
+
+/**
+ * One provider sleep session.
+ *
+ * Deduplication: unique(user_id, source_provider, source_record_id).
+ *
+ * `local_sleep_date` follows the wake-date convention per ARCH-TIME-004:
+ * sessions crossing midnight use the date the user woke up, not the date
+ * sleep began.
+ *
+ * `provider_sleep_score` and `primis_sleep_score` are nullable because not
+ * all providers expose score data and the Primis score is derived in Phase F.
+ */
+export interface SleepSessionsTable {
+  id: UuidPk;
+  user_id: string;
+  provider_connection_id: NullableCol<string>;
+  source_provider: string;
+  source_record_id: NullableCol<string>;
+
+  session_start_utc: Date;
+  session_end_utc: Date;
+  /** Date of wake-up (wake-date convention, ARCH-TIME-004). */
+  local_sleep_date: string;
+  timezone: string;
+
+  time_in_bed_seconds: NullableCol<number>;
+  total_sleep_seconds: NullableCol<number>;
+  awake_seconds: NullableCol<number>;
+  light_sleep_seconds: NullableCol<number>;
+  deep_sleep_seconds: NullableCol<number>;
+  rem_sleep_seconds: NullableCol<number>;
+  unknown_sleep_seconds: NullableCol<number>;
+  sleep_latency_seconds: NullableCol<number>;
+  wake_after_sleep_onset_seconds: NullableCol<number>;
+  sleep_efficiency_pct: NullableCol<string>;
+
+  /** Provider-supplied sleep quality score; null if not exposed by the provider. */
+  provider_sleep_score: NullableCol<string>;
+  /** Primis-computed sleep score; derived in Phase F. Also stored in score_snapshots. */
+  primis_sleep_score: NullableCol<string>;
+
+  is_main_sleep: Generated<boolean>;
+  /** nap_type: nap | main | unknown */
+  nap_type: NullableCol<string>;
+  data_quality: Generated<string>;
+  confidence_score: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+export type SleepSession = Selectable<SleepSessionsTable>;
+export type NewSleepSession = Insertable<SleepSessionsTable>;
+export type SleepSessionUpdate = Updateable<SleepSessionsTable>;
+
+// ---------------------------------------------------------------------------
+// sleep_stage_intervals (000005_domain_tables.sql — §11.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * Granular sleep stage segments within a session.
+ * Cascade-deleted when the parent `sleep_sessions` row is deleted.
+ *
+ * Allowed stage values: 'awake' | 'light' | 'deep' | 'rem' | 'asleep_unknown'
+ */
+export interface SleepStageIntervalsTable {
+  id: UuidPk;
+  sleep_session_id: string;
+  user_id: string;
+  /** stage: awake | light | deep | rem | asleep_unknown */
+  stage: string;
+  start_time_utc: Date;
+  end_time_utc: Date;
+  duration_seconds: number;
+  source_provider: string;
+  source_record_id: NullableCol<string>;
+  confidence_score: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type SleepStageInterval = Selectable<SleepStageIntervalsTable>;
+export type NewSleepStageInterval = Insertable<SleepStageIntervalsTable>;
+
+// ---------------------------------------------------------------------------
+// sleep_daily_features (000005_domain_tables.sql — §11.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Precomputed daily sleep features for scoring, AI context, and UI.
+ *
+ * Populated by the Phase F scoring engine. All computed columns are nullable
+ * in Phase D because no values have been calculated yet.
+ *
+ * One row per (user_id, local_date) — enforced by unique constraint.
+ */
+export interface SleepDailyFeaturesTable {
+  id: UuidPk;
+  user_id: string;
+  local_date: string;
+  timezone: string;
+
+  main_sleep_session_id: NullableCol<string>;
+  bedtime_local: NullableCol<string>;
+  wake_time_local: NullableCol<string>;
+  midpoint_sleep_local: NullableCol<string>;
+
+  /** Nullable until Phase F populates this row. */
+  total_sleep_seconds: NullableCol<number>;
+  time_in_bed_seconds: NullableCol<number>;
+  sleep_efficiency_pct: NullableCol<string>;
+  sleep_latency_seconds: NullableCol<number>;
+  deep_sleep_pct: NullableCol<string>;
+  rem_sleep_pct: NullableCol<string>;
+  awake_pct: NullableCol<string>;
+
+  sleep_debt_seconds: NullableCol<number>;
+  sleep_consistency_score: NullableCol<string>;
+  bedtime_regularity_score: NullableCol<string>;
+  wake_time_regularity_score: NullableCol<string>;
+  estimated_sleep_need_seconds: NullableCol<number>;
+  chronotype_offset_minutes: NullableCol<number>;
+
+  overnight_avg_hr: NullableCol<string>;
+  overnight_min_hr: NullableCol<string>;
+  overnight_hrv_rmssd: NullableCol<string>;
+  overnight_resp_rate: NullableCol<string>;
+  overnight_spo2_avg: NullableCol<string>;
+  overnight_spo2_min: NullableCol<string>;
+
+  data_quality: Generated<string>;
+  confidence_score: NullableCol<string>;
+  generated_at: Generated<Date>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type SleepDailyFeatures = Selectable<SleepDailyFeaturesTable>;
+export type NewSleepDailyFeatures = Insertable<SleepDailyFeaturesTable>;
+export type SleepDailyFeaturesUpdate = Updateable<SleepDailyFeaturesTable>;
+
+// ---------------------------------------------------------------------------
+// bedtime_planner_requests (000005_domain_tables.sql — §11.4a)
+// ---------------------------------------------------------------------------
+
+/**
+ * Records a user's bedtime planner request.
+ *
+ * Endpoints for this table are deferred to Phase G. The table is created now
+ * so future phases have a stable FK target.
+ *
+ * Allowed source values: 'user' | 'home_widget' | 'ai_chat'
+ */
+export interface BedtimePlannerRequestsTable {
+  id: UuidPk;
+  user_id: string;
+  target_wake_time_local: Date;
+  timezone: string;
+  desired_sleep_seconds: NullableCol<number>;
+  flexible_wake_window_minutes: Generated<number>;
+  next_day_context: Generated<Record<string, unknown>>;
+  requested_at: Generated<Date>;
+  /** source: user | home_widget | ai_chat */
+  source: Generated<string>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type BedtimePlannerRequest = Selectable<BedtimePlannerRequestsTable>;
+export type NewBedtimePlannerRequest = Insertable<BedtimePlannerRequestsTable>;
+
+// ---------------------------------------------------------------------------
+// bedtime_recommendations (000005_domain_tables.sql — §11.4b)
+// ---------------------------------------------------------------------------
+
+/**
+ * Ranked bedtime window recommendations for a planner request.
+ * Cascade-deleted when the parent `bedtime_planner_requests` row is deleted.
+ *
+ * label values: 'best' | 'good' | 'last_acceptable' | 'recovery_priority' |
+ *   'circadian_friendly'
+ *
+ * NOTE: `expected_cycles` is stored as a heuristic — do not overstate
+ * physiological precision in UI or AI language per §11.4 guidance.
+ */
+export interface BedtimeRecommendationsTable {
+  id: UuidPk;
+  request_id: string;
+  user_id: string;
+  rank: number;
+  /** label: best | good | last_acceptable | recovery_priority | circadian_friendly */
+  label: string;
+
+  recommended_bedtime_start_local: Date;
+  recommended_bedtime_end_local: Date;
+  estimated_fall_asleep_time_local: NullableCol<Date>;
+  target_wake_time_local: Date;
+
+  expected_sleep_opportunity_seconds: NullableCol<number>;
+  expected_actual_sleep_seconds: NullableCol<number>;
+  expected_cycles: NullableCol<string>;
+  cycle_alignment_score: NullableCol<string>;
+  circadian_alignment_score: NullableCol<string>;
+  recovery_support_score: NullableCol<string>;
+  overall_recommendation_score: NullableCol<string>;
+
+  rationale_structured: Generated<Record<string, unknown>>;
+  ai_explanation: NullableCol<string>;
+  generated_at: Generated<Date>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type BedtimeRecommendation = Selectable<BedtimeRecommendationsTable>;
+export type NewBedtimeRecommendation = Insertable<BedtimeRecommendationsTable>;
+
+// ---------------------------------------------------------------------------
+// workout_sessions (000005_domain_tables.sql — §12.1)
+// ---------------------------------------------------------------------------
+
+/**
+ * One provider workout event.
+ *
+ * Deduplication: unique(user_id, source_provider, source_record_id).
+ *
+ * `primis_strain_score` is derived by the Phase F scoring engine; also stored
+ * in `score_snapshots`.
+ */
+export interface WorkoutSessionsTable {
+  id: UuidPk;
+  user_id: string;
+  provider_connection_id: NullableCol<string>;
+  source_provider: string;
+  source_record_id: NullableCol<string>;
+
+  workout_type: string;
+  display_name: NullableCol<string>;
+  start_time_utc: Date;
+  end_time_utc: Date;
+  local_date: string;
+  timezone: string;
+
+  duration_seconds: number;
+  active_duration_seconds: NullableCol<number>;
+  distance_m: NullableCol<number>;
+  active_energy_kcal: NullableCol<number>;
+  total_energy_kcal: NullableCol<number>;
+  avg_hr_bpm: NullableCol<string>;
+  max_hr_bpm: NullableCol<string>;
+  min_hr_bpm: NullableCol<string>;
+  elevation_gain_m: NullableCol<number>;
+  steps_count: NullableCol<number>;
+
+  provider_strain_score: NullableCol<string>;
+  primis_strain_score: NullableCol<string>;
+  training_load: NullableCol<string>;
+  /** perceived_exertion: optional 1-10 manual override */
+  perceived_exertion: NullableCol<number>;
+
+  data_quality: Generated<string>;
+  confidence_score: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+export type WorkoutSession = Selectable<WorkoutSessionsTable>;
+export type NewWorkoutSession = Insertable<WorkoutSessionsTable>;
+export type WorkoutSessionUpdate = Updateable<WorkoutSessionsTable>;
+
+// ---------------------------------------------------------------------------
+// workout_hr_zone_summaries (000005_domain_tables.sql — §12.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * Heart-rate zone summary for a workout session.
+ * Cascade-deleted when the parent `workout_sessions` row is deleted.
+ *
+ * zone_code values: 'z1' | 'z2' | 'z3' | 'z4' | 'z5' | 'custom'
+ * Unique on (workout_session_id, zone_code).
+ */
+export interface WorkoutHrZoneSummariesTable {
+  id: UuidPk;
+  workout_session_id: string;
+  user_id: string;
+  /** zone_code: z1 | z2 | z3 | z4 | z5 | custom */
+  zone_code: string;
+  zone_label: NullableCol<string>;
+  lower_bpm: NullableCol<number>;
+  upper_bpm: NullableCol<number>;
+  duration_seconds: Generated<number>;
+  calories_kcal: NullableCol<number>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type WorkoutHrZoneSummary = Selectable<WorkoutHrZoneSummariesTable>;
+export type NewWorkoutHrZoneSummary = Insertable<WorkoutHrZoneSummariesTable>;
+
+// ---------------------------------------------------------------------------
+// training_load_daily (000005_domain_tables.sql — §12.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Daily training load aggregation. Populated by the Phase F scoring engine.
+ *
+ * All load metrics are nullable in Phase D. `workout_count` is non-null
+ * (default 0) as it can be incremented when sessions are ingested.
+ *
+ * One row per (user_id, local_date).
+ *
+ * load_status values: 'well_below' | 'below' | 'steady' | 'above' | 'well_above'
+ */
+export interface TrainingLoadDailyTable {
+  id: UuidPk;
+  user_id: string;
+  local_date: string;
+  timezone: string;
+
+  daily_training_load: NullableCol<string>;
+  daily_strain_score: NullableCol<string>;
+  workout_count: Generated<number>;
+  active_energy_kcal: NullableCol<number>;
+  active_minutes_seconds: NullableCol<number>;
+  zone_minutes_seconds: NullableCol<number>;
+
+  acute_load_7d: NullableCol<string>;
+  chronic_load_28d: NullableCol<string>;
+  acute_chronic_ratio: NullableCol<string>;
+  /** load_status: well_below | below | steady | above | well_above */
+  load_status: NullableCol<string>;
+
+  generated_at: Generated<Date>;
+  data_quality: Generated<string>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type TrainingLoadDaily = Selectable<TrainingLoadDailyTable>;
+export type NewTrainingLoadDaily = Insertable<TrainingLoadDailyTable>;
+export type TrainingLoadDailyUpdate = Updateable<TrainingLoadDailyTable>;
+
+// ---------------------------------------------------------------------------
+// body_composition_measurements (000005_domain_tables.sql — §13.1)
+// ---------------------------------------------------------------------------
+
+/**
+ * One scale/device body composition measurement.
+ *
+ * Deduplication: unique(user_id, source_provider, source_record_id).
+ *
+ * source_provider values: 'healthkit' | 'google_health' |
+ *   'hume_via_healthkit' | 'manual'
+ */
+export interface BodyCompositionMeasurementsTable {
+  id: UuidPk;
+  user_id: string;
+  provider_connection_id: NullableCol<string>;
+  source_provider: string;
+  source_record_id: NullableCol<string>;
+
+  measured_at_utc: Date;
+  local_date: string;
+  timezone: string;
+
+  weight_kg: NullableCol<string>;
+  body_fat_pct: NullableCol<string>;
+  lean_mass_kg: NullableCol<string>;
+  fat_mass_kg: NullableCol<string>;
+  bone_mass_kg: NullableCol<string>;
+  body_water_pct: NullableCol<string>;
+  visceral_fat_index: NullableCol<string>;
+  bmr_kcal: NullableCol<string>;
+  bmi: NullableCol<string>;
+
+  segmental_data: Generated<Record<string, unknown>>;
+  data_quality: Generated<string>;
+  confidence_score: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+export type BodyCompositionMeasurement = Selectable<BodyCompositionMeasurementsTable>;
+export type NewBodyCompositionMeasurement = Insertable<BodyCompositionMeasurementsTable>;
+export type BodyCompositionMeasurementUpdate = Updateable<BodyCompositionMeasurementsTable>;
+
+// ---------------------------------------------------------------------------
+// vital_daily_features (000005_domain_tables.sql — §13.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * Daily vital-sign features. Populated by the Phase F scoring engine.
+ *
+ * All computed columns are nullable in Phase D. One row per (user_id, local_date).
+ */
+export interface VitalDailyFeaturesTable {
+  id: UuidPk;
+  user_id: string;
+  local_date: string;
+  timezone: string;
+
+  /** Nullable until Phase F populates this row. */
+  resting_heart_rate_bpm: NullableCol<string>;
+  hrv_rmssd_ms: NullableCol<string>;
+  avg_heart_rate_bpm: NullableCol<string>;
+  min_heart_rate_bpm: NullableCol<string>;
+  max_heart_rate_bpm: NullableCol<string>;
+  avg_spo2_pct: NullableCol<string>;
+  min_spo2_pct: NullableCol<string>;
+  respiratory_rate_bpm: NullableCol<string>;
+  skin_temp_delta_c: NullableCol<string>;
+  vo2_max: NullableCol<string>;
+
+  rhr_vs_30d_delta: NullableCol<string>;
+  hrv_vs_30d_delta_pct: NullableCol<string>;
+  resp_rate_vs_30d_delta: NullableCol<string>;
+  spo2_vs_30d_delta: NullableCol<string>;
+
+  data_quality: Generated<string>;
+  confidence_score: NullableCol<string>;
+  generated_at: Generated<Date>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type VitalDailyFeatures = Selectable<VitalDailyFeaturesTable>;
+export type NewVitalDailyFeatures = Insertable<VitalDailyFeaturesTable>;
+export type VitalDailyFeaturesUpdate = Updateable<VitalDailyFeaturesTable>;
+
+// ---------------------------------------------------------------------------
+// manual_checkins (000005_domain_tables.sql — §14.1)
+// ---------------------------------------------------------------------------
+
+/**
+ * Subjective daily check-in record.
+ *
+ * checkin_type values: 'daily' | 'post_workout' | 'sleep_reflection' |
+ *   'nutrition' | 'digestion' | 'custom'
+ *
+ * All score columns are nullable (1–5 or 0–5 scale depending on metric).
+ * `libido_score` is only collected when the user explicitly opts in.
+ */
+export interface ManualCheckinsTable {
+  id: UuidPk;
+  user_id: string;
+  /** checkin_type: daily | post_workout | sleep_reflection | nutrition | digestion | custom */
+  checkin_type: string;
+  occurred_at_utc: Date;
+  local_date: string;
+  timezone: string;
+
+  energy_score: NullableCol<number>;
+  mood_score: NullableCol<number>;
+  stress_score: NullableCol<number>;
+  soreness_score: NullableCol<number>;
+  productivity_score: NullableCol<number>;
+  motivation_score: NullableCol<number>;
+  /** libido_score: collected only when user enables this optional metric. */
+  libido_score: NullableCol<number>;
+
+  notes: NullableCol<string>;
+  completion_seconds: NullableCol<number>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+export type ManualCheckin = Selectable<ManualCheckinsTable>;
+export type NewManualCheckin = Insertable<ManualCheckinsTable>;
+export type ManualCheckinUpdate = Updateable<ManualCheckinsTable>;
+
+// ---------------------------------------------------------------------------
+// custom_tags (000005_domain_tables.sql — §14.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * User-defined or system-suggested event tags.
+ *
+ * Unique on (user_id, tag_code).
+ *
+ * category values: 'food' | 'training' | 'sleep' | 'stress' | 'supplement' |
+ *   'lifestyle' | 'custom'
+ */
+export interface CustomTagsTable {
+  id: UuidPk;
+  user_id: string;
+  tag_code: string;
+  display_name: string;
+  /** category: food | training | sleep | stress | supplement | lifestyle | custom */
+  category: NullableCol<string>;
+  is_system_suggested: Generated<boolean>;
+  is_active: Generated<boolean>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+export type CustomTag = Selectable<CustomTagsTable>;
+export type NewCustomTag = Insertable<CustomTagsTable>;
+export type CustomTagUpdate = Updateable<CustomTagsTable>;
+
+// ---------------------------------------------------------------------------
+// tag_events (000005_domain_tables.sql — §14.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Records of a custom tag being applied at a specific time.
+ *
+ * linked_entity_type values: 'nutrition_entry' | 'workout_session' |
+ *   'sleep_session' | 'manual_checkin'
+ */
+export interface TagEventsTable {
+  id: UuidPk;
+  user_id: string;
+  custom_tag_id: NullableCol<string>;
+  tag_code: string;
+  occurred_at_utc: Date;
+  local_date: string;
+  timezone: string;
+  intensity: NullableCol<number>;
+  quantity: NullableCol<string>;
+  unit: NullableCol<string>;
+  notes: NullableCol<string>;
+  /** linked_entity_type: nutrition_entry | workout_session | sleep_session | manual_checkin */
+  linked_entity_type: NullableCol<string>;
+  linked_entity_id: NullableCol<string>;
+  created_at: CreatedAt;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type TagEvent = Selectable<TagEventsTable>;
+export type NewTagEvent = Insertable<TagEventsTable>;
+
+// ---------------------------------------------------------------------------
+// hydration_entries (000005_domain_tables.sql — §14.4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Fluid intake log entry.
+ *
+ * source_type values: 'manual' | 'provider'
+ */
+export interface HydrationEntriesTable {
+  id: UuidPk;
+  user_id: string;
+  /** source_type: manual | provider */
+  source_type: Generated<string>;
+  occurred_at_utc: Date;
+  local_date: string;
+  timezone: string;
+  amount_ml: string;
+  beverage_type: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+}
+
+export type HydrationEntry = Selectable<HydrationEntriesTable>;
+export type NewHydrationEntry = Insertable<HydrationEntriesTable>;
+
+// ---------------------------------------------------------------------------
+// caffeine_entries (000005_domain_tables.sql — §14.5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Caffeine intake log entry.
+ *
+ * beverage_type values: 'coffee' | 'espresso' | 'energy_drink' | 'tea' |
+ *   'preworkout' | 'other'
+ */
+export interface CaffeineEntriesTable {
+  id: UuidPk;
+  user_id: string;
+  occurred_at_utc: Date;
+  local_date: string;
+  timezone: string;
+  caffeine_mg: NullableCol<string>;
+  /** beverage_type: coffee | espresso | energy_drink | tea | preworkout | other */
+  beverage_type: NullableCol<string>;
+  serving_description: NullableCol<string>;
+  estimated: Generated<boolean>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+}
+
+export type CaffeineEntry = Selectable<CaffeineEntriesTable>;
+export type NewCaffeineEntry = Insertable<CaffeineEntriesTable>;
+
+// ---------------------------------------------------------------------------
+// alcohol_entries (000005_domain_tables.sql — §14.6)
+// ---------------------------------------------------------------------------
+
+/**
+ * Alcohol intake log entry.
+ *
+ * drink_range values: 'none' | 'one' | 'two' | 'three_four' | 'five_plus'
+ * alcohol_type values: 'beer' | 'wine' | 'liquor' | 'cocktail' | 'mixed' | 'other'
+ */
+export interface AlcoholEntriesTable {
+  id: UuidPk;
+  user_id: string;
+  occurred_at_utc: Date;
+  local_date: string;
+  timezone: string;
+  standard_drinks: string;
+  /** drink_range: none | one | two | three_four | five_plus */
+  drink_range: NullableCol<string>;
+  /** alcohol_type: beer | wine | liquor | cocktail | mixed | other */
+  alcohol_type: NullableCol<string>;
+  last_drink_time_utc: NullableCol<Date>;
+  notes: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+}
+
+export type AlcoholEntry = Selectable<AlcoholEntriesTable>;
+export type NewAlcoholEntry = Insertable<AlcoholEntriesTable>;
+
+// ---------------------------------------------------------------------------
+// bowel_entries (000005_domain_tables.sql — §14.7)
+// ---------------------------------------------------------------------------
+
+/**
+ * Optional gut health tracking. S3-like sensitivity level.
+ *
+ * Use for trend/correlation only. Do not diagnose disease.
+ *
+ * bristol_type: 1–7 (Bristol Stool Scale)
+ * color: brown | green | yellow | black | red | pale | other | unknown
+ * smell: normal | strong | sulfur | unusual | unknown
+ * urgency: none | mild | urgent
+ * completeness: incomplete | normal | complete | unknown
+ */
+export interface BowelEntriesTable {
+  id: UuidPk;
+  user_id: string;
+  occurred_at_utc: Date;
+  local_date: string;
+  timezone: string;
+
+  /** bristol_type: 1–7; null if not provided. */
+  bristol_type: NullableCol<number>;
+  color: NullableCol<string>;
+  smell: NullableCol<string>;
+  urgency: NullableCol<string>;
+  /** pain_level: 0–5 */
+  pain_level: NullableCol<number>;
+  /** bloating_level: 0–5 */
+  bloating_level: NullableCol<number>;
+  completeness: NullableCol<string>;
+  notes: NullableCol<string>;
+
+  data_quality: Generated<string>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+export type BowelEntry = Selectable<BowelEntriesTable>;
+export type NewBowelEntry = Insertable<BowelEntriesTable>;
+export type BowelEntryUpdate = Updateable<BowelEntriesTable>;
+
+// ---------------------------------------------------------------------------
+// food_catalog_sources (000005_domain_tables.sql — §15.1)
+// ---------------------------------------------------------------------------
+
+/**
+ * Registry of food data catalog origins.
+ *
+ * `source_code` is the primary key and is referenced by `food_items`.
+ * Seeded with 'fdc' (USDA FoodData Central) in the migration.
+ *
+ * Example source_code values: 'fdc' | 'user_private' | 'user_approved_global' |
+ *   'manual' | 'future_mfp_official'
+ */
+export interface FoodCatalogSourcesTable {
+  source_code: string;
+  display_name: string;
+  license_name: NullableCol<string>;
+  attribution_text: NullableCol<string>;
+  source_version: NullableCol<string>;
+  source_url: NullableCol<string>;
+  imported_at: NullableCol<Date>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type FoodCatalogSource = Selectable<FoodCatalogSourcesTable>;
+export type NewFoodCatalogSource = Insertable<FoodCatalogSourcesTable>;
+
+// ---------------------------------------------------------------------------
+// food_items (000005_domain_tables.sql — §15.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * Global or user-created food records.
+ *
+ * `search_vector` tsvector column is present but the GIN index is deferred
+ * to Phase K (FoodData Central bulk import) per the migration plan.
+ *
+ * visibility values: 'global' | 'private' | 'public_pending' |
+ *   'public_approved' | 'hidden'
+ * verified_status values: 'verified' | 'imported' | 'user_created' |
+ *   'unverified' | 'deprecated'
+ * data_type values: 'foundation' | 'sr_legacy' | 'survey' | 'branded' |
+ *   'user_created'
+ *
+ * Unique on (source_code, external_food_id).
+ */
+export interface FoodItemsTable {
+  id: UuidPk;
+  source_code: string;
+  external_food_id: NullableCol<string>;
+  /** null for global catalog items; set for user-created foods. */
+  owner_user_id: NullableCol<string>;
+  /** visibility: global | private | public_pending | public_approved | hidden */
+  visibility: Generated<string>;
+
+  name: string;
+  brand_name: NullableCol<string>;
+  description: NullableCol<string>;
+  food_category: NullableCol<string>;
+  /** data_type: foundation | sr_legacy | survey | branded | user_created */
+  data_type: NullableCol<string>;
+
+  serving_size: NullableCol<string>;
+  serving_unit: NullableCol<string>;
+  household_serving: NullableCol<string>;
+
+  calories_kcal: NullableCol<string>;
+  protein_g: NullableCol<string>;
+  carbs_g: NullableCol<string>;
+  fat_g: NullableCol<string>;
+  fiber_g: NullableCol<string>;
+  sugar_g: NullableCol<string>;
+  sodium_mg: NullableCol<string>;
+
+  /** verified_status: verified | imported | user_created | unverified | deprecated */
+  verified_status: Generated<string>;
+  /** tsvector for full-text search; GIN index deferred until Phase K. */
+  search_vector: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+export type FoodItem = Selectable<FoodItemsTable>;
+export type NewFoodItem = Insertable<FoodItemsTable>;
+export type FoodItemUpdate = Updateable<FoodItemsTable>;
+
+// ---------------------------------------------------------------------------
+// food_nutrient_values (000005_domain_tables.sql — §15.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Detailed micro/macro nutrient values per food item.
+ * Cascade-deleted when the parent `food_items` row is deleted.
+ *
+ * Unique on (food_item_id, nutrient_code).
+ */
+export interface FoodNutrientValuesTable {
+  id: UuidPk;
+  food_item_id: string;
+  nutrient_code: string;
+  nutrient_name: string;
+  amount: NullableCol<string>;
+  unit: string;
+  derivation_code: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type FoodNutrientValue = Selectable<FoodNutrientValuesTable>;
+export type NewFoodNutrientValue = Insertable<FoodNutrientValuesTable>;
+
+// ---------------------------------------------------------------------------
+// nutrition_entries (000005_domain_tables.sql — §15.4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Meal / logging event.
+ *
+ * meal_type values: 'breakfast' | 'lunch' | 'dinner' | 'snack' |
+ *   'preworkout' | 'postworkout' | 'unknown'
+ * entry_method values: 'manual_macros' | 'food_search' | 'ai_text_estimate' |
+ *   'photo_estimate' | 'barcode' | 'imported'
+ * data_quality values: 'normal' | 'estimated' | 'low_confidence' | 'incomplete'
+ */
+export interface NutritionEntriesTable {
+  id: UuidPk;
+  user_id: string;
+  occurred_at_utc: Date;
+  local_date: string;
+  timezone: string;
+  /** meal_type: breakfast | lunch | dinner | snack | preworkout | postworkout | unknown */
+  meal_type: NullableCol<string>;
+  /** entry_method: manual_macros | food_search | ai_text_estimate | photo_estimate | barcode | imported */
+  entry_method: string;
+  description: NullableCol<string>;
+
+  total_calories_kcal: NullableCol<string>;
+  total_protein_g: NullableCol<string>;
+  total_carbs_g: NullableCol<string>;
+  total_fat_g: NullableCol<string>;
+  total_fiber_g: NullableCol<string>;
+  total_sugar_g: NullableCol<string>;
+  total_sodium_mg: NullableCol<string>;
+
+  confidence_score: NullableCol<string>;
+  data_quality: Generated<string>;
+  ai_estimated: Generated<boolean>;
+  notes: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+export type NutritionEntry = Selectable<NutritionEntriesTable>;
+export type NewNutritionEntry = Insertable<NutritionEntriesTable>;
+export type NutritionEntryUpdate = Updateable<NutritionEntriesTable>;
+
+// ---------------------------------------------------------------------------
+// nutrition_entry_items (000005_domain_tables.sql — §15.5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Individual food items within a nutrition entry.
+ * Cascade-deleted when the parent `nutrition_entries` row is deleted.
+ */
+export interface NutritionEntryItemsTable {
+  id: UuidPk;
+  nutrition_entry_id: string;
+  user_id: string;
+  /** null for free-form entries without a food catalog lookup. */
+  food_item_id: NullableCol<string>;
+  name_snapshot: string;
+  brand_snapshot: NullableCol<string>;
+  quantity: NullableCol<string>;
+  unit: NullableCol<string>;
+  serving_multiplier: NullableCol<string>;
+
+  calories_kcal: NullableCol<string>;
+  protein_g: NullableCol<string>;
+  carbs_g: NullableCol<string>;
+  fat_g: NullableCol<string>;
+  fiber_g: NullableCol<string>;
+  sugar_g: NullableCol<string>;
+  sodium_mg: NullableCol<string>;
+
+  confidence_score: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type NutritionEntryItem = Selectable<NutritionEntryItemsTable>;
+export type NewNutritionEntryItem = Insertable<NutritionEntryItemsTable>;
+
+// ---------------------------------------------------------------------------
+// daily_nutrition_summaries (000005_domain_tables.sql — §15.6)
+// ---------------------------------------------------------------------------
+
+/**
+ * Precomputed daily nutrition totals. Populated by the Phase F scoring engine.
+ *
+ * All computed columns are nullable in Phase D. One row per (user_id, local_date).
+ */
+export interface DailyNutritionSummariesTable {
+  id: UuidPk;
+  user_id: string;
+  local_date: string;
+  timezone: string;
+
+  /** Nullable until Phase F populates this row. */
+  calories_in_kcal: NullableCol<string>;
+  calories_out_kcal: NullableCol<string>;
+  calorie_balance_kcal: NullableCol<string>;
+  protein_g: NullableCol<string>;
+  carbs_g: NullableCol<string>;
+  fat_g: NullableCol<string>;
+  fiber_g: NullableCol<string>;
+  hydration_ml: NullableCol<string>;
+  caffeine_mg: NullableCol<string>;
+  latest_caffeine_time_utc: NullableCol<Date>;
+  alcohol_standard_drinks: NullableCol<string>;
+
+  protein_target_g: NullableCol<string>;
+  calorie_target_kcal: NullableCol<string>;
+  hydration_target_ml: NullableCol<string>;
+  nutrition_score: NullableCol<string>;
+
+  generated_at: Generated<Date>;
+  data_quality: Generated<string>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type DailyNutritionSummary = Selectable<DailyNutritionSummariesTable>;
+export type NewDailyNutritionSummary = Insertable<DailyNutritionSummariesTable>;
+export type DailyNutritionSummaryUpdate = Updateable<DailyNutritionSummariesTable>;
+
+// ---------------------------------------------------------------------------
 // Database interface
 // ---------------------------------------------------------------------------
 
@@ -1110,6 +2003,31 @@ export interface Database {
   metric_timeseries_samples: MetricTimeseriesSamplesTable;
   daily_metric_summaries: DailyMetricSummariesTable;
   rolling_metric_baselines: RollingMetricBaselinesTable;
+
+  // CU-030: Domain tables — sleep, activity, body composition, manual inputs, nutrition
+  sleep_sessions: SleepSessionsTable;
+  sleep_stage_intervals: SleepStageIntervalsTable;
+  sleep_daily_features: SleepDailyFeaturesTable;
+  bedtime_planner_requests: BedtimePlannerRequestsTable;
+  bedtime_recommendations: BedtimeRecommendationsTable;
+  workout_sessions: WorkoutSessionsTable;
+  workout_hr_zone_summaries: WorkoutHrZoneSummariesTable;
+  training_load_daily: TrainingLoadDailyTable;
+  body_composition_measurements: BodyCompositionMeasurementsTable;
+  vital_daily_features: VitalDailyFeaturesTable;
+  manual_checkins: ManualCheckinsTable;
+  custom_tags: CustomTagsTable;
+  tag_events: TagEventsTable;
+  hydration_entries: HydrationEntriesTable;
+  caffeine_entries: CaffeineEntriesTable;
+  alcohol_entries: AlcoholEntriesTable;
+  bowel_entries: BowelEntriesTable;
+  food_catalog_sources: FoodCatalogSourcesTable;
+  food_items: FoodItemsTable;
+  food_nutrient_values: FoodNutrientValuesTable;
+  nutrition_entries: NutritionEntriesTable;
+  nutrition_entry_items: NutritionEntryItemsTable;
+  daily_nutrition_summaries: DailyNutritionSummariesTable;
 }
 
 // Re-export Generated and Kysely DML helpers for use in table definitions added by later CUs.
