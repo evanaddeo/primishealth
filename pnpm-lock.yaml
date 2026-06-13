@@ -205,6 +205,9 @@ importers:
       '@primis/core-types':
         specifier: workspace:*
         version: link:../../packages/core-types
+      '@primis/health-metrics':
+        specifier: workspace:*
+        version: link:../../packages/health-metrics
       hono:
         specifier: ^4.12.25
         version: 4.12.25
