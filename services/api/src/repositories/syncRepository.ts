@@ -231,16 +231,14 @@ export async function upsertSyncCursor(
       updated_at: now,
     })
     .onConflict((oc) =>
-      oc
-        .columns(['provider_connection_id', 'provider_data_type'])
-        .doUpdateSet({
-          cursor_value: cursor.cursor_value ?? null,
-          last_synced_start_utc: cursor.last_synced_start_utc ?? null,
-          last_synced_end_utc: cursor.last_synced_end_utc ?? null,
-          high_watermark_utc: cursor.high_watermark_utc ?? null,
-          metadata: cursor.metadata ?? {},
-          updated_at: now,
-        }),
+      oc.columns(['provider_connection_id', 'provider_data_type']).doUpdateSet({
+        cursor_value: cursor.cursor_value ?? null,
+        last_synced_start_utc: cursor.last_synced_start_utc ?? null,
+        last_synced_end_utc: cursor.last_synced_end_utc ?? null,
+        high_watermark_utc: cursor.high_watermark_utc ?? null,
+        metadata: cursor.metadata ?? {},
+        updated_at: now,
+      }),
     )
     .returningAll()
     .executeTakeFirst();

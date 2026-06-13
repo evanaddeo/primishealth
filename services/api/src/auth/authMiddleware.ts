@@ -149,7 +149,13 @@ export function createAuthMiddleware() {
     } catch {
       // Do NOT log the token or the raw error message (which may contain claims).
       return c.json(
-        makeErrorResponse('UNAUTHORIZED', 'Invalid or expired token.', undefined, undefined, requestId),
+        makeErrorResponse(
+          'UNAUTHORIZED',
+          'Invalid or expired token.',
+          undefined,
+          undefined,
+          requestId,
+        ),
         401,
       );
     }

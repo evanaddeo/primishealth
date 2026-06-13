@@ -55,9 +55,7 @@ export interface DateRange {
  * @param data - Insertable observation row.
  * @returns The upserted observation row.
  */
-export async function upsertObservation(
-  data: NewMetricObservation,
-): Promise<MetricObservation> {
+export async function upsertObservation(data: NewMetricObservation): Promise<MetricObservation> {
   const row = await db
     .insertInto('metric_observations')
     .values(data)
@@ -161,32 +159,28 @@ export async function getDailySummary(
  * @param data - Insertable daily summary row.
  * @returns The upserted daily summary row.
  */
-export async function upsertDailySummary(
-  data: NewDailyMetricSummary,
-): Promise<DailyMetricSummary> {
+export async function upsertDailySummary(data: NewDailyMetricSummary): Promise<DailyMetricSummary> {
   const row = await db
     .insertInto('daily_metric_summaries')
     .values(data)
     .onConflict((oc) =>
-      oc
-        .columns(['user_id', 'local_date', 'metric_code', 'source_provider'])
-        .doUpdateSet((eb) => ({
-          value: eb.ref('excluded.value'),
-          unit: eb.ref('excluded.unit'),
-          min_value: eb.ref('excluded.min_value'),
-          max_value: eb.ref('excluded.max_value'),
-          avg_value: eb.ref('excluded.avg_value'),
-          sum_value: eb.ref('excluded.sum_value'),
-          latest_value: eb.ref('excluded.latest_value'),
-          sample_count: eb.ref('excluded.sample_count'),
-          coverage_pct: eb.ref('excluded.coverage_pct'),
-          source_priority_rank: eb.ref('excluded.source_priority_rank'),
-          data_quality: eb.ref('excluded.data_quality'),
-          confidence_score: eb.ref('excluded.confidence_score'),
-          component_metadata: eb.ref('excluded.component_metadata'),
-          generated_at: new Date(),
-          updated_at: new Date(),
-        })),
+      oc.columns(['user_id', 'local_date', 'metric_code', 'source_provider']).doUpdateSet((eb) => ({
+        value: eb.ref('excluded.value'),
+        unit: eb.ref('excluded.unit'),
+        min_value: eb.ref('excluded.min_value'),
+        max_value: eb.ref('excluded.max_value'),
+        avg_value: eb.ref('excluded.avg_value'),
+        sum_value: eb.ref('excluded.sum_value'),
+        latest_value: eb.ref('excluded.latest_value'),
+        sample_count: eb.ref('excluded.sample_count'),
+        coverage_pct: eb.ref('excluded.coverage_pct'),
+        source_priority_rank: eb.ref('excluded.source_priority_rank'),
+        data_quality: eb.ref('excluded.data_quality'),
+        confidence_score: eb.ref('excluded.confidence_score'),
+        component_metadata: eb.ref('excluded.component_metadata'),
+        generated_at: new Date(),
+        updated_at: new Date(),
+      })),
     )
     .returningAll()
     .executeTakeFirst();
@@ -246,13 +240,7 @@ export async function upsertBaseline(
     .values(data)
     .onConflict((oc) =>
       oc
-        .columns([
-          'user_id',
-          'metric_code',
-          'as_of_local_date',
-          'window_days',
-          'baseline_method',
-        ])
+        .columns(['user_id', 'metric_code', 'as_of_local_date', 'window_days', 'baseline_method'])
         .doUpdateSet((eb) => ({
           baseline_value: eb.ref('excluded.baseline_value'),
           stddev_value: eb.ref('excluded.stddev_value'),

@@ -74,11 +74,7 @@ export async function createUser(
   data: NewUser,
   kysely: Kysely<Database> = defaultDb,
 ): Promise<User> {
-  const result = await kysely
-    .insertInto('users')
-    .values(data)
-    .returningAll()
-    .executeTakeFirst();
+  const result = await kysely.insertInto('users').values(data).returningAll().executeTakeFirst();
 
   if (!result) {
     throw new Error('Failed to create user: no row returned from INSERT');
@@ -169,11 +165,7 @@ export async function findAuthIdentities(
   userId: string,
   kysely: Kysely<Database> = defaultDb,
 ): Promise<AuthIdentity[]> {
-  return kysely
-    .selectFrom('auth_identities')
-    .selectAll()
-    .where('user_id', '=', userId)
-    .execute();
+  return kysely.selectFrom('auth_identities').selectAll().where('user_id', '=', userId).execute();
 }
 
 /**

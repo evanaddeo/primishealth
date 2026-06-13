@@ -49,10 +49,7 @@ async function main(): Promise<void> {
 
     console.log('[db:seed] All seeds complete.');
   } catch (err) {
-    console.error(
-      '[db:seed] Seed failed:',
-      err instanceof Error ? err.message : String(err),
-    );
+    console.error('[db:seed] Seed failed:', err instanceof Error ? err.message : String(err));
     process.exit(1);
   } finally {
     await closeDb();

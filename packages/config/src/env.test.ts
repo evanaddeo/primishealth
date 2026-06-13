@@ -205,9 +205,9 @@ describe('loadBackendEnv', () => {
   });
 
   it('throws when ALLOW_MOCK_AUTH has an invalid value', () => {
-    expect(() =>
-      loadBackendEnv({ ...VALID_BACKEND, ALLOW_MOCK_AUTH: 'yes' }),
-    ).toThrowError('[config] Invalid backend environment variables');
+    expect(() => loadBackendEnv({ ...VALID_BACKEND, ALLOW_MOCK_AUTH: 'yes' })).toThrowError(
+      '[config] Invalid backend environment variables',
+    );
   });
 
   it('inherits public env fields from the backend schema', () => {

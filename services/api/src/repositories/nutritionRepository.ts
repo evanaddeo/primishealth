@@ -134,29 +134,27 @@ export async function upsertDailyNutritionSummary(
     .insertInto('daily_nutrition_summaries')
     .values(data)
     .onConflict((oc) =>
-      oc
-        .columns(['user_id', 'local_date'])
-        .doUpdateSet((eb) => ({
-          timezone: eb.ref('excluded.timezone'),
-          calories_in_kcal: eb.ref('excluded.calories_in_kcal'),
-          calories_out_kcal: eb.ref('excluded.calories_out_kcal'),
-          calorie_balance_kcal: eb.ref('excluded.calorie_balance_kcal'),
-          protein_g: eb.ref('excluded.protein_g'),
-          carbs_g: eb.ref('excluded.carbs_g'),
-          fat_g: eb.ref('excluded.fat_g'),
-          fiber_g: eb.ref('excluded.fiber_g'),
-          hydration_ml: eb.ref('excluded.hydration_ml'),
-          caffeine_mg: eb.ref('excluded.caffeine_mg'),
-          latest_caffeine_time_utc: eb.ref('excluded.latest_caffeine_time_utc'),
-          alcohol_standard_drinks: eb.ref('excluded.alcohol_standard_drinks'),
-          protein_target_g: eb.ref('excluded.protein_target_g'),
-          calorie_target_kcal: eb.ref('excluded.calorie_target_kcal'),
-          hydration_target_ml: eb.ref('excluded.hydration_target_ml'),
-          nutrition_score: eb.ref('excluded.nutrition_score'),
-          generated_at: new Date(),
-          data_quality: eb.ref('excluded.data_quality'),
-          metadata: eb.ref('excluded.metadata'),
-        })),
+      oc.columns(['user_id', 'local_date']).doUpdateSet((eb) => ({
+        timezone: eb.ref('excluded.timezone'),
+        calories_in_kcal: eb.ref('excluded.calories_in_kcal'),
+        calories_out_kcal: eb.ref('excluded.calories_out_kcal'),
+        calorie_balance_kcal: eb.ref('excluded.calorie_balance_kcal'),
+        protein_g: eb.ref('excluded.protein_g'),
+        carbs_g: eb.ref('excluded.carbs_g'),
+        fat_g: eb.ref('excluded.fat_g'),
+        fiber_g: eb.ref('excluded.fiber_g'),
+        hydration_ml: eb.ref('excluded.hydration_ml'),
+        caffeine_mg: eb.ref('excluded.caffeine_mg'),
+        latest_caffeine_time_utc: eb.ref('excluded.latest_caffeine_time_utc'),
+        alcohol_standard_drinks: eb.ref('excluded.alcohol_standard_drinks'),
+        protein_target_g: eb.ref('excluded.protein_target_g'),
+        calorie_target_kcal: eb.ref('excluded.calorie_target_kcal'),
+        hydration_target_ml: eb.ref('excluded.hydration_target_ml'),
+        nutrition_score: eb.ref('excluded.nutrition_score'),
+        generated_at: new Date(),
+        data_quality: eb.ref('excluded.data_quality'),
+        metadata: eb.ref('excluded.metadata'),
+      })),
     )
     .returningAll()
     .executeTakeFirst();

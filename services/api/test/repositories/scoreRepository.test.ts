@@ -242,11 +242,7 @@ describe('scoreRepository', () => {
 
       expect(mocks.mockDb.selectFrom).toHaveBeenCalledWith('score_snapshots');
       expect(mocks.selectBuilder.where).toHaveBeenCalledWith('user_id', '=', 'test-user-001');
-      expect(mocks.selectBuilder.where).toHaveBeenCalledWith(
-        'score_type',
-        '=',
-        'recovery_score',
-      );
+      expect(mocks.selectBuilder.where).toHaveBeenCalledWith('score_type', '=', 'recovery_score');
       expect(mocks.selectBuilder.where).toHaveBeenCalledWith('local_date', '=', '2026-06-10');
     });
 
@@ -387,11 +383,7 @@ describe('scoreRepository', () => {
       await getScoreComponents('snap-001');
 
       expect(mocks.mockDb.selectFrom).toHaveBeenCalledWith('score_component_values');
-      expect(mocks.selectBuilder.where).toHaveBeenCalledWith(
-        'score_snapshot_id',
-        '=',
-        'snap-001',
-      );
+      expect(mocks.selectBuilder.where).toHaveBeenCalledWith('score_snapshot_id', '=', 'snap-001');
     });
   });
 

@@ -107,7 +107,8 @@ const CURSOR_ID = '00000000-0000-0000-0000-000000000004';
 const PAYLOAD_ID = '00000000-0000-0000-0000-000000000005';
 
 /** Placeholder ARN reference string — NOT a real token. */
-const MOCK_SECRET_REF = 'arn:aws:secretsmanager:us-east-1:123456789012:secret:primis/dev/test/token-PLACEHOLDER';
+const MOCK_SECRET_REF =
+  'arn:aws:secretsmanager:us-east-1:123456789012:secret:primis/dev/test/token-PLACEHOLDER';
 
 const mockConnection = {
   id: CONNECTION_ID,
@@ -174,7 +175,8 @@ const mockPayloadRef = {
   provider_data_type: 'steps',
   sync_job_id: JOB_ID,
   s3_bucket: 'primis-raw-health-data',
-  s3_key: 'dev/user_id=00000000-0000-0000-0000-000000000001/provider=google_health/data_type=steps/year=2026/month=06/day=01/00000000-0000-0000-0000-000000000005.json.gz',
+  s3_key:
+    'dev/user_id=00000000-0000-0000-0000-000000000001/provider=google_health/data_type=steps/year=2026/month=06/day=01/00000000-0000-0000-0000-000000000005.json.gz',
   content_sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
   compressed: true,
   encryption_key_ref: null,
@@ -202,9 +204,21 @@ beforeEach(() => {
 
   for (const builder of [selectBuilder, insertBuilder, updateBuilder]) {
     const chainMethods = [
-      'where', 'whereRef', 'select', 'selectAll', 'returning', 'returningAll',
-      'values', 'set', 'onConflict', 'doUpdateSet', 'doNothing', 'columns',
-      'orderBy', 'limit', 'offset',
+      'where',
+      'whereRef',
+      'select',
+      'selectAll',
+      'returning',
+      'returningAll',
+      'values',
+      'set',
+      'onConflict',
+      'doUpdateSet',
+      'doNothing',
+      'columns',
+      'orderBy',
+      'limit',
+      'offset',
     ];
     for (const m of chainMethods) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
@@ -607,8 +621,21 @@ describe('createSyncJob', () => {
 
   it('all SyncJobType and SyncJobStatus values are representable in fixtures', () => {
     // Guard: ensures test fixtures use only spec-defined values.
-    const validJobTypes = ['initial_backfill', 'incremental', 'manual_refresh', 'webhook', 'reprocess'];
-    const validStatuses = ['queued', 'running', 'succeeded', 'partial_success', 'failed', 'cancelled'];
+    const validJobTypes = [
+      'initial_backfill',
+      'incremental',
+      'manual_refresh',
+      'webhook',
+      'reprocess',
+    ];
+    const validStatuses = [
+      'queued',
+      'running',
+      'succeeded',
+      'partial_success',
+      'failed',
+      'cancelled',
+    ];
     expect(validJobTypes).toContain(mockSyncJob.job_type);
     expect(validStatuses).toContain(mockSyncJob.status);
   });
@@ -759,9 +786,9 @@ describe('upsertSyncCursor', () => {
   it('throws when the DB returns no row', async () => {
     mocks.insertBuilder['executeTakeFirst'].mockResolvedValueOnce(undefined);
 
-    await expect(
-      upsertSyncCursor(CONNECTION_ID, 'steps', {}),
-    ).rejects.toThrow('Failed to upsert sync cursor');
+    await expect(upsertSyncCursor(CONNECTION_ID, 'steps', {})).rejects.toThrow(
+      'Failed to upsert sync cursor',
+    );
   });
 
   it('calls onConflict (unique constraint on connection_id + data_type)', async () => {

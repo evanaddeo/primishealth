@@ -46,11 +46,14 @@ describe.skipIf(!testDbUrl)('Metric registry and observations (integration)', ()
     await runMigrations({ databaseUrl: testDbUrl! });
 
     // Insert a minimal test user required for FK constraints.
-    await client.query(`
+    await client.query(
+      `
       insert into users (id, cognito_sub, email)
       values ($1, 'test-cognito-sub-metrics', 'test-metrics@example.invalid')
       on conflict (id) do nothing
-    `, [TEST_USER_ID]);
+    `,
+      [TEST_USER_ID],
+    );
   });
 
   afterAll(async () => {
@@ -256,7 +259,9 @@ describe.skipIf(!testDbUrl)('Metric registry and observations (integration)', ()
       // Only the June 10 observation falls within the range.
       expect(results.length).toBeGreaterThanOrEqual(1);
       expect(results.some((r) => r.source_record_id === 'weight-2026-06-10')).toBe(true);
-      expect(results.every((r) => r.local_date >= '2026-06-09' && r.local_date <= '2026-06-15')).toBe(true);
+      expect(
+        results.every((r) => r.local_date >= '2026-06-09' && r.local_date <= '2026-06-15'),
+      ).toBe(true);
     });
   });
 

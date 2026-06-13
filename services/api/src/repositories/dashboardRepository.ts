@@ -80,15 +80,13 @@ export async function upsertWidget(
       ...config,
     })
     .onConflict((oc) =>
-      oc
-        .columns(['user_id', 'dashboard_code', 'widget_type'])
-        .doUpdateSet((eb) => ({
-          display_order: eb.ref('excluded.display_order'),
-          is_visible: eb.ref('excluded.is_visible'),
-          size: eb.ref('excluded.size'),
-          config_json: eb.ref('excluded.config_json'),
-          updated_at: now,
-        })),
+      oc.columns(['user_id', 'dashboard_code', 'widget_type']).doUpdateSet((eb) => ({
+        display_order: eb.ref('excluded.display_order'),
+        is_visible: eb.ref('excluded.is_visible'),
+        size: eb.ref('excluded.size'),
+        config_json: eb.ref('excluded.config_json'),
+        updated_at: now,
+      })),
     )
     .returningAll()
     .executeTakeFirst();
@@ -216,14 +214,12 @@ export async function upsertCacheManifest(
     .insertInto('mobile_cache_manifests')
     .values(data)
     .onConflict((oc) =>
-      oc
-        .columns(['user_id', 'cache_scope', 'scope_date'])
-        .doUpdateSet((eb) => ({
-          version_hash: eb.ref('excluded.version_hash'),
-          generated_at: new Date(),
-          expires_at: eb.ref('excluded.expires_at'),
-          metadata: eb.ref('excluded.metadata'),
-        })),
+      oc.columns(['user_id', 'cache_scope', 'scope_date']).doUpdateSet((eb) => ({
+        version_hash: eb.ref('excluded.version_hash'),
+        generated_at: new Date(),
+        expires_at: eb.ref('excluded.expires_at'),
+        metadata: eb.ref('excluded.metadata'),
+      })),
     )
     .returningAll()
     .executeTakeFirst();

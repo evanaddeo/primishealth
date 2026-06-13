@@ -60,10 +60,7 @@ export async function createInsight(data: NewInsightCandidate): Promise<InsightC
  * @param limit  - Maximum number of insights to return (default 20).
  * @returns Active insight candidates ordered by generated_at descending.
  */
-export async function getActiveInsights(
-  userId: string,
-  limit = 20,
-): Promise<InsightCandidate[]> {
+export async function getActiveInsights(userId: string, limit = 20): Promise<InsightCandidate[]> {
   return db
     .selectFrom('insight_candidates')
     .selectAll()
@@ -81,11 +78,7 @@ export async function getActiveInsights(
  * @returns The insight row, or undefined if not found.
  */
 export async function getInsight(id: string): Promise<InsightCandidate | undefined> {
-  return db
-    .selectFrom('insight_candidates')
-    .selectAll()
-    .where('id', '=', id)
-    .executeTakeFirst();
+  return db.selectFrom('insight_candidates').selectAll().where('id', '=', id).executeTakeFirst();
 }
 
 /**
@@ -191,11 +184,7 @@ export async function getCorrelationResults(
  * @returns The created row.
  */
 export async function createAnomalyEvent(data: NewAnomalyEvent): Promise<AnomalyEvent> {
-  const row = await db
-    .insertInto('anomaly_events')
-    .values(data)
-    .returningAll()
-    .executeTakeFirst();
+  const row = await db.insertInto('anomaly_events').values(data).returningAll().executeTakeFirst();
 
   if (!row) {
     throw new Error(

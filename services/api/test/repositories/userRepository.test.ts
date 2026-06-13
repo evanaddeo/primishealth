@@ -132,9 +132,20 @@ describe('userRepository', () => {
     // Re-wire chain methods to return `this`.
     for (const builder of [selectBuilder, insertBuilder, updateBuilder]) {
       const chainMethods = [
-        'where', 'whereRef', 'select', 'selectAll', 'returning', 'returningAll',
-        'values', 'set', 'onConflict', 'doUpdateSet', 'doNothing', 'orderBy',
-        'limit', 'offset',
+        'where',
+        'whereRef',
+        'select',
+        'selectAll',
+        'returning',
+        'returningAll',
+        'values',
+        'set',
+        'onConflict',
+        'doUpdateSet',
+        'doNothing',
+        'orderBy',
+        'limit',
+        'offset',
       ];
       for (const m of chainMethods) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
@@ -226,9 +237,7 @@ describe('userRepository', () => {
     it('throws if the DB returns no row (unexpected failure)', async () => {
       mocks.insertBuilder['executeTakeFirst'].mockResolvedValueOnce(undefined);
 
-      await expect(createUser({ cognito_sub: 'sub-001' })).rejects.toThrow(
-        'Failed to create user',
-      );
+      await expect(createUser({ cognito_sub: 'sub-001' })).rejects.toThrow('Failed to create user');
     });
   });
 

@@ -43,9 +43,7 @@ import {
   recordRawPayloadRef,
   getPayloadsByJob,
 } from '../../src/repositories/syncRepository.js';
-import {
-  createUser,
-} from '../../src/repositories/userRepository.js';
+import { createUser } from '../../src/repositories/userRepository.js';
 import type { Database } from '../../src/db/types.js';
 
 // ---------------------------------------------------------------------------
@@ -90,9 +88,14 @@ describe.skipIf(!testDbUrl)('Provider sync repositories (integration)', () => {
     if (testUserId) {
       // Clean up in FK-safe reverse order.
       await pgClient.query('delete from raw_provider_payloads where user_id = $1', [testUserId]);
-      await pgClient.query('delete from provider_sync_cursors where provider_connection_id in (select id from provider_connections where user_id = $1)', [testUserId]);
+      await pgClient.query(
+        'delete from provider_sync_cursors where provider_connection_id in (select id from provider_connections where user_id = $1)',
+        [testUserId],
+      );
       await pgClient.query('delete from provider_sync_jobs where user_id = $1', [testUserId]);
-      await pgClient.query('delete from provider_data_availability where user_id = $1', [testUserId]);
+      await pgClient.query('delete from provider_data_availability where user_id = $1', [
+        testUserId,
+      ]);
       await pgClient.query('delete from provider_connections where user_id = $1', [testUserId]);
       await pgClient.query('delete from users where id = $1', [testUserId]);
     }
@@ -132,7 +135,8 @@ describe.skipIf(!testDbUrl)('Provider sync repositories (integration)', () => {
     });
 
     it('stores an ARN reference string in access_token_secret_ref (not a raw token)', async () => {
-      const arnRef = 'arn:aws:secretsmanager:us-east-1:123456789012:secret:primis/dev/test/token-PLACEHOLDER';
+      const arnRef =
+        'arn:aws:secretsmanager:us-east-1:123456789012:secret:primis/dev/test/token-PLACEHOLDER';
 
       const conn = await createConnection(
         {

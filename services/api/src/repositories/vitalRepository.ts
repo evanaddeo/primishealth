@@ -29,29 +29,27 @@ export async function upsertVitalDailyFeatures(
     .insertInto('vital_daily_features')
     .values(data)
     .onConflict((oc) =>
-      oc
-        .columns(['user_id', 'local_date'])
-        .doUpdateSet((eb) => ({
-          timezone: eb.ref('excluded.timezone'),
-          resting_heart_rate_bpm: eb.ref('excluded.resting_heart_rate_bpm'),
-          hrv_rmssd_ms: eb.ref('excluded.hrv_rmssd_ms'),
-          avg_heart_rate_bpm: eb.ref('excluded.avg_heart_rate_bpm'),
-          min_heart_rate_bpm: eb.ref('excluded.min_heart_rate_bpm'),
-          max_heart_rate_bpm: eb.ref('excluded.max_heart_rate_bpm'),
-          avg_spo2_pct: eb.ref('excluded.avg_spo2_pct'),
-          min_spo2_pct: eb.ref('excluded.min_spo2_pct'),
-          respiratory_rate_bpm: eb.ref('excluded.respiratory_rate_bpm'),
-          skin_temp_delta_c: eb.ref('excluded.skin_temp_delta_c'),
-          vo2_max: eb.ref('excluded.vo2_max'),
-          rhr_vs_30d_delta: eb.ref('excluded.rhr_vs_30d_delta'),
-          hrv_vs_30d_delta_pct: eb.ref('excluded.hrv_vs_30d_delta_pct'),
-          resp_rate_vs_30d_delta: eb.ref('excluded.resp_rate_vs_30d_delta'),
-          spo2_vs_30d_delta: eb.ref('excluded.spo2_vs_30d_delta'),
-          data_quality: eb.ref('excluded.data_quality'),
-          confidence_score: eb.ref('excluded.confidence_score'),
-          generated_at: new Date(),
-          metadata: eb.ref('excluded.metadata'),
-        })),
+      oc.columns(['user_id', 'local_date']).doUpdateSet((eb) => ({
+        timezone: eb.ref('excluded.timezone'),
+        resting_heart_rate_bpm: eb.ref('excluded.resting_heart_rate_bpm'),
+        hrv_rmssd_ms: eb.ref('excluded.hrv_rmssd_ms'),
+        avg_heart_rate_bpm: eb.ref('excluded.avg_heart_rate_bpm'),
+        min_heart_rate_bpm: eb.ref('excluded.min_heart_rate_bpm'),
+        max_heart_rate_bpm: eb.ref('excluded.max_heart_rate_bpm'),
+        avg_spo2_pct: eb.ref('excluded.avg_spo2_pct'),
+        min_spo2_pct: eb.ref('excluded.min_spo2_pct'),
+        respiratory_rate_bpm: eb.ref('excluded.respiratory_rate_bpm'),
+        skin_temp_delta_c: eb.ref('excluded.skin_temp_delta_c'),
+        vo2_max: eb.ref('excluded.vo2_max'),
+        rhr_vs_30d_delta: eb.ref('excluded.rhr_vs_30d_delta'),
+        hrv_vs_30d_delta_pct: eb.ref('excluded.hrv_vs_30d_delta_pct'),
+        resp_rate_vs_30d_delta: eb.ref('excluded.resp_rate_vs_30d_delta'),
+        spo2_vs_30d_delta: eb.ref('excluded.spo2_vs_30d_delta'),
+        data_quality: eb.ref('excluded.data_quality'),
+        confidence_score: eb.ref('excluded.confidence_score'),
+        generated_at: new Date(),
+        metadata: eb.ref('excluded.metadata'),
+      })),
     )
     .returningAll()
     .executeTakeFirst();

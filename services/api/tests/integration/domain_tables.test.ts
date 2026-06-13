@@ -67,10 +67,7 @@ async function cleanupTestRows(db: Kysely<Database>): Promise<void> {
   await db.deleteFrom('workout_hr_zone_summaries').where('user_id', '=', TEST_USER_ID).execute();
   await db.deleteFrom('workout_sessions').where('user_id', '=', TEST_USER_ID).execute();
   await db.deleteFrom('sleep_daily_features').where('user_id', '=', TEST_USER_ID).execute();
-  await db
-    .deleteFrom('sleep_stage_intervals')
-    .where('user_id', '=', TEST_USER_ID)
-    .execute();
+  await db.deleteFrom('sleep_stage_intervals').where('user_id', '=', TEST_USER_ID).execute();
   await db.deleteFrom('sleep_sessions').where('user_id', '=', TEST_USER_ID).execute();
   await db.deleteFrom('users').where('id', '=', TEST_USER_ID).execute();
 }
@@ -234,9 +231,7 @@ describe.skipIf(!testDbUrl)('domain_tables integration', () => {
           timezone: 'America/New_York',
           workout_count: 1,
         })
-        .onConflict((oc) =>
-          oc.columns(['user_id', 'local_date']).doUpdateSet({ workout_count: 1 }),
-        )
+        .onConflict((oc) => oc.columns(['user_id', 'local_date']).doUpdateSet({ workout_count: 1 }))
         .returningAll()
         .execute();
 

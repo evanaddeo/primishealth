@@ -177,9 +177,7 @@ export async function insertScoreComponents(
  *
  * @param scoreSnapshotId - UUID of the parent score_snapshots row.
  */
-export async function getScoreComponents(
-  scoreSnapshotId: string,
-): Promise<ScoreComponentValue[]> {
+export async function getScoreComponents(scoreSnapshotId: string): Promise<ScoreComponentValue[]> {
   return db
     .selectFrom('score_component_values')
     .selectAll()
@@ -200,11 +198,7 @@ export async function getScoreComponents(
  * @returns The created row.
  */
 export async function createAlgorithmRun(data: NewAlgorithmRun): Promise<AlgorithmRun> {
-  const row = await db
-    .insertInto('algorithm_runs')
-    .values(data)
-    .returningAll()
-    .executeTakeFirst();
+  const row = await db.insertInto('algorithm_runs').values(data).returningAll().executeTakeFirst();
 
   if (!row) {
     throw new Error(

@@ -56,11 +56,7 @@ export interface DateRange {
  * @returns The inserted row.
  */
 export async function createCheckin(data: NewManualCheckin): Promise<ManualCheckin> {
-  const row = await db
-    .insertInto('manual_checkins')
-    .values(data)
-    .returningAll()
-    .executeTakeFirst();
+  const row = await db.insertInto('manual_checkins').values(data).returningAll().executeTakeFirst();
 
   if (!row) {
     throw new Error('createCheckin: no row returned');
@@ -105,15 +101,13 @@ export async function upsertCustomTag(data: NewCustomTag): Promise<CustomTag> {
     .insertInto('custom_tags')
     .values(data)
     .onConflict((oc) =>
-      oc
-        .columns(['user_id', 'tag_code'])
-        .doUpdateSet((eb) => ({
-          display_name: eb.ref('excluded.display_name'),
-          category: eb.ref('excluded.category'),
-          is_active: eb.ref('excluded.is_active'),
-          metadata: eb.ref('excluded.metadata'),
-          updated_at: new Date(),
-        })),
+      oc.columns(['user_id', 'tag_code']).doUpdateSet((eb) => ({
+        display_name: eb.ref('excluded.display_name'),
+        category: eb.ref('excluded.category'),
+        is_active: eb.ref('excluded.is_active'),
+        metadata: eb.ref('excluded.metadata'),
+        updated_at: new Date(),
+      })),
     )
     .returningAll()
     .executeTakeFirst();
@@ -136,11 +130,7 @@ export async function upsertCustomTag(data: NewCustomTag): Promise<CustomTag> {
  * @returns The inserted row.
  */
 export async function createTagEvent(data: NewTagEvent): Promise<TagEvent> {
-  const row = await db
-    .insertInto('tag_events')
-    .values(data)
-    .returningAll()
-    .executeTakeFirst();
+  const row = await db.insertInto('tag_events').values(data).returningAll().executeTakeFirst();
 
   if (!row) {
     throw new Error('createTagEvent: no row returned');
@@ -208,11 +198,7 @@ export async function createCaffeineEntry(data: NewCaffeineEntry): Promise<Caffe
  * @returns The inserted row.
  */
 export async function createAlcoholEntry(data: NewAlcoholEntry): Promise<AlcoholEntry> {
-  const row = await db
-    .insertInto('alcohol_entries')
-    .values(data)
-    .returningAll()
-    .executeTakeFirst();
+  const row = await db.insertInto('alcohol_entries').values(data).returningAll().executeTakeFirst();
 
   if (!row) {
     throw new Error('createAlcoholEntry: no row returned');
@@ -235,11 +221,7 @@ export async function createAlcoholEntry(data: NewAlcoholEntry): Promise<Alcohol
  * @returns The inserted row.
  */
 export async function createBowelEntry(data: NewBowelEntry): Promise<BowelEntry> {
-  const row = await db
-    .insertInto('bowel_entries')
-    .values(data)
-    .returningAll()
-    .executeTakeFirst();
+  const row = await db.insertInto('bowel_entries').values(data).returningAll().executeTakeFirst();
 
   if (!row) {
     throw new Error('createBowelEntry: no row returned');

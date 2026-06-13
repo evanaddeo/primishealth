@@ -83,10 +83,7 @@ export async function getConversation(id: string): Promise<AiConversation | unde
  * @param userId - Internal user UUID.
  * @param limit  - Maximum rows to return (default 50).
  */
-export async function getConversations(
-  userId: string,
-  limit = 50,
-): Promise<AiConversation[]> {
+export async function getConversations(userId: string, limit = 50): Promise<AiConversation[]> {
   return db
     .selectFrom('ai_conversations')
     .selectAll()

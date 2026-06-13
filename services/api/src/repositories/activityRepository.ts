@@ -48,33 +48,31 @@ export async function upsertWorkoutSession(data: NewWorkoutSession): Promise<Wor
     .insertInto('workout_sessions')
     .values(data)
     .onConflict((oc) =>
-      oc
-        .columns(['user_id', 'source_provider', 'source_record_id'])
-        .doUpdateSet((eb) => ({
-          workout_type: eb.ref('excluded.workout_type'),
-          display_name: eb.ref('excluded.display_name'),
-          start_time_utc: eb.ref('excluded.start_time_utc'),
-          end_time_utc: eb.ref('excluded.end_time_utc'),
-          local_date: eb.ref('excluded.local_date'),
-          timezone: eb.ref('excluded.timezone'),
-          duration_seconds: eb.ref('excluded.duration_seconds'),
-          active_duration_seconds: eb.ref('excluded.active_duration_seconds'),
-          distance_m: eb.ref('excluded.distance_m'),
-          active_energy_kcal: eb.ref('excluded.active_energy_kcal'),
-          total_energy_kcal: eb.ref('excluded.total_energy_kcal'),
-          avg_hr_bpm: eb.ref('excluded.avg_hr_bpm'),
-          max_hr_bpm: eb.ref('excluded.max_hr_bpm'),
-          min_hr_bpm: eb.ref('excluded.min_hr_bpm'),
-          elevation_gain_m: eb.ref('excluded.elevation_gain_m'),
-          steps_count: eb.ref('excluded.steps_count'),
-          provider_strain_score: eb.ref('excluded.provider_strain_score'),
-          training_load: eb.ref('excluded.training_load'),
-          perceived_exertion: eb.ref('excluded.perceived_exertion'),
-          data_quality: eb.ref('excluded.data_quality'),
-          confidence_score: eb.ref('excluded.confidence_score'),
-          metadata: eb.ref('excluded.metadata'),
-          updated_at: new Date(),
-        })),
+      oc.columns(['user_id', 'source_provider', 'source_record_id']).doUpdateSet((eb) => ({
+        workout_type: eb.ref('excluded.workout_type'),
+        display_name: eb.ref('excluded.display_name'),
+        start_time_utc: eb.ref('excluded.start_time_utc'),
+        end_time_utc: eb.ref('excluded.end_time_utc'),
+        local_date: eb.ref('excluded.local_date'),
+        timezone: eb.ref('excluded.timezone'),
+        duration_seconds: eb.ref('excluded.duration_seconds'),
+        active_duration_seconds: eb.ref('excluded.active_duration_seconds'),
+        distance_m: eb.ref('excluded.distance_m'),
+        active_energy_kcal: eb.ref('excluded.active_energy_kcal'),
+        total_energy_kcal: eb.ref('excluded.total_energy_kcal'),
+        avg_hr_bpm: eb.ref('excluded.avg_hr_bpm'),
+        max_hr_bpm: eb.ref('excluded.max_hr_bpm'),
+        min_hr_bpm: eb.ref('excluded.min_hr_bpm'),
+        elevation_gain_m: eb.ref('excluded.elevation_gain_m'),
+        steps_count: eb.ref('excluded.steps_count'),
+        provider_strain_score: eb.ref('excluded.provider_strain_score'),
+        training_load: eb.ref('excluded.training_load'),
+        perceived_exertion: eb.ref('excluded.perceived_exertion'),
+        data_quality: eb.ref('excluded.data_quality'),
+        confidence_score: eb.ref('excluded.confidence_score'),
+        metadata: eb.ref('excluded.metadata'),
+        updated_at: new Date(),
+      })),
     )
     .returningAll()
     .executeTakeFirst();
@@ -133,24 +131,22 @@ export async function upsertTrainingLoadDaily(
     .insertInto('training_load_daily')
     .values(data)
     .onConflict((oc) =>
-      oc
-        .columns(['user_id', 'local_date'])
-        .doUpdateSet((eb) => ({
-          timezone: eb.ref('excluded.timezone'),
-          daily_training_load: eb.ref('excluded.daily_training_load'),
-          daily_strain_score: eb.ref('excluded.daily_strain_score'),
-          workout_count: eb.ref('excluded.workout_count'),
-          active_energy_kcal: eb.ref('excluded.active_energy_kcal'),
-          active_minutes_seconds: eb.ref('excluded.active_minutes_seconds'),
-          zone_minutes_seconds: eb.ref('excluded.zone_minutes_seconds'),
-          acute_load_7d: eb.ref('excluded.acute_load_7d'),
-          chronic_load_28d: eb.ref('excluded.chronic_load_28d'),
-          acute_chronic_ratio: eb.ref('excluded.acute_chronic_ratio'),
-          load_status: eb.ref('excluded.load_status'),
-          generated_at: new Date(),
-          data_quality: eb.ref('excluded.data_quality'),
-          metadata: eb.ref('excluded.metadata'),
-        })),
+      oc.columns(['user_id', 'local_date']).doUpdateSet((eb) => ({
+        timezone: eb.ref('excluded.timezone'),
+        daily_training_load: eb.ref('excluded.daily_training_load'),
+        daily_strain_score: eb.ref('excluded.daily_strain_score'),
+        workout_count: eb.ref('excluded.workout_count'),
+        active_energy_kcal: eb.ref('excluded.active_energy_kcal'),
+        active_minutes_seconds: eb.ref('excluded.active_minutes_seconds'),
+        zone_minutes_seconds: eb.ref('excluded.zone_minutes_seconds'),
+        acute_load_7d: eb.ref('excluded.acute_load_7d'),
+        chronic_load_28d: eb.ref('excluded.chronic_load_28d'),
+        acute_chronic_ratio: eb.ref('excluded.acute_chronic_ratio'),
+        load_status: eb.ref('excluded.load_status'),
+        generated_at: new Date(),
+        data_quality: eb.ref('excluded.data_quality'),
+        metadata: eb.ref('excluded.metadata'),
+      })),
     )
     .returningAll()
     .executeTakeFirst();

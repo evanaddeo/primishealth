@@ -322,11 +322,7 @@ describe('sleepRepository', () => {
 
       expect(mocks.mockDb.selectFrom).toHaveBeenCalledWith('sleep_sessions');
       expect(mocks.selectBuilder.where).toHaveBeenCalledWith('user_id', '=', 'user-uuid-001');
-      expect(mocks.selectBuilder.where).toHaveBeenCalledWith(
-        'local_sleep_date',
-        '=',
-        '2026-06-02',
-      );
+      expect(mocks.selectBuilder.where).toHaveBeenCalledWith('local_sleep_date', '=', '2026-06-02');
       expect(results).toHaveLength(1);
     });
 

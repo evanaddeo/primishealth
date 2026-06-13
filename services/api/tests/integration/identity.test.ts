@@ -109,10 +109,7 @@ describe.skipIf(!testDbUrl)('Identity repositories (integration)', () => {
 
   describe('users table', () => {
     it('creates a new user row and returns it', async () => {
-      const user = await createUser(
-        { cognito_sub: testCognitoSub, email: testEmail },
-        db,
-      );
+      const user = await createUser({ cognito_sub: testCognitoSub, email: testEmail }, db);
 
       expect(user.id).toBeDefined();
       expect(user.cognito_sub).toBe(testCognitoSub);
@@ -127,9 +124,7 @@ describe.skipIf(!testDbUrl)('Identity repositories (integration)', () => {
     it('users.id is a UUID independent from cognito_sub (ARCH-AUTH-001)', async () => {
       const user = await findByCognitoSub(testCognitoSub, db);
       expect(user?.id).not.toBe(user?.cognito_sub);
-      expect(user?.id).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-      );
+      expect(user?.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     });
 
     it('findByCognitoSub returns the correct row', async () => {
@@ -161,10 +156,7 @@ describe.skipIf(!testDbUrl)('Identity repositories (integration)', () => {
 
     it('softDeleteUser sets deleted_at and status to "deleted"', async () => {
       // Create a separate user for deletion so the main test user remains active.
-      const deleteMe = await createUser(
-        { cognito_sub: `${testCognitoSub}-delete-me` },
-        db,
-      );
+      const deleteMe = await createUser({ cognito_sub: `${testCognitoSub}-delete-me` }, db);
 
       await softDeleteUser(deleteMe.id, db);
 

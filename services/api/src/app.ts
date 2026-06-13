@@ -7,17 +7,21 @@
  * directly and use Hono's built-in `app.request()` helper.
  *
  * Route layout:
- *   GET  /health          — unauthenticated health probe (CU-024)
- *   GET  /api/v1/me       — authenticated user profile (CU-032)
+ *   GET    /health                          — unauthenticated health probe (CU-024)
+ *   GET    /api/v1/me                       — authenticated user profile (CU-032/033)
+ *   PATCH  /api/v1/me/profile               — update display name, timezone (CU-033)
+ *   PATCH  /api/v1/me/preferences           — update coach/nutrition prefs (CU-033)
+ *   POST   /api/v1/me/onboarding/goals      — upsert ranked goals (CU-033)
+ *   POST   /api/v1/me/onboarding/preferences — upsert onboarding preferences (CU-033)
+ *   POST   /api/v1/me/onboarding/consent    — record consent event (CU-033)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
- *   2. authMiddleware      — registered on /api/v1/* routes only (CU-032)
+ *   2. authMiddleware      — registered on /api/v1/* routes only
  *   3. Route handlers
  *   4. onError / notFound  — always last
  *
- * TODO(CU-032): Add rate limiting and CORS headers before auth middleware.
- * TODO(CU-033): Extend /api/v1 with user bootstrap and onboarding endpoints.
+ * TODO(future): Add rate limiting and CORS headers before auth middleware.
  */
 
 import { Hono } from 'hono';
@@ -28,6 +32,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { healthRouter } from './routes/health.js';
 import { meRouter } from './routes/me.js';
+import { onboardingRouter } from './routes/onboarding.js';
 
 // ---------------------------------------------------------------------------
 // Context variable types
@@ -73,10 +78,12 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   // ── Authenticated API v1 routes ──────────────────────────────────────────────
   // All routes under /api/v1/* are protected by the auth middleware.
   app.use('/api/v1/*', authMiddleware);
+
+  // User profile routes: GET /me, PATCH /me/profile, PATCH /me/preferences
   app.route('/api/v1/me', meRouter);
 
-  // TODO(CU-033): app.route('/api/v1/me/preferences', preferencesRouter);
-  // TODO(CU-033): app.route('/api/v1/me/onboarding', onboardingRouter);
+  // Onboarding routes: POST /me/onboarding/goals, /preferences, /consent
+  app.route('/api/v1/me/onboarding', onboardingRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);

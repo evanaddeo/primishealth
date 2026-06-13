@@ -72,10 +72,7 @@ describe.skipIf(!TEST_DATABASE_URL)('outputs_dashboard integration', () => {
     await db.deleteFrom('dashboard_widgets').where('user_id', '=', testUserId).execute();
     await db.deleteFrom('ai_model_invocations').where('user_id', '=', testUserId).execute();
     // ai_messages cascade from ai_conversations
-    await db
-      .deleteFrom('ai_conversations')
-      .where('user_id', '=', testUserId)
-      .execute();
+    await db.deleteFrom('ai_conversations').where('user_id', '=', testUserId).execute();
     await db.deleteFrom('ai_context_snapshots').where('user_id', '=', testUserId).execute();
     await db.deleteFrom('anomaly_events').where('user_id', '=', testUserId).execute();
     await db.deleteFrom('correlation_results').where('user_id', '=', testUserId).execute();
