@@ -18,6 +18,7 @@
     "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",
     "@primis/health-metrics": "workspace:*",
+    "aws-jwt-verify": "^5.2.1",
     "hono": "^4.12.25",
     "kysely": "^0.29.2",
     "pg": "^8.21.0"

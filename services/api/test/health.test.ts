@@ -17,7 +17,40 @@
  *  - `success: true` envelope field is set
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+// ---------------------------------------------------------------------------
+// Mock @primis/config so createApp() (which now calls createAuthMiddleware()
+// via loadBackendEnv) doesn't fail with missing env vars in the test environment.
+// The health route itself calls loadPublicEnv() — we stub that too.
+// ---------------------------------------------------------------------------
+
+vi.mock('@primis/config', () => ({
+  loadPublicEnv: vi.fn().mockReturnValue({
+    NODE_ENV: 'development',
+    APP_ENV: 'local',
+    EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
+    EXPO_PUBLIC_MOCK_MODE: 'true',
+  }),
+  loadBackendEnv: vi.fn().mockReturnValue({
+    ALLOW_MOCK_AUTH: false,
+    APP_ENV: 'local',
+    NODE_ENV: 'development',
+    DATABASE_URL: 'postgres://primis:primis@localhost:5432/primis_dev',
+    DATABASE_SSL: false,
+    COGNITO_USER_POOL_ID: 'PLACEHOLDER',
+    COGNITO_CLIENT_ID: 'PLACEHOLDER',
+    COGNITO_REGION: 'us-east-1',
+    GOOGLE_HEALTH_CLIENT_ID: 'PLACEHOLDER',
+    GOOGLE_HEALTH_CLIENT_SECRET: 'PLACEHOLDER',
+    OPENAI_API_KEY: 'PLACEHOLDER',
+    ANTHROPIC_API_KEY: 'PLACEHOLDER',
+    AWS_REGION: 'us-east-1',
+    EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
+    EXPO_PUBLIC_MOCK_MODE: 'true',
+  }),
+}));
+
 import { createApp } from '../src/app.js';
 import type { HealthResponseData } from '../src/routes/health.js';
 import type { ApiSuccessResponse } from '@primis/api-contracts';
