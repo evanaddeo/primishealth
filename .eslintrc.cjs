@@ -28,7 +28,10 @@ module.exports = {
     'no-unused-vars': 'off',
     // _-prefixed identifiers are intentional stubs (e.g. placeholder props in chart scaffolds
     // that will be wired in Phase G). Standard TypeScript convention.
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
     'no-console': ['warn', { allow: ['error'] }],
     '@typescript-eslint/no-explicit-any': 'error',
     // Too noisy at the foundation stage; re-evaluate at Phase B

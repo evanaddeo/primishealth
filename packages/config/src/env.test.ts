@@ -39,6 +39,7 @@ const VALID_BACKEND: NodeJS.ProcessEnv = {
   OPENAI_API_KEY: 'PLACEHOLDER',
   ANTHROPIC_API_KEY: 'PLACEHOLDER',
   AWS_REGION: 'us-east-1',
+  ALLOW_MOCK_AUTH: 'false',
 };
 
 // ---------------------------------------------------------------------------
@@ -184,6 +185,29 @@ describe('loadBackendEnv', () => {
   it('applies default AWS_REGION when absent', () => {
     const env = loadBackendEnv(without(VALID_BACKEND, 'AWS_REGION'));
     expect(env.AWS_REGION).toBe('us-east-1');
+  });
+
+  it('transforms ALLOW_MOCK_AUTH string "false" to boolean false', () => {
+    const env = loadBackendEnv({ ...VALID_BACKEND, ALLOW_MOCK_AUTH: 'false' });
+    expect(env.ALLOW_MOCK_AUTH).toBe(false);
+    expect(typeof env.ALLOW_MOCK_AUTH).toBe('boolean');
+  });
+
+  it('transforms ALLOW_MOCK_AUTH string "true" to boolean true', () => {
+    const env = loadBackendEnv({ ...VALID_BACKEND, ALLOW_MOCK_AUTH: 'true' });
+    expect(env.ALLOW_MOCK_AUTH).toBe(true);
+    expect(typeof env.ALLOW_MOCK_AUTH).toBe('boolean');
+  });
+
+  it('defaults ALLOW_MOCK_AUTH to false when absent', () => {
+    const env = loadBackendEnv(without(VALID_BACKEND, 'ALLOW_MOCK_AUTH'));
+    expect(env.ALLOW_MOCK_AUTH).toBe(false);
+  });
+
+  it('throws when ALLOW_MOCK_AUTH has an invalid value', () => {
+    expect(() => loadBackendEnv({ ...VALID_BACKEND, ALLOW_MOCK_AUTH: 'yes' })).toThrowError(
+      '[config] Invalid backend environment variables',
+    );
   });
 
   it('inherits public env fields from the backend schema', () => {

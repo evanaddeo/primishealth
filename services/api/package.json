@@ -1,0 +1,32 @@
+{
+  "name": "@primis/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/app.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "dev": "APP_ENV=local tsx src/handler.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.0.4",
+    "@primis/api-contracts": "workspace:*",
+    "@primis/config": "workspace:*",
+    "@primis/core-types": "workspace:*",
+    "@primis/health-metrics": "workspace:*",
+    "aws-jwt-verify": "^5.2.1",
+    "hono": "^4.12.25",
+    "kysely": "^0.29.2",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/pg": "^8.20.0",
+    "tsx": "^4.22.4",
+    "vitest": "^1.6.1"
+  }
+}
