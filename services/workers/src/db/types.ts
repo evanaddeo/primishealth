@@ -402,6 +402,31 @@ export interface SleepSessionsTable {
   is_main_sleep: Generated<boolean>;
   /** nap_type: nap | main | unknown */
   nap_type: NullableCol<string>;
+
+  // ---- V1.1 columns (migration 000007_add_sleep_minutes_after_wake_up.sql) ----
+  /** Provider sleep type: 'CLASSIC' | 'STAGES' or provider-specific enum value. */
+  provider_sleep_type: NullableCol<string>;
+  /** Whether Google's stage processing pipeline ran for this session. */
+  provider_processed: NullableCol<boolean>;
+  /** Stage processing status from Google's stagesStatus field. */
+  provider_stages_status: NullableCol<string>;
+  /** Whether Google classified this session as a nap. */
+  is_nap: NullableCol<boolean>;
+  /** Whether the user manually edited this session in their provider app. */
+  manually_edited: NullableCol<boolean>;
+  /** Provider-assigned external session identifier for deduplication lookups. */
+  external_sleep_id: NullableCol<string>;
+  /** Raw provider integer: summary.minutesInSleepPeriod. */
+  minutes_in_sleep_period: NullableCol<number>;
+  /** Raw provider integer: summary.minutesAfterWakeUp. */
+  minutes_after_wake_up: NullableCol<number>;
+  /** Raw provider integer: summary.minutesToFallAsleep. */
+  minutes_to_fall_asleep: NullableCol<number>;
+  /** Raw provider integer: summary.minutesAsleep. */
+  minutes_asleep: NullableCol<number>;
+  /** Raw provider integer: summary.minutesAwake. */
+  minutes_awake: NullableCol<number>;
+
   data_quality: Generated<string>;
   confidence_score: NullableCol<string>;
   metadata: Generated<Record<string, unknown>>;
