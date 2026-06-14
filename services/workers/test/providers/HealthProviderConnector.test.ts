@@ -19,9 +19,7 @@ import { PROVIDER_CODE } from '@primis/core-types';
 import type { ProviderCapabilities, SyncWindow } from '@primis/core-types';
 
 import type { HealthProviderConnector } from '../../src/providers/HealthProviderConnector.js';
-import {
-  ProviderConnectorError,
-} from '../../src/providers/HealthProviderConnector.js';
+import { ProviderConnectorError } from '../../src/providers/HealthProviderConnector.js';
 import { FakeHealthProviderConnector } from '../../src/providers/FakeHealthProviderConnector.js';
 
 // ---------------------------------------------------------------------------
@@ -93,9 +91,7 @@ describe('FakeHealthProviderConnector.startAuthorization()', () => {
 
   it('throws ProviderConnectorError when authError is configured', async () => {
     const connector = new FakeHealthProviderConnector({ authError: 'MISSING_CONFIG' });
-    await expect(connector.startAuthorization(USER_ID, [])).rejects.toThrow(
-      ProviderConnectorError,
-    );
+    await expect(connector.startAuthorization(USER_ID, [])).rejects.toThrow(ProviderConnectorError);
     await expect(connector.startAuthorization(USER_ID, [])).rejects.toMatchObject({
       code: 'MISSING_CONFIG',
     });
@@ -207,9 +203,7 @@ describe('FakeHealthProviderConnector.revokeConnection()', () => {
 
   it('throws ProviderConnectorError with configured revokeError code', async () => {
     const connector = new FakeHealthProviderConnector({ revokeError: 'DB_WRITE_FAILED' });
-    await expect(connector.revokeConnection(CONNECTION_ID)).rejects.toThrow(
-      ProviderConnectorError,
-    );
+    await expect(connector.revokeConnection(CONNECTION_ID)).rejects.toThrow(ProviderConnectorError);
     await expect(connector.revokeConnection(CONNECTION_ID)).rejects.toMatchObject({
       code: 'DB_WRITE_FAILED',
     });
