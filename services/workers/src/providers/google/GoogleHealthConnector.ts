@@ -42,6 +42,7 @@ import type {
   OAuthStateStore,
 } from './oauthTypes.js';
 import { DEFAULT_GOOGLE_HEALTH_SCOPES } from './oauthTypes.js';
+import type { SecretStore } from '../../security/SecretStore.js';
 
 // ---------------------------------------------------------------------------
 // Constructor dependencies
@@ -67,6 +68,21 @@ export interface GoogleHealthConnectorDeps {
    * In local dev and CI, all fields hold `'PLACEHOLDER'`.
    */
   config: GoogleHealthOAuthConfig;
+
+  /**
+   * Secret store adapter for storing and retrieving provider OAuth tokens.
+   *
+   * When provided, `completeAuthorization` stores the raw access and refresh
+   * tokens via `secretStore.putSecret()` and returns only the opaque reference
+   * strings. When omitted (CU-037 fallback), placeholder strings are returned
+   * for backward compatibility with tests that do not inject a secret store.
+   *
+   * Inject `LocalSecretStore` for dev/test; `AwsSecretsManagerStore` for production.
+   * See `services/workers/src/security/SecretStore.ts` for the interface.
+   *
+   * CU-038: this field completes the token secret reference adapter.
+   */
+  secretStore?: SecretStore;
 }
 
 // ---------------------------------------------------------------------------
@@ -102,11 +118,13 @@ export class GoogleHealthConnector implements HealthProviderConnector {
   private readonly oauthClient: GoogleOAuthClient;
   private readonly stateStore: OAuthStateStore;
   private readonly config: GoogleHealthOAuthConfig;
+  private readonly secretStore: SecretStore | undefined;
 
   constructor(deps: GoogleHealthConnectorDeps) {
     this.oauthClient = deps.oauthClient;
     this.stateStore = deps.stateStore;
     this.config = deps.config;
+    this.secretStore = deps.secretStore;
   }
 
   // ---------------------------------------------------------------------------
@@ -232,15 +250,43 @@ export class GoogleHealthConnector implements HealthProviderConnector {
       extractSubFromIdToken(tokenResponse.id_token) ??
       `google-sub-unresolved-${randomUUID()}`;
 
-    // Step 5 — Placeholder token refs (CU-038 will store real tokens in Secrets Manager).
-    // TODO(CU-038): Replace placeholder strings with real Secrets Manager ARN references
-    //   from SecretStore.storeGoogleTokens(userId, tokenResponse).
+    // Step 5 — Store tokens in SecretStore (CU-038) and return only the opaque refs.
+    //
+    // When a secretStore is injected, the raw access/refresh tokens are stored
+    // immediately after code exchange and only the reference strings are returned.
+    // Raw token values never appear in `TokenExchangeResult` or in any downstream
+    // object that might be serialised into a DB column, log line, or HTTP response.
+    //
+    // When no secretStore is provided (CU-037 backward-compatibility fallback),
+    // placeholder strings are returned so existing tests continue to pass.
     const connectionId = randomUUID();
-    const accessTokenRef = `placeholder/google/access/${connectionId}`;
-    const refreshTokenRef =
-      tokenResponse.refresh_token != null
-        ? `placeholder/google/refresh/${connectionId}`
-        : `placeholder/google/refresh/absent-${connectionId}`;
+    const secretNameBase = `google/tokens/${userId}/${connectionId}`;
+
+    let accessTokenRef: string;
+    let refreshTokenRef: string;
+
+    if (this.secretStore !== undefined) {
+      accessTokenRef = await this.secretStore.putSecret(
+        `${secretNameBase}/access`,
+        tokenResponse.access_token,
+      );
+      // Refresh tokens are optional (not all Google flows issue them).
+      // Store an empty sentinel ref when absent so the reference field is never null.
+      refreshTokenRef = await this.secretStore.putSecret(
+        tokenResponse.refresh_token != null
+          ? `${secretNameBase}/refresh`
+          : `${secretNameBase}/refresh-absent`,
+        tokenResponse.refresh_token ?? '',
+      );
+    } else {
+      // CU-037 fallback — no secret store injected; return placeholder refs.
+      // TODO(Phase Z): Remove this branch once all callers inject a SecretStore.
+      accessTokenRef = `placeholder/google/access/${connectionId}`;
+      refreshTokenRef =
+        tokenResponse.refresh_token != null
+          ? `placeholder/google/refresh/${connectionId}`
+          : `placeholder/google/refresh/absent-${connectionId}`;
+    }
 
     return {
       accessTokenRef,

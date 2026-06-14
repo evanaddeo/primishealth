@@ -1,5 +1,5 @@
 /**
- * Tests for GoogleHealthConnector and supporting types (CU-037).
+ * Tests for GoogleHealthConnector and supporting types (CU-037, CU-038).
  *
  * Coverage:
  *   1. Interface contract — `GoogleHealthConnector` satisfies `HealthProviderConnector`
@@ -15,6 +15,7 @@
  *   7. `GoogleHealthConnector.revokeConnection`   — NOT_IMPLEMENTED error.
  *   8. `GoogleHealthConnector.listCapabilities`   — structure and verified: false invariant.
  *   9. Google login vs Google Health separation   — no `cognitoSub` or identity claims in auth result.
+ *  10. SecretStore integration (CU-038) — tokens stored via SecretStore; refs returned, not raw tokens.
  *
  * No real network calls, database connections, or AWS credentials are used.
  * All tests are deterministic and run in < 100ms.
@@ -40,6 +41,40 @@ import type {
   OAuthStateStore,
   GoogleHealthOAuthConfig,
 } from '../../../src/providers/google/oauthTypes.js';
+import { SecretNotFoundError } from '../../../src/security/SecretStore.js';
+import type { SecretStore } from '../../../src/security/SecretStore.js';
+
+// ---------------------------------------------------------------------------
+// Minimal in-process SecretStore test double (CU-038)
+// ---------------------------------------------------------------------------
+
+/**
+ * Minimal in-memory `SecretStore` implementation for worker-side tests.
+ *
+ * This duplicates just enough of `LocalSecretStore` (from services/api) to satisfy
+ * the workers-facing `SecretStore` interface without creating a cross-service import.
+ * Tests that need the full `LocalSecretStore` feature set should use the api package test.
+ */
+class WorkerFakeSecretStore implements SecretStore {
+  readonly _store = new Map<string, string>();
+  private static readonly PREFIX = 'local://primis/dev/' as const;
+
+  async putSecret(name: string, value: string): Promise<string> {
+    const ref = `${WorkerFakeSecretStore.PREFIX}${name}`;
+    this._store.set(ref, value);
+    return ref;
+  }
+
+  async getSecret(ref: string): Promise<string> {
+    const value = this._store.get(ref);
+    if (value === undefined) throw new SecretNotFoundError(ref);
+    return value;
+  }
+
+  async deleteSecret(ref: string): Promise<void> {
+    this._store.delete(ref);
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Test doubles
@@ -157,11 +192,15 @@ function makeConnector(opts: {
   oauthClient?: GoogleOAuthClient;
   stateStore?: OAuthStateStore;
   config?: GoogleHealthOAuthConfig;
+  secretStore?: SecretStore;
 } = {}): GoogleHealthConnector {
   return new GoogleHealthConnector({
     oauthClient: opts.oauthClient ?? new FakeGoogleOAuthClient(),
     stateStore: opts.stateStore ?? new InMemoryOAuthStateStore(),
     config: opts.config ?? PLACEHOLDER_CONFIG,
+    // exactOptionalPropertyTypes: spread only when defined to avoid passing `undefined`
+    // explicitly into an optional property (TS strict-mode requirement).
+    ...(opts.secretStore !== undefined ? { secretStore: opts.secretStore } : {}),
   });
 }
 
@@ -679,5 +718,176 @@ describe('Google login vs Google Health authorization separation', () => {
     expect(healthScopeValues).not.toContain('profile');
     expect(healthScopeValues).not.toContain('/email');
     expect(healthScopeValues).not.toContain('openid');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SecretStore integration (CU-038)
+// ---------------------------------------------------------------------------
+
+describe('GoogleHealthConnector — SecretStore integration (CU-038)', () => {
+  let secretStore: WorkerFakeSecretStore;
+  let stateStore: InMemoryOAuthStateStore;
+
+  beforeEach(() => {
+    secretStore = new WorkerFakeSecretStore();
+    stateStore = new InMemoryOAuthStateStore();
+  });
+
+  // --- When secretStore IS injected ---
+
+  it('stores access token in the SecretStore and returns a ref (not the raw token)', async () => {
+    const connector = makeConnector({ secretStore, stateStore });
+
+    const { state } = await connector.startAuthorization(USER_ID, []);
+    const result = await connector.completeAuthorization(USER_ID, {
+      code: 'auth-code-001',
+      state,
+      redirectUri: PLACEHOLDER_CONFIG.redirectUri,
+    });
+
+    // The raw token value must not be the ref.
+    expect(result.accessTokenRef).not.toBe('FAKE_ACCESS_TOKEN');
+    expect(result.refreshTokenRef).not.toBe('FAKE_REFRESH_TOKEN');
+  });
+
+  it('raw access token is stored in SecretStore and retrievable by ref', async () => {
+    const connector = makeConnector({ secretStore, stateStore });
+
+    const { state } = await connector.startAuthorization(USER_ID, []);
+    const result = await connector.completeAuthorization(USER_ID, {
+      code: 'auth-code-001',
+      state,
+      redirectUri: PLACEHOLDER_CONFIG.redirectUri,
+    });
+
+    // The raw token must be retrievable from the store using the returned ref.
+    const storedAccessToken = await secretStore.getSecret(result.accessTokenRef);
+    expect(storedAccessToken).toBe('FAKE_ACCESS_TOKEN');
+  });
+
+  it('raw refresh token is stored in SecretStore and retrievable by ref', async () => {
+    const connector = makeConnector({ secretStore, stateStore });
+
+    const { state } = await connector.startAuthorization(USER_ID, []);
+    const result = await connector.completeAuthorization(USER_ID, {
+      code: 'auth-code-001',
+      state,
+      redirectUri: PLACEHOLDER_CONFIG.redirectUri,
+    });
+
+    const storedRefreshToken = await secretStore.getSecret(result.refreshTokenRef);
+    expect(storedRefreshToken).toBe('FAKE_REFRESH_TOKEN');
+  });
+
+  it('secretStore contains exactly two entries after completeAuthorization (access + refresh)', async () => {
+    const connector = makeConnector({ secretStore, stateStore });
+
+    const { state } = await connector.startAuthorization(USER_ID, []);
+    await connector.completeAuthorization(USER_ID, {
+      code: 'auth-code-001',
+      state,
+      redirectUri: PLACEHOLDER_CONFIG.redirectUri,
+    });
+
+    expect(secretStore._store.size).toBe(2);
+  });
+
+  it('accessTokenRef does NOT contain the raw access token string', async () => {
+    const connector = makeConnector({ secretStore, stateStore });
+
+    const { state } = await connector.startAuthorization(USER_ID, []);
+    const result = await connector.completeAuthorization(USER_ID, {
+      code: 'auth-code-001',
+      state,
+      redirectUri: PLACEHOLDER_CONFIG.redirectUri,
+    });
+
+    expect(result.accessTokenRef).not.toContain('FAKE_ACCESS_TOKEN');
+    expect(result.refreshTokenRef).not.toContain('FAKE_REFRESH_TOKEN');
+  });
+
+  it('refs produced with secretStore start with the local:// sentinel', async () => {
+    const connector = makeConnector({ secretStore, stateStore });
+
+    const { state } = await connector.startAuthorization(USER_ID, []);
+    const result = await connector.completeAuthorization(USER_ID, {
+      code: 'auth-code-001',
+      state,
+      redirectUri: PLACEHOLDER_CONFIG.redirectUri,
+    });
+
+    // WorkerFakeSecretStore uses the same local:// prefix as LocalSecretStore.
+    expect(result.accessTokenRef.startsWith('local://')).toBe(true);
+    expect(result.refreshTokenRef.startsWith('local://')).toBe(true);
+  });
+
+  it('stores an empty sentinel when the provider omits refresh_token', async () => {
+    // Some OAuth flows (e.g. re-authorization) do not return a refresh token.
+    const oauthClientNoRefresh = new FakeGoogleOAuthClient({
+      tokenResponse: { refresh_token: undefined },
+    });
+    const connector = makeConnector({ secretStore, stateStore, oauthClient: oauthClientNoRefresh });
+
+    const { state } = await connector.startAuthorization(USER_ID, []);
+    const result = await connector.completeAuthorization(USER_ID, {
+      code: 'auth-code-001',
+      state,
+      redirectUri: PLACEHOLDER_CONFIG.redirectUri,
+    });
+
+    // A refresh ref is still returned even when absent — it resolves to an empty string.
+    expect(typeof result.refreshTokenRef).toBe('string');
+    expect(result.refreshTokenRef.length).toBeGreaterThan(0);
+
+    const storedRefreshValue = await secretStore.getSecret(result.refreshTokenRef);
+    expect(storedRefreshValue).toBe('');
+  });
+
+  it('token refs include the userId in the secret name path for scoping', async () => {
+    const connector = makeConnector({ secretStore, stateStore });
+
+    const { state } = await connector.startAuthorization(USER_ID, []);
+    const result = await connector.completeAuthorization(USER_ID, {
+      code: 'auth-code-001',
+      state,
+      redirectUri: PLACEHOLDER_CONFIG.redirectUri,
+    });
+
+    // The secret name path must contain the userId for tenant isolation.
+    expect(result.accessTokenRef).toContain(USER_ID);
+    expect(result.refreshTokenRef).toContain(USER_ID);
+  });
+
+  // --- When secretStore is NOT injected (CU-037 backward compatibility) ---
+
+  it('falls back to placeholder refs when no secretStore is provided', async () => {
+    // makeConnector() without secretStore = CU-037 behavior.
+    const connector = makeConnector({ stateStore });
+
+    const { state } = await connector.startAuthorization(USER_ID, []);
+    const result = await connector.completeAuthorization(USER_ID, {
+      code: 'auth-code-001',
+      state,
+      redirectUri: PLACEHOLDER_CONFIG.redirectUri,
+    });
+
+    // CU-037 placeholder pattern preserved for backward compatibility.
+    expect(result.accessTokenRef).toContain('placeholder');
+    expect(result.refreshTokenRef).toContain('placeholder');
+  });
+
+  it('placeholder refs do not expose raw token values even without secretStore', async () => {
+    const connector = makeConnector({ stateStore });
+
+    const { state } = await connector.startAuthorization(USER_ID, []);
+    const result = await connector.completeAuthorization(USER_ID, {
+      code: 'code',
+      state,
+      redirectUri: PLACEHOLDER_CONFIG.redirectUri,
+    });
+
+    expect(result.accessTokenRef).not.toBe('FAKE_ACCESS_TOKEN');
+    expect(result.refreshTokenRef).not.toBe('FAKE_REFRESH_TOKEN');
   });
 });
