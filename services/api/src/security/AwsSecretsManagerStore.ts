@@ -204,10 +204,7 @@ export class AwsSecretsManagerStore implements SecretStore {
       return arn;
     } catch (err) {
       // Handle the case where the secret already exists — update in place.
-      if (
-        err instanceof SecretsManagerApiError &&
-        err.code === 'ResourceExistsException'
-      ) {
+      if (err instanceof SecretsManagerApiError && err.code === 'ResourceExistsException') {
         await this.client.putSecretValue({ secretId: fullName, value });
         // Re-fetch the ARN by reading from Secrets Manager — the full ARN is not
         // returned by putSecretValue in the AWS SDK.
@@ -230,10 +227,7 @@ export class AwsSecretsManagerStore implements SecretStore {
     try {
       return await this.client.getSecretValue({ secretId: ref });
     } catch (err) {
-      if (
-        err instanceof SecretsManagerApiError &&
-        err.code === 'ResourceNotFoundException'
-      ) {
+      if (err instanceof SecretsManagerApiError && err.code === 'ResourceNotFoundException') {
         throw new SecretNotFoundError(ref, `AWS secret not found: ${ref}`);
       }
       throw err;

@@ -165,9 +165,7 @@ describe('deleteSecret', () => {
 
   it('is a no-op when the ref does not exist (best-effort contract)', async () => {
     // Must not throw even for unknown refs.
-    await expect(
-      store.deleteSecret('local://primis/dev/never-stored'),
-    ).resolves.toBeUndefined();
+    await expect(store.deleteSecret('local://primis/dev/never-stored')).resolves.toBeUndefined();
   });
 
   it('reduces size by 1 after deleting an existing secret', async () => {

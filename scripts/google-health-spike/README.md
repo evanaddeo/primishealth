@@ -1,7 +1,6 @@
 # Google Health API Spike Script
 
-**Created:** CU-034 (scaffold)
-**Script implementation:** CU-040
+**Created:** CU-034 (scaffold), CU-040 (implementation)
 **Phase:** E — Provider Validation and Sync Infrastructure
 
 ---
@@ -25,13 +24,6 @@ that runs manually against a test Google Health / Fitbit Air account.
 
 ---
 
-## Script Implementation
-
-The spike script (`index.ts`) is created in **CU-040**. This README is committed in CU-034 to
-establish the directory and document the contract before the script exists.
-
----
-
 ## Modes
 
 ### Mock Mode (default — safe for CI and automated tests)
@@ -40,24 +32,31 @@ Mock mode injects pre-built synthetic fixtures instead of making real network ca
 the default mode and requires no credentials.
 
 ```bash
-pnpm tsx scripts/google-health-spike/index.ts
+pnpm tsx scripts/google-health-spike/index.ts --mode mock
 ```
 
 Mock mode:
 
-- Uses fixtures from `database/fixtures/provider/google_health/redacted/` as synthetic
-  provider responses.
-- Runs the same normalization and output logic as live mode.
+- Uses synthetic fixtures from `scripts/google-health-spike/mockData.ts`.
+- Runs the same `GoogleHealthApiClient` + `LocalRawPayloadArchive` pipeline as live mode.
 - Produces a metric availability summary from the synthetic data.
 - Is safe to run in CI and automated tests.
+- **MUST NOT** be used to set any row in the availability matrix to
+  `real_payload_validated`. See the `⚠ Preamble` in
+  `docs/decisions/google-health-api-metric-availability.md`.
 
 ### Live Mode (manual only — never in CI)
 
-Live mode calls the real Google Health API using OAuth credentials from your local `.env`
-file. It is intended for Phase Z manual validation only.
+Live mode calls the real Google Health API using an OAuth access token from your local
+`.env` file. It is intended for Phase Z manual validation only.
 
 ```bash
-PRIMIS_SPIKE_MODE=live pnpm tsx scripts/google-health-spike/index.ts
+# Inline env var
+GOOGLE_HEALTH_TEST_ACCESS_TOKEN=<token> \
+  pnpm tsx scripts/google-health-spike/index.ts --mode live
+
+# Or set PRIMIS_SPIKE_MODE in .env, then run:
+pnpm tsx scripts/google-health-spike/index.ts --mode live
 ```
 
 Live mode requirements:
@@ -65,8 +64,7 @@ Live mode requirements:
 - A configured Google Cloud project with the Google Health API enabled.
 - An OAuth consent screen in `Testing` mode with your test Fitbit Air account added as a
   test user.
-- A valid refresh token obtained via the local OAuth flow (see `GOOGLE_HEALTH_TEST_REFRESH_TOKEN`
-  below).
+- A valid access token in `GOOGLE_HEALTH_TEST_ACCESS_TOKEN` (see below).
 - A Fitbit Air device that has synced recent data to the Google Health app.
 
 > **Live mode MUST NOT be run in CI or automated tests.** CI must never have access to
@@ -80,34 +78,51 @@ Live mode requirements:
 Copy `.env.example` to `.env` and fill in the values below for live mode. Mock mode does
 not require any of these.
 
-| Variable                           | Required for | Description                                                                                                            |
-| ---------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| `GOOGLE_HEALTH_CLIENT_ID`          | live mode    | OAuth 2.0 client ID from Google Cloud Console.                                                                         |
-| `GOOGLE_HEALTH_CLIENT_SECRET`      | live mode    | OAuth 2.0 client secret from Google Cloud Console.                                                                     |
-| `GOOGLE_HEALTH_TEST_REFRESH_TOKEN` | live mode    | Refresh token for the test Fitbit Air account. Obtain via the local OAuth helper (see below). Never commit this value. |
-| `PRIMIS_SPIKE_MODE`                | live mode    | Set to `live` to enable real API calls. Omit or set to `mock` for mock mode.                                           |
+| Variable                           | Required for | Description                                                                                            |
+| ---------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------ |
+| `GOOGLE_HEALTH_TEST_ACCESS_TOKEN`  | live mode    | OAuth 2.0 access token for the test Fitbit Air account. Obtain via the local OAuth helper (see below). |
+| `GOOGLE_HEALTH_CLIENT_ID`          | OAuth setup  | OAuth 2.0 client ID from Google Cloud Console.                                                         |
+| `GOOGLE_HEALTH_CLIENT_SECRET`      | OAuth setup  | OAuth 2.0 client secret from Google Cloud Console.                                                     |
+| `GOOGLE_HEALTH_TEST_REFRESH_TOKEN` | OAuth setup  | Refresh token for the test account. Used to obtain a fresh access token when the existing one expires. |
+| `PRIMIS_SPIKE_MODE`                | optional     | Set to `live` or `mock` as an alternative to the `--mode` CLI arg.                                     |
 
-> **Security reminder:** `GOOGLE_HEALTH_TEST_REFRESH_TOKEN` is an OAuth refresh token (S4
-> sensitivity per `primis_data_model_health_metric_schema.md §5.4`). It must never be
-> committed to the repository. Verify with `git status --short | grep '\.env'` before
-> every commit.
+> **Security reminder:** `GOOGLE_HEALTH_TEST_ACCESS_TOKEN` and
+> `GOOGLE_HEALTH_TEST_REFRESH_TOKEN` are S4-sensitivity credentials per
+> `primis_data_model_health_metric_schema.md §5.4`. They must never be committed to the
+> repository. Verify with `git status --short | grep '\.env'` before every commit.
 
 ---
 
-## Obtaining a Refresh Token (Live Mode Setup)
+## Live Mode Exit Behaviour
 
-The spike script includes a local OAuth helper (implemented in CU-040) that:
+If `--mode live` is specified but `GOOGLE_HEALTH_TEST_ACCESS_TOKEN` is missing or empty,
+the script prints a clear error message to stderr and exits with code `1` **before** any
+network call is attempted:
 
-1. Opens a local HTTP listener on `http://localhost:9090/callback`.
-2. Prints an authorization URL for the required Google Health API scopes.
-3. After the user approves in the browser, exchanges the authorization code for tokens.
-4. Prints the refresh token so you can paste it into `.env`.
+```
+  ✗  google-health-spike: GOOGLE_HEALTH_TEST_ACCESS_TOKEN is missing
 
-```bash
-PRIMIS_SPIKE_MODE=oauth-setup pnpm tsx scripts/google-health-spike/index.ts
+  Live mode requires a valid Google Health OAuth access token.
+  Add it to your local .env file (never commit it) and run:
+
+    GOOGLE_HEALTH_TEST_ACCESS_TOKEN=<token> \
+      pnpm tsx scripts/google-health-spike/index.ts --mode live
+
+  See scripts/google-health-spike/README.md for setup instructions.
 ```
 
-Required scopes requested during setup:
+---
+
+## Obtaining an Access Token (Live Mode Setup)
+
+1. Set `GOOGLE_HEALTH_CLIENT_ID` and `GOOGLE_HEALTH_CLIENT_SECRET` in your `.env`.
+2. Use the Google OAuth 2.0 Playground (`https://developers.google.com/oauthplayground`) or
+   a local helper script to complete the authorization flow with the required scopes.
+3. Copy the resulting access token into `GOOGLE_HEALTH_TEST_ACCESS_TOKEN` in `.env`.
+4. If the token expires, use `GOOGLE_HEALTH_TEST_REFRESH_TOKEN` to obtain a new one via
+   the token endpoint: `POST https://oauth2.googleapis.com/token`.
+
+Required OAuth scopes:
 
 - `https://www.googleapis.com/auth/health.activity.read`
 - `https://www.googleapis.com/auth/health.sleep.read`
@@ -117,20 +132,51 @@ Required scopes requested during setup:
 - `https://www.googleapis.com/auth/health.body.read`
 - `https://www.googleapis.com/auth/health.nutrition.read`
 
-Scope availability is subject to Google Health API OAuth verification review for production.
-Test users added to the OAuth consent screen can use restricted scopes without full review.
+Scope availability is subject to Google Health API OAuth verification review for
+production. Test users added to the OAuth consent screen can use restricted scopes without
+full review.
 
 ---
 
 ## Output
 
-Live mode output (Phase Z):
+### Console
 
-1. A console summary of available vs unavailable data types — fills
-   `docs/decisions/google-health-api-metric-availability.md`.
-2. Raw JSON responses written to a local `tmp/` path (gitignored).
-3. After manual review, redacted fixtures saved to
-   `database/fixtures/provider/google_health/redacted/` using `scripts/redact-fixture.ts`.
+The script prints an availability report to stdout:
+
+- Each data type attempted, with status (✓ success / ○ empty / ✗ error).
+- Record count and sample field names from the first data point.
+- A mapping back to the canonical Primis metric codes in the availability matrix.
+- A provider scores section noting that all three proprietary scores remain
+  `NO (unverified)`.
+
+### Report File
+
+A Markdown report is written to `scripts/google-health-spike/output/` (gitignored):
+
+```
+scripts/google-health-spike/output/availability-mock-2026-06-14.md
+```
+
+### Archive
+
+Raw (redacted) payloads are written to the local archive directory via
+`LocalRawPayloadArchive`:
+
+```
+database/fixtures/.local-dev-archive/
+  provider=google_health/
+    user_id=test-user-spike-001/
+      data_type=steps/
+        year=.../month=.../day=.../<uuid>.json.gz
+```
+
+This directory is gitignored. For live mode, after reviewing the output you may manually
+promote a redacted payload to the committed fixtures directory.
+
+### Committing Fixtures (Live Mode Only)
+
+After completing Phase Z live validation, save redacted fixtures as follows:
 
 ```bash
 # Redact a raw spike output before committing:
@@ -143,12 +189,23 @@ must be completed before committing any redacted real payload.
 
 ---
 
+## Implementation Files
+
+| File          | Purpose                                                                    |
+| ------------- | -------------------------------------------------------------------------- |
+| `index.ts`    | Main entrypoint — loops over data types, archives payloads, prints report. |
+| `config.ts`   | Mode resolution and env var validation.                                    |
+| `mockData.ts` | Synthetic fixture responses for every `GOOGLE_HEALTH_DATA_TYPES` entry.    |
+| `report.ts`   | Markdown availability report formatter and result metadata extractor.      |
+
+---
+
 ## M1 Milestone Tasks This Script Addresses
 
 | Task    | Description                                                    |
 | ------- | -------------------------------------------------------------- |
 | M1-T002 | Implement API-call spike script (CU-040)                       |
-| M1-T003 | Validate historical backfill (run with `--backfill` flag)      |
+| M1-T003 | Validate historical backfill (run with extended window)        |
 | M1-T004 | Validate provider scores (sleep score, readiness, cardio load) |
 | M1-T005 | Fill `docs/decisions/google-health-api-metric-availability.md` |
 

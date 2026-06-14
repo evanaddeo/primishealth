@@ -33,10 +33,7 @@ import {
   PREFERRED_OPERATION_FOR_DATA_TYPE,
   DEFAULT_SYNC_DATA_TYPES,
 } from '../../../src/providers/google/dataTypes.js';
-import {
-  dateToNanos,
-  nanosToDate,
-} from '../../../src/providers/google/operations.js';
+import { dateToNanos, nanosToDate } from '../../../src/providers/google/operations.js';
 import type { SyncWindowRequest } from '../../../src/providers/google/operations.js';
 
 // ---------------------------------------------------------------------------
@@ -118,7 +115,10 @@ type FakeResponse = {
  * Captures the most recent call URL so tests can assert on URL construction.
  * If `throwNetworkError` is set, the mock throws instead of returning a Response.
  */
-function makeFakeFetch(response: FakeResponse, throwNetworkError?: string): {
+function makeFakeFetch(
+  response: FakeResponse,
+  throwNetworkError?: string,
+): {
   fakeFetch: typeof fetch;
   capturedUrls: string[];
   capturedMethods: string[];
@@ -145,7 +145,12 @@ function makeFakeFetch(response: FakeResponse, throwNetworkError?: string): {
     });
   };
 
-  return { fakeFetch: fakeFetch as unknown as typeof fetch, capturedUrls, capturedMethods, capturedBodies };
+  return {
+    fakeFetch: fakeFetch as unknown as typeof fetch,
+    capturedUrls,
+    capturedMethods,
+    capturedBodies,
+  };
 }
 
 /** Builds a client with a test base URL and the given fake fetch. */
@@ -211,9 +216,15 @@ describe('PREFERRED_OPERATION_FOR_DATA_TYPE', () => {
   it('steps, floors, active-energy-burned, total-calories, active-zone-minutes use dailyRollup', () => {
     expect(PREFERRED_OPERATION_FOR_DATA_TYPE[GOOGLE_HEALTH_DATA_TYPES.STEPS]).toBe('dailyRollup');
     expect(PREFERRED_OPERATION_FOR_DATA_TYPE[GOOGLE_HEALTH_DATA_TYPES.FLOORS]).toBe('dailyRollup');
-    expect(PREFERRED_OPERATION_FOR_DATA_TYPE[GOOGLE_HEALTH_DATA_TYPES.ACTIVE_ENERGY_BURNED]).toBe('dailyRollup');
-    expect(PREFERRED_OPERATION_FOR_DATA_TYPE[GOOGLE_HEALTH_DATA_TYPES.TOTAL_CALORIES]).toBe('dailyRollup');
-    expect(PREFERRED_OPERATION_FOR_DATA_TYPE[GOOGLE_HEALTH_DATA_TYPES.ACTIVE_ZONE_MINUTES]).toBe('dailyRollup');
+    expect(PREFERRED_OPERATION_FOR_DATA_TYPE[GOOGLE_HEALTH_DATA_TYPES.ACTIVE_ENERGY_BURNED]).toBe(
+      'dailyRollup',
+    );
+    expect(PREFERRED_OPERATION_FOR_DATA_TYPE[GOOGLE_HEALTH_DATA_TYPES.TOTAL_CALORIES]).toBe(
+      'dailyRollup',
+    );
+    expect(PREFERRED_OPERATION_FOR_DATA_TYPE[GOOGLE_HEALTH_DATA_TYPES.ACTIVE_ZONE_MINUTES]).toBe(
+      'dailyRollup',
+    );
   });
 
   it('sleep, exercise, vitals, body composition use list', () => {
@@ -316,7 +327,10 @@ describe('GOOGLE_HEALTH_API_BASE_URL', () => {
 
 describe('GoogleHealthApiClient.listDataPoints()', () => {
   it('calls the correct URL path for the list endpoint', async () => {
-    const { fakeFetch, capturedUrls } = makeFakeFetch({ status: 200, body: FAKE_STEPS_LIST_RESPONSE });
+    const { fakeFetch, capturedUrls } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_LIST_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.listDataPoints(GOOGLE_HEALTH_DATA_TYPES.STEPS, {
@@ -338,7 +352,10 @@ describe('GoogleHealthApiClient.listDataPoints()', () => {
   });
 
   it('uses GET for list operations', async () => {
-    const { fakeFetch, capturedMethods } = makeFakeFetch({ status: 200, body: FAKE_STEPS_LIST_RESPONSE });
+    const { fakeFetch, capturedMethods } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_LIST_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.listDataPoints(GOOGLE_HEALTH_DATA_TYPES.STEPS, {
@@ -350,7 +367,10 @@ describe('GoogleHealthApiClient.listDataPoints()', () => {
   });
 
   it('includes pageToken in query when provided', async () => {
-    const { fakeFetch, capturedUrls } = makeFakeFetch({ status: 200, body: FAKE_STEPS_LIST_RESPONSE });
+    const { fakeFetch, capturedUrls } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_LIST_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.listDataPoints(GOOGLE_HEALTH_DATA_TYPES.STEPS, {
@@ -417,7 +437,10 @@ describe('GoogleHealthApiClient.listDataPoints()', () => {
 
 describe('GoogleHealthApiClient.reconcileDataPoints()', () => {
   it('uses the :reconcile path suffix', async () => {
-    const { fakeFetch, capturedUrls } = makeFakeFetch({ status: 200, body: FAKE_STEPS_LIST_RESPONSE });
+    const { fakeFetch, capturedUrls } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_LIST_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.reconcileDataPoints(GOOGLE_HEALTH_DATA_TYPES.STEPS, {
@@ -429,7 +452,10 @@ describe('GoogleHealthApiClient.reconcileDataPoints()', () => {
   });
 
   it('uses GET for reconcile operations', async () => {
-    const { fakeFetch, capturedMethods } = makeFakeFetch({ status: 200, body: FAKE_STEPS_LIST_RESPONSE });
+    const { fakeFetch, capturedMethods } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_LIST_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.reconcileDataPoints(GOOGLE_HEALTH_DATA_TYPES.STEPS, {
@@ -447,7 +473,10 @@ describe('GoogleHealthApiClient.reconcileDataPoints()', () => {
 
 describe('GoogleHealthApiClient.dailyRollUp()', () => {
   it('uses the :dailyRollUp path suffix', async () => {
-    const { fakeFetch, capturedUrls } = makeFakeFetch({ status: 200, body: FAKE_STEPS_ROLLUP_RESPONSE });
+    const { fakeFetch, capturedUrls } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_ROLLUP_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.dailyRollUp(GOOGLE_HEALTH_DATA_TYPES.STEPS, {
@@ -459,7 +488,10 @@ describe('GoogleHealthApiClient.dailyRollUp()', () => {
   });
 
   it('uses POST for dailyRollup operations', async () => {
-    const { fakeFetch, capturedMethods } = makeFakeFetch({ status: 200, body: FAKE_STEPS_ROLLUP_RESPONSE });
+    const { fakeFetch, capturedMethods } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_ROLLUP_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.dailyRollUp(GOOGLE_HEALTH_DATA_TYPES.STEPS, {
@@ -471,7 +503,10 @@ describe('GoogleHealthApiClient.dailyRollUp()', () => {
   });
 
   it('sends startTimeNanos and endTimeNanos in the POST body', async () => {
-    const { fakeFetch, capturedBodies } = makeFakeFetch({ status: 200, body: FAKE_STEPS_ROLLUP_RESPONSE });
+    const { fakeFetch, capturedBodies } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_ROLLUP_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.dailyRollUp(GOOGLE_HEALTH_DATA_TYPES.STEPS, {
@@ -486,7 +521,10 @@ describe('GoogleHealthApiClient.dailyRollUp()', () => {
   });
 
   it('does NOT include timestamps as query parameters for POST', async () => {
-    const { fakeFetch, capturedUrls } = makeFakeFetch({ status: 200, body: FAKE_STEPS_ROLLUP_RESPONSE });
+    const { fakeFetch, capturedUrls } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_ROLLUP_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.dailyRollUp(GOOGLE_HEALTH_DATA_TYPES.STEPS, {
@@ -929,7 +967,10 @@ describe('GoogleHealthApiClient pagination (nextPageToken)', () => {
   });
 
   it('forwards pageToken in the URL when provided in the request', async () => {
-    const { fakeFetch, capturedUrls } = makeFakeFetch({ status: 200, body: FAKE_STEPS_LIST_RESPONSE });
+    const { fakeFetch, capturedUrls } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_LIST_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.fetchDataType({
@@ -969,7 +1010,10 @@ describe('GoogleHealthApiClient pagination (nextPageToken)', () => {
 
 describe('GoogleHealthApiClient data type routing', () => {
   it('sleep data type uses /dataTypes/sleep/ path segment', async () => {
-    const { fakeFetch, capturedUrls } = makeFakeFetch({ status: 200, body: FAKE_SLEEP_LIST_RESPONSE });
+    const { fakeFetch, capturedUrls } = makeFakeFetch({
+      status: 200,
+      body: FAKE_SLEEP_LIST_RESPONSE,
+    });
     const client = makeClient(fakeFetch);
 
     await client.fetchDataType({
@@ -1000,7 +1044,10 @@ describe('GoogleHealthApiClient data type routing', () => {
   });
 
   it('base URL trailing slash is normalised away', async () => {
-    const { fakeFetch, capturedUrls } = makeFakeFetch({ status: 200, body: FAKE_STEPS_LIST_RESPONSE });
+    const { fakeFetch, capturedUrls } = makeFakeFetch({
+      status: 200,
+      body: FAKE_STEPS_LIST_RESPONSE,
+    });
     const client = new GoogleHealthApiClient({
       baseUrl: 'https://fake-health.example.com/', // trailing slash
       accessToken: 'TOKEN',

@@ -102,20 +102,19 @@ class FakeGoogleOAuthClient implements GoogleOAuthClient {
   private readonly _tokenResponse: GoogleTokenResponse;
   private _revokeError: string | undefined;
 
-  constructor(opts: {
-    authUrlBase?: string;
-    tokenResponse?: Partial<GoogleTokenResponse>;
-    revokeError?: string;
-  } = {}) {
+  constructor(
+    opts: {
+      authUrlBase?: string;
+      tokenResponse?: Partial<GoogleTokenResponse>;
+      revokeError?: string;
+    } = {},
+  ) {
     this._authUrlBase = opts.authUrlBase ?? 'https://fake-google.example.com/oauth2/authorize';
     this._tokenResponse = {
       access_token: 'FAKE_ACCESS_TOKEN',
       refresh_token: 'FAKE_REFRESH_TOKEN',
       expires_in: 3600,
-      scope: [
-        GOOGLE_HEALTH_SCOPES.ACTIVITY_AND_FITNESS,
-        GOOGLE_HEALTH_SCOPES.SLEEP,
-      ].join(' '),
+      scope: [GOOGLE_HEALTH_SCOPES.ACTIVITY_AND_FITNESS, GOOGLE_HEALTH_SCOPES.SLEEP].join(' '),
       token_type: 'Bearer',
       id_token: makeTestIdToken('google-sub-test-001'),
       ...opts.tokenResponse,
@@ -188,12 +187,14 @@ class FailingStateStore implements OAuthStateStore {
 }
 
 /** Builds a connector with configurable deps. */
-function makeConnector(opts: {
-  oauthClient?: GoogleOAuthClient;
-  stateStore?: OAuthStateStore;
-  config?: GoogleHealthOAuthConfig;
-  secretStore?: SecretStore;
-} = {}): GoogleHealthConnector {
+function makeConnector(
+  opts: {
+    oauthClient?: GoogleOAuthClient;
+    stateStore?: OAuthStateStore;
+    config?: GoogleHealthOAuthConfig;
+    secretStore?: SecretStore;
+  } = {},
+): GoogleHealthConnector {
   return new GoogleHealthConnector({
     oauthClient: opts.oauthClient ?? new FakeGoogleOAuthClient(),
     stateStore: opts.stateStore ?? new InMemoryOAuthStateStore(),

@@ -44,21 +44,11 @@ import type {
   ProviderSyncResult,
   ProviderSyncError,
 } from '../types.js';
-import type {
-  GoogleHealthOAuthConfig,
-  GoogleOAuthClient,
-  OAuthStateStore,
-} from './oauthTypes.js';
+import type { GoogleHealthOAuthConfig, GoogleOAuthClient, OAuthStateStore } from './oauthTypes.js';
 import { DEFAULT_GOOGLE_HEALTH_SCOPES } from './oauthTypes.js';
 import type { SecretStore } from '../../security/SecretStore.js';
-import {
-  GoogleHealthApiClient,
-  GOOGLE_HEALTH_API_BASE_URL,
-} from './GoogleHealthApiClient.js';
-import {
-  DEFAULT_SYNC_DATA_TYPES,
-  PREFERRED_OPERATION_FOR_DATA_TYPE,
-} from './dataTypes.js';
+import { GoogleHealthApiClient, GOOGLE_HEALTH_API_BASE_URL } from './GoogleHealthApiClient.js';
+import { DEFAULT_SYNC_DATA_TYPES, PREFERRED_OPERATION_FOR_DATA_TYPE } from './dataTypes.js';
 import { dateToNanos } from './operations.js';
 
 // ---------------------------------------------------------------------------
@@ -172,9 +162,7 @@ export class GoogleHealthConnector implements HealthProviderConnector {
   private readonly secretStore: SecretStore | undefined;
   private readonly httpClient: typeof fetch | undefined;
   private readonly apiBaseUrl: string;
-  private readonly resolveAccessTokenRef:
-    | ((connectionId: string) => Promise<string>)
-    | undefined;
+  private readonly resolveAccessTokenRef: ((connectionId: string) => Promise<string>) | undefined;
 
   constructor(deps: GoogleHealthConnectorDeps) {
     this.oauthClient = deps.oauthClient;
@@ -229,8 +217,8 @@ export class GoogleHealthConnector implements HealthProviderConnector {
       redirectUri: this.config.redirectUri,
       state,
       scopes,
-      accessType: 'offline',  // ensures a refresh token is issued for background sync
-      prompt: 'consent',      // forces consent screen to guarantee a fresh refresh token
+      accessType: 'offline', // ensures a refresh token is issued for background sync
+      prompt: 'consent', // forces consent screen to guarantee a fresh refresh token
     });
 
     return { authorizeUrl, state };
@@ -293,9 +281,7 @@ export class GoogleHealthConnector implements HealthProviderConnector {
     }
 
     // Step 3 — Extract granted scopes and token expiry.
-    const scopesGranted = tokenResponse.scope
-      ? tokenResponse.scope.split(' ').filter(Boolean)
-      : [];
+    const scopesGranted = tokenResponse.scope ? tokenResponse.scope.split(' ').filter(Boolean) : [];
 
     const expiresAt =
       typeof tokenResponse.expires_in === 'number'
@@ -306,8 +292,7 @@ export class GoogleHealthConnector implements HealthProviderConnector {
     // Full JWT signature validation is deferred to Phase Z.
     // TODO(ADR): Validate id_token signature in Phase Z using `jose` or `aws-jwt-verify`.
     const externalAccountId =
-      extractSubFromIdToken(tokenResponse.id_token) ??
-      `google-sub-unresolved-${randomUUID()}`;
+      extractSubFromIdToken(tokenResponse.id_token) ?? `google-sub-unresolved-${randomUUID()}`;
 
     // Step 5 — Store tokens in SecretStore (CU-038) and return only the opaque refs.
     //
@@ -689,11 +674,7 @@ function extractSubFromIdToken(idToken: string | undefined): string | undefined 
     if (parts.length !== 3 || !parts[1]) return undefined;
     const payloadJson = Buffer.from(parts[1], 'base64url').toString('utf-8');
     const payload = JSON.parse(payloadJson) as unknown;
-    if (
-      typeof payload === 'object' &&
-      payload !== null &&
-      'sub' in payload
-    ) {
+    if (typeof payload === 'object' && payload !== null && 'sub' in payload) {
       const sub = (payload as Record<string, unknown>).sub;
       return typeof sub === 'string' ? sub : undefined;
     }

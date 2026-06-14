@@ -223,7 +223,9 @@ describe('GET /google/authorize', () => {
     const errorAdapter: GoogleAuthAdapter = {
       startAuthorization: vi
         .fn()
-        .mockRejectedValue(Object.assign(new Error('state store failed'), { code: 'STATE_STORE_FAILED' })),
+        .mockRejectedValue(
+          Object.assign(new Error('state store failed'), { code: 'STATE_STORE_FAILED' }),
+        ),
       completeAuthorization: vi.fn(),
     };
     const app = buildIsolatedApp(errorAdapter);
@@ -303,7 +305,9 @@ describe('GET /google/callback', () => {
     await app.request('http://localhost:3000/google/callback?code=c&state=s');
     expect(adapter.completeAuthorization).toHaveBeenCalledWith(
       MOCK_USER_ID,
-      expect.objectContaining({ redirectUri: expect.stringContaining('/api/v1/provider-connections/google/callback') }),
+      expect.objectContaining({
+        redirectUri: expect.stringContaining('/api/v1/provider-connections/google/callback'),
+      }),
     );
   });
 

@@ -198,7 +198,10 @@ export function createProviderConnectionsRouter(
 
     const scopesParam = c.req.query('scopes');
     const requestedScopes: string[] = scopesParam
-      ? scopesParam.split(',').map((s) => s.trim()).filter(Boolean)
+      ? scopesParam
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
       : [];
 
     try {
@@ -274,8 +277,7 @@ export function createProviderConnectionsRouter(
     // The redirect URI must match exactly what was used in the authorization request.
     // In production this would be the API gateway URL; in local dev the localhost value.
     // TODO(phase-z): Read redirectUri from env config rather than reconstructing from request.
-    const redirectUri =
-      new URL(c.req.url).origin + '/api/v1/provider-connections/google/callback';
+    const redirectUri = new URL(c.req.url).origin + '/api/v1/provider-connections/google/callback';
 
     try {
       const result = await adapter.completeAuthorization(internalUserId, {
