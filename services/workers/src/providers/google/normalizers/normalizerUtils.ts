@@ -14,7 +14,12 @@
  * @see plans/phase-e-provider-validation-sync-infrastructure.md CU-042
  */
 
-import type { GoogleDataPoint, GoogleDataPointValue } from '../types.js';
+import type {
+  GoogleDataPoint,
+  GoogleDataPointValue,
+  GoogleExerciseSession,
+  GoogleSleepSession,
+} from '../types.js';
 
 // ---------------------------------------------------------------------------
 // nanosToDate
@@ -132,4 +137,46 @@ export function parseListDataPoints(data: unknown): GoogleDataPoint[] {
   const obj = data as Record<string, unknown>;
   if (!Array.isArray(obj['dataPoints'])) return [];
   return obj['dataPoints'] as GoogleDataPoint[];
+}
+
+/**
+ * Extracts the `dataPoints` array from a Google Health `list` response body
+ * and casts the elements to `GoogleSleepSession`.
+ *
+ * Returns an empty array if the response does not have the expected shape.
+ *
+ * Sleep sessions arrive via the `list` or `reconcile` endpoint for the `sleep`
+ * data type. The top-level `dataPoints` key is the same as for scalar data types.
+ *
+ * TODO(Phase-AA): confirm `dataPoints` field name in live sleep list response.
+ *
+ * @param data - The `raw.data` value from a `RawProviderPayload`.
+ * @returns Array of sleep session objects from the `dataPoints` field.
+ */
+export function parseSleepSessions(data: unknown): GoogleSleepSession[] {
+  if (typeof data !== 'object' || data === null) return [];
+  const obj = data as Record<string, unknown>;
+  if (!Array.isArray(obj['dataPoints'])) return [];
+  return obj['dataPoints'] as GoogleSleepSession[];
+}
+
+/**
+ * Extracts the `dataPoints` array from a Google Health `list` response body
+ * and casts the elements to `GoogleExerciseSession`.
+ *
+ * Returns an empty array if the response does not have the expected shape.
+ *
+ * Exercise sessions arrive via the `list` or `reconcile` endpoint for the `exercise`
+ * data type. The top-level `dataPoints` key is the same as for scalar data types.
+ *
+ * TODO(Phase-AA): confirm `dataPoints` field name in live exercise list response.
+ *
+ * @param data - The `raw.data` value from a `RawProviderPayload`.
+ * @returns Array of exercise session objects from the `dataPoints` field.
+ */
+export function parseExerciseSessions(data: unknown): GoogleExerciseSession[] {
+  if (typeof data !== 'object' || data === null) return [];
+  const obj = data as Record<string, unknown>;
+  if (!Array.isArray(obj['dataPoints'])) return [];
+  return obj['dataPoints'] as GoogleExerciseSession[];
 }
