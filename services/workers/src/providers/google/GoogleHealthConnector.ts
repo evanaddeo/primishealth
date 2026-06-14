@@ -1,5 +1,5 @@
 /**
- * GoogleHealthConnector — Google Health REST API connector skeleton (CU-037).
+ * GoogleHealthConnector — Google Health REST API connector (CU-037, CU-038, CU-039).
  *
  * Implements `HealthProviderConnector` for the Google Health REST API.
  *
@@ -17,10 +17,17 @@
  *   - `revokeConnection`      — NOT YET IMPLEMENTED (requires CU-038 to resolve token ref).
  *   - `listCapabilities`      — returns documented (all `verified: false`) capabilities.
  *
+ * CU-038 scope: `secretStore` dep completes token secret reference adapter.
+ *
+ * CU-039 scope: `httpClient`, `apiBaseUrl`, and `resolveAccessTokenRef` deps wire the
+ *   `GoogleHealthApiClient` into `syncWindow`. The full sync pipeline (token resolution
+ *   from DB, archiving, normalization) is completed in CU-044/CU-045.
+ *
  * All dependencies are injected via the constructor — no module-level singletons,
  * no direct `process.env` reads. This makes the connector fully unit-testable.
  *
- * Source authority: TAD §10.1 (connector pattern), §10.2 (capability model), §9.2 (auth separation).
+ * Source authority: TAD §10.1 (connector pattern), §10.2 (capability model), §9.2 (auth separation),
+ *   §29.1 (Google Health endpoint families).
  */
 
 import { randomUUID, randomBytes } from 'node:crypto';
@@ -35,6 +42,7 @@ import type {
   OAuthCallbackParams,
   TokenExchangeResult,
   ProviderSyncResult,
+  ProviderSyncError,
 } from '../types.js';
 import type {
   GoogleHealthOAuthConfig,
@@ -43,6 +51,15 @@ import type {
 } from './oauthTypes.js';
 import { DEFAULT_GOOGLE_HEALTH_SCOPES } from './oauthTypes.js';
 import type { SecretStore } from '../../security/SecretStore.js';
+import {
+  GoogleHealthApiClient,
+  GOOGLE_HEALTH_API_BASE_URL,
+} from './GoogleHealthApiClient.js';
+import {
+  DEFAULT_SYNC_DATA_TYPES,
+  PREFERRED_OPERATION_FOR_DATA_TYPE,
+} from './dataTypes.js';
+import { dateToNanos } from './operations.js';
 
 // ---------------------------------------------------------------------------
 // Constructor dependencies
@@ -83,6 +100,40 @@ export interface GoogleHealthConnectorDeps {
    * CU-038: this field completes the token secret reference adapter.
    */
   secretStore?: SecretStore;
+
+  /**
+   * Injectable fetch function for Google Health REST API calls.
+   *
+   * CU-039: required to wire `GoogleHealthApiClient` into `syncWindow`.
+   * In production: `globalThis.fetch` (Node 18+ global).
+   * In tests: a mock function returning pre-configured `Response` objects.
+   *
+   * When absent, `syncWindow` throws `NOT_IMPLEMENTED` (CU-037/CU-038 behavior preserved).
+   */
+  httpClient?: typeof fetch;
+
+  /**
+   * Base URL for the Google Health REST API.
+   *
+   * Defaults to `GOOGLE_HEALTH_API_BASE_URL` (`https://health.googleapis.com`)
+   * when absent. Override in tests to point at a local mock URL.
+   *
+   * TODO(Phase-AA): verify exact base URL against live Google Health API docs.
+   */
+  apiBaseUrl?: string;
+
+  /**
+   * Resolves the `access_token_secret_ref` stored in `provider_connections` for
+   * the given `connectionId`. Used by `syncWindow` to obtain the secret ref that
+   * is then passed to `secretStore.getSecret()` to retrieve the raw access token.
+   *
+   * CU-044 wires the DB-backed implementation that looks up `provider_connections`
+   * by `connectionId` and returns `access_token_secret_ref`.
+   *
+   * When absent (or when `secretStore` is absent), `syncWindow` throws `NOT_IMPLEMENTED`.
+   * Inject a fake in tests: `resolveAccessTokenRef: async () => 'local://test-ref'`.
+   */
+  resolveAccessTokenRef?: (connectionId: string) => Promise<string>;
 }
 
 // ---------------------------------------------------------------------------
@@ -119,12 +170,20 @@ export class GoogleHealthConnector implements HealthProviderConnector {
   private readonly stateStore: OAuthStateStore;
   private readonly config: GoogleHealthOAuthConfig;
   private readonly secretStore: SecretStore | undefined;
+  private readonly httpClient: typeof fetch | undefined;
+  private readonly apiBaseUrl: string;
+  private readonly resolveAccessTokenRef:
+    | ((connectionId: string) => Promise<string>)
+    | undefined;
 
   constructor(deps: GoogleHealthConnectorDeps) {
     this.oauthClient = deps.oauthClient;
     this.stateStore = deps.stateStore;
     this.config = deps.config;
     this.secretStore = deps.secretStore;
+    this.httpClient = deps.httpClient;
+    this.apiBaseUrl = deps.apiBaseUrl ?? GOOGLE_HEALTH_API_BASE_URL;
+    this.resolveAccessTokenRef = deps.resolveAccessTokenRef;
   }
 
   // ---------------------------------------------------------------------------
@@ -323,18 +382,106 @@ export class GoogleHealthConnector implements HealthProviderConnector {
   // ---------------------------------------------------------------------------
 
   /**
-   * Fetches, archives, and normalizes Google Health data for the given time window.
+   * Fetches Google Health data for the given time window using `GoogleHealthApiClient`.
    *
-   * @throws `ProviderConnectorError` with `code: 'NOT_IMPLEMENTED'` — depends on
-   *         CU-039 (GoogleHealthApiClient wrappers).
+   * CU-039 implementation: resolves the access token via `resolveAccessTokenRef` +
+   * `secretStore.getSecret`, constructs a `GoogleHealthApiClient`, and fetches
+   * each P1 data type in `DEFAULT_SYNC_DATA_TYPES` for the window.
+   *
+   * Requires three optional deps to be injected:
+   *   - `httpClient`             — fetch function for API calls
+   *   - `secretStore`            — to resolve raw token value from its ref
+   *   - `resolveAccessTokenRef`  — maps `connectionId` → `access_token_secret_ref`
+   *
+   * When any required dep is absent, throws `NOT_IMPLEMENTED` (CU-037/CU-038 behavior).
+   *
+   * TODO(CU-044): Wire the real `resolveAccessTokenRef` from the DB `provider_connections` row.
+   * TODO(CU-044): Archive raw payloads via `RawPayloadArchive` after fetching.
+   * TODO(CU-045): Handle per-data-type pagination (nextPageToken loop).
+   * TODO(CU-041): Normalization of raw payloads into canonical metric_observations.
+   *
+   * @param connectionId - UUID of the `provider_connections` row to sync.
+   * @param window       - Time range and strategy for this sync pass.
+   * @throws `ProviderConnectorError` with `code: 'NOT_IMPLEMENTED'` when required deps absent.
+   * @throws `ProviderConnectorError` with `code: 'auth_expired'` on 401 from Google API.
+   * @throws `ProviderConnectorError` with `code: 'permission_denied'` on 403 from Google API.
    */
-  async syncWindow(_connectionId: string, _window: SyncWindow): Promise<ProviderSyncResult> {
-    // TODO(CU-039): Implement using GoogleHealthApiClient wrappers.
-    throw new ProviderConnectorError(
-      'syncWindow for GoogleHealthConnector requires GoogleHealthApiClient wrappers (CU-039) — not yet implemented.',
-      'NOT_IMPLEMENTED',
-      false,
-    );
+  async syncWindow(connectionId: string, window: SyncWindow): Promise<ProviderSyncResult> {
+    // Guard: all three deps must be present for CU-039 implementation to run.
+    if (
+      this.httpClient === undefined ||
+      this.secretStore === undefined ||
+      this.resolveAccessTokenRef === undefined
+    ) {
+      throw new ProviderConnectorError(
+        'syncWindow requires httpClient, secretStore, and resolveAccessTokenRef deps ' +
+          '(CU-044 wires the DB-backed resolveAccessTokenRef; inject fakes in tests).',
+        'NOT_IMPLEMENTED',
+        false,
+      );
+    }
+
+    // Step 1 — resolve the access token ref for this connection.
+    const accessTokenRef = await this.resolveAccessTokenRef(connectionId);
+
+    // Step 2 — retrieve the raw access token value from the secret store.
+    // The raw token must not leave this method except as the Authorization header.
+    const accessToken = await this.secretStore.getSecret(accessTokenRef);
+
+    // Step 3 — construct the API client with the injected fetch function.
+    const apiClient = new GoogleHealthApiClient({
+      baseUrl: this.apiBaseUrl,
+      accessToken,
+      httpClient: this.httpClient,
+    });
+
+    const startTimeNanos = dateToNanos(window.startUtc);
+    const endTimeNanos = dateToNanos(window.endUtc);
+
+    // Step 4 — fetch each P1 data type; collect raw payloads and non-fatal errors.
+    let recordsFetched = 0;
+    const errors: ProviderSyncError[] = [];
+
+    for (const dataType of DEFAULT_SYNC_DATA_TYPES) {
+      try {
+        const operation = PREFERRED_OPERATION_FOR_DATA_TYPE[dataType];
+        const response = await apiClient.fetchDataType({
+          dataType,
+          operation,
+          startTimeNanos,
+          endTimeNanos,
+        });
+        recordsFetched += response.rawPayloads.length;
+        // TODO(CU-044): archive response.rawPayloads via RawPayloadArchive.
+        // TODO(CU-045): handle response.nextPageToken (pagination loop).
+      } catch (err) {
+        if (err instanceof ProviderConnectorError) {
+          // Fatal errors (auth_expired, permission_denied) propagate immediately.
+          if (err.code === 'auth_expired' || err.code === 'permission_denied') {
+            throw err;
+          }
+          // Non-fatal: collect and continue with remaining data types.
+          errors.push({ code: err.code, message: err.message, dataType });
+        } else {
+          errors.push({
+            code: 'UNEXPECTED',
+            message: String(err),
+            dataType,
+          });
+        }
+      }
+    }
+
+    // TODO(CU-041): set recordsNormalized after normalization pipeline.
+    // TODO(CU-044): set payloadsArchived after archive step.
+    return {
+      jobId: connectionId, // TODO(CU-045): replace with real sync job ID from DB.
+      recordsFetched,
+      recordsNormalized: 0,
+      payloadsArchived: 0,
+      status: errors.length === 0 ? 'succeeded' : 'partial_success',
+      errors,
+    };
   }
 
   // ---------------------------------------------------------------------------
