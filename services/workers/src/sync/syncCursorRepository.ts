@@ -84,13 +84,11 @@ export async function upsertCursor(
       last_synced_end_utc: highWatermark,
     })
     .onConflict((oc) =>
-      oc
-        .columns(['provider_connection_id', 'provider_data_type'])
-        .doUpdateSet({
-          high_watermark_utc: highWatermark,
-          last_synced_end_utc: highWatermark,
-          updated_at: now,
-        }),
+      oc.columns(['provider_connection_id', 'provider_data_type']).doUpdateSet({
+        high_watermark_utc: highWatermark,
+        last_synced_end_utc: highWatermark,
+        updated_at: now,
+      }),
     )
     .execute();
 }

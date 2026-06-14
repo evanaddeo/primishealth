@@ -253,13 +253,7 @@ async function dispatchWrite(
     case 'sleep_session': {
       const sessionId = await upsertSleepSession(db, record);
       if (record.stages.length > 0) {
-        await upsertSleepStageIntervals(
-          db,
-          sessionId,
-          ctx.userId,
-          ctx.providerCode,
-          record.stages,
-        );
+        await upsertSleepStageIntervals(db, sessionId, ctx.userId, ctx.providerCode, record.stages);
       }
       return record.localSleepDate;
     }

@@ -130,7 +130,10 @@ if (runningDirectly) {
   };
 
   runLocalMockSync(userId, syncWindow).catch((err: unknown) => {
-    console.error('[localRunner] Unhandled error:', err instanceof Error ? err.message : String(err));
+    console.error(
+      '[localRunner] Unhandled error:',
+      err instanceof Error ? err.message : String(err),
+    );
     process.exit(1);
   });
 }

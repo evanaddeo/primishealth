@@ -219,14 +219,8 @@ export function normalizeGoogleWorkoutSession(
       session.metricsSummary,
       'com.google.calories.expended',
     );
-    const distanceM = extractExerciseMetric(
-      session.metricsSummary,
-      'com.google.distance.delta',
-    );
-    const stepsCount = extractExerciseMetric(
-      session.metricsSummary,
-      'com.google.step_count.delta',
-    );
+    const distanceM = extractExerciseMetric(session.metricsSummary, 'com.google.distance.delta');
+    const stepsCount = extractExerciseMetric(session.metricsSummary, 'com.google.step_count.delta');
 
     // HR metrics: avg/max/min HR are not reliably available in exercise session
     // metricsSummary without Phase AA payload validation. Set to null pending

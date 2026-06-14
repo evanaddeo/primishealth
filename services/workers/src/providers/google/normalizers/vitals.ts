@@ -108,7 +108,10 @@ export function normalizeGoogleHrvDailyMean(
         providerConnectionId: connectionId,
         metricCode: 'hrv_daily_mean',
         sourceType: 'provider',
-        sourceRecordId: buildSourceRecordId(GOOGLE_HEALTH_DATA_TYPES.DAILY_HRV, point.startTimeNanos),
+        sourceRecordId: buildSourceRecordId(
+          GOOGLE_HEALTH_DATA_TYPES.DAILY_HRV,
+          point.startTimeNanos,
+        ),
         value: numericValue,
         providerUnit: 'ms',
         canonicalUnit: 'ms',

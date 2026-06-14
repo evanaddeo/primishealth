@@ -35,8 +35,19 @@ import {
   makeErrorResponse,
   type StartAuthorizationResponseDto,
   type ConnectionCreatedResponseDto,
+  type ProviderConnectionDto,
+  type ListConnectionsResponseDto,
+  type ProviderCapabilitiesDto,
+  type DisconnectConnectionResponseDto,
+  PROVIDER_CAPABILITIES_FIXTURE,
 } from '@primis/api-contracts';
 import type { AuthVariables } from '../auth/authMiddleware.js';
+import type { ProviderConnection } from '../db/types.js';
+import {
+  findConnectionsByUser,
+  findConnectionByIdForUser,
+  disconnectConnectionByUser,
+} from '../repositories/providerRepository.js';
 
 // ---------------------------------------------------------------------------
 // GoogleAuthAdapter — minimal injectable interface for this route
@@ -350,3 +361,226 @@ export function createProviderConnectionsRouter(
  * TODO(phase-z): Wire real GoogleHealthConnector once OAuth credentials are available.
  */
 export const providerConnectionsRouter = createProviderConnectionsRouter();
+
+// ===========================================================================
+// ME Providers router (CU-046)
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// GOOGLE_HEALTH static capabilities (Phase E scaffold)
+// ---------------------------------------------------------------------------
+
+/**
+ * Map of provider code → static capability declaration.
+ *
+ * All `verified: false` in Phase E — capabilities are documentation-level only
+ * (see `docs/decisions/google-health-api-metric-availability.md`).
+ * Phase AA live validation will update verified status in source docs and code.
+ *
+ * TODO(Phase-AA): Replace static map with GoogleHealthConnector.listCapabilities()
+ *   once provider capabilities are live-validated.
+ */
+const STATIC_CAPABILITIES: Record<string, ProviderCapabilitiesDto> = {
+  google_health: PROVIDER_CAPABILITIES_FIXTURE,
+};
+
+// ---------------------------------------------------------------------------
+// MeProvidersDeps — injectable interface for testability
+// ---------------------------------------------------------------------------
+
+/**
+ * Injectable dependencies for the ME providers router.
+ *
+ * Tests inject mock implementations; production uses the real repository functions.
+ */
+export interface MeProvidersDeps {
+  /** List all non-deleted connections for a user. */
+  listConnections: (userId: string) => Promise<ProviderConnection[]>;
+  /** Find a connection by ID, scoped to a user. Returns null if not found or not owned. */
+  getConnectionForUser: (
+    connectionId: string,
+    userId: string,
+  ) => Promise<ProviderConnection | null>;
+  /** Soft-delete a connection, enforcing user ownership. Returns false if not found. */
+  disconnectConnection: (connectionId: string, userId: string) => Promise<boolean>;
+}
+
+// ---------------------------------------------------------------------------
+// toProviderConnectionDto — safe projection (strips token refs)
+// ---------------------------------------------------------------------------
+
+/**
+ * Projects a DB `ProviderConnection` row to the public `ProviderConnectionDto`.
+ *
+ * SECURITY: Explicitly omits `access_token_secret_ref`, `refresh_token_secret_ref`,
+ * `user_id`, and all internal fields that must not appear in API responses.
+ */
+function toProviderConnectionDto(conn: ProviderConnection): ProviderConnectionDto {
+  return {
+    id: conn.id,
+    providerCode: conn.provider_code,
+    status: conn.connection_status,
+    displayName: conn.display_name,
+    scopesGranted: conn.scopes_granted,
+    lastSuccessfulSyncAt:
+      conn.last_successful_sync_at !== null ? conn.last_successful_sync_at.toISOString() : null,
+    createdAt: conn.created_at.toISOString(),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Router factory
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates the Hono ME providers router.
+ *
+ * Route layout (all require `authMiddleware` — applied globally on `/api/v1/*`):
+ *   GET    /                          — list all active provider connections
+ *   GET    /:connectionId/capabilities — static capabilities for the connection's provider
+ *   DELETE /:connectionId             — disconnect (soft-delete) a provider connection
+ *
+ * @param deps - Injectable dependencies. Defaults to real repository functions.
+ */
+export function createMeProvidersRouter(
+  deps: MeProvidersDeps = {
+    listConnections: findConnectionsByUser,
+    getConnectionForUser: findConnectionByIdForUser,
+    disconnectConnection: disconnectConnectionByUser,
+  },
+): Hono<{ Variables: AuthVariables & { requestId: string } }> {
+  const router = new Hono<{
+    Variables: AuthVariables & { requestId: string };
+  }>();
+
+  // ── GET / ────────────────────────────────────────────────────────────────
+
+  /**
+   * Returns all non-deleted provider connections for the authenticated user.
+   *
+   * Returns `{ connections: [] }` for a user with no connected providers.
+   *
+   * Response: 200 `{ data: ListConnectionsResponseDto }`
+   */
+  router.get('/', async (c) => {
+    const { internalUserId } = c.var.user;
+    const requestId = c.get('requestId') as string | undefined;
+
+    const rows = await deps.listConnections(internalUserId);
+
+    const responseDto: ListConnectionsResponseDto = {
+      connections: rows.map(toProviderConnectionDto),
+    };
+
+    return c.json(makeSuccessResponse(responseDto, undefined, requestId), 200);
+  });
+
+  // ── GET /:connectionId/capabilities ──────────────────────────────────────
+
+  /**
+   * Returns the static capability declaration for the provider type associated
+   * with the given connection.
+   *
+   * No DB call is needed for the capability data itself (it is static per provider
+   * code). The connection lookup validates that the connection exists and belongs
+   * to the authenticated user.
+   *
+   * Route params (required):
+   *   - `connectionId` — Primis internal connection UUID.
+   *
+   * Response: 200 `{ data: ProviderCapabilitiesDto }`
+   *           404 `NOT_FOUND` — connection not found or not owned by this user.
+   */
+  router.get('/:connectionId/capabilities', async (c) => {
+    const { internalUserId } = c.var.user;
+    const requestId = c.get('requestId') as string | undefined;
+    const { connectionId } = c.req.param();
+
+    const connection = await deps.getConnectionForUser(connectionId, internalUserId);
+
+    if (!connection) {
+      return c.json(
+        makeErrorResponse(
+          'NOT_FOUND',
+          'Provider connection not found.',
+          undefined,
+          undefined,
+          requestId,
+        ),
+        404,
+      );
+    }
+
+    const capabilities = STATIC_CAPABILITIES[connection.provider_code];
+
+    if (!capabilities) {
+      // TODO(ADR): Create ADR if a provider code exists in DB without a capability map.
+      return c.json(
+        makeErrorResponse(
+          'NOT_FOUND',
+          `No capability data available for provider: ${connection.provider_code}`,
+          undefined,
+          undefined,
+          requestId,
+        ),
+        404,
+      );
+    }
+
+    return c.json(
+      makeSuccessResponse(capabilities as ProviderCapabilitiesDto, undefined, requestId),
+      200,
+    );
+  });
+
+  // ── DELETE /:connectionId ─────────────────────────────────────────────────
+
+  /**
+   * Soft-deletes a provider connection (disconnect).
+   *
+   * Sets `connection_status: 'revoked'` and `deleted_at: now()` on the connection row.
+   * User ownership is enforced server-side — the authenticated user's ID is used
+   * in the WHERE clause; a mismatch returns 404, not 403, to avoid leaking existence.
+   *
+   * Phase Z: Token revocation at the provider is not performed here.
+   * Phase J: Health data associated with the connection is not deleted here.
+   *
+   * Route params (required):
+   *   - `connectionId` — Primis internal connection UUID.
+   *
+   * Response: 200 `{ data: DisconnectConnectionResponseDto }`
+   *           404 `NOT_FOUND` — connection not found or not owned by this user.
+   */
+  router.delete('/:connectionId', async (c) => {
+    const { internalUserId } = c.var.user;
+    const requestId = c.get('requestId') as string | undefined;
+    const { connectionId } = c.req.param();
+
+    const deleted = await deps.disconnectConnection(connectionId, internalUserId);
+
+    if (!deleted) {
+      return c.json(
+        makeErrorResponse(
+          'NOT_FOUND',
+          'Provider connection not found.',
+          undefined,
+          undefined,
+          requestId,
+        ),
+        404,
+      );
+    }
+
+    const responseDto: DisconnectConnectionResponseDto = { success: true };
+    return c.json(makeSuccessResponse(responseDto, undefined, requestId), 200);
+  });
+
+  return router;
+}
+
+/**
+ * ME providers router using default (real) repository dependencies.
+ *
+ * Registered in `app.ts` under `/api/v1/me/providers`.
+ */
+export const meProvidersRouter = createMeProvidersRouter();

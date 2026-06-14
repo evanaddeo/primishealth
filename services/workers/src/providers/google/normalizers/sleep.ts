@@ -128,9 +128,10 @@ function normalizeGoogleSleepStage(
     durationSeconds: Math.max(0, durationSeconds),
     // Stage-level source record IDs are not distinct in the documented schema;
     // we use the start nanos to provide a stable ID for deduplication.
-    sourceRecordId: sessionSourceRecordId !== null
-      ? `${sessionSourceRecordId}:stage:${googleStage.startTimeNanos}`
-      : null,
+    sourceRecordId:
+      sessionSourceRecordId !== null
+        ? `${sessionSourceRecordId}:stage:${googleStage.startTimeNanos}`
+        : null,
     confidenceScore: null,
     metadata: {
       // TODO(Phase-AA): verify stage type field name/values in real payload.
@@ -291,14 +292,12 @@ export function normalizeGoogleSleepSession(
     const minutesAwake = summary?.minutesAwake ?? null;
 
     // Convert raw minutes to canonical seconds.
-    const timeInBedSeconds =
-      minutesInSleepPeriod !== null ? minutesInSleepPeriod * 60 : null;
+    const timeInBedSeconds = minutesInSleepPeriod !== null ? minutesInSleepPeriod * 60 : null;
     const totalSleepSeconds = minutesAsleep !== null ? minutesAsleep * 60 : null;
     const awakeSeconds = minutesAwake !== null ? minutesAwake * 60 : null;
     // WASO proxy: Google's minutesAwake captures wake-after-sleep-onset time.
     const wakeAfterSleepOnsetSeconds = awakeSeconds;
-    const sleepLatencySeconds =
-      minutesToFallAsleep !== null ? minutesToFallAsleep * 60 : null;
+    const sleepLatencySeconds = minutesToFallAsleep !== null ? minutesToFallAsleep * 60 : null;
 
     // Sleep efficiency: minutesAsleep / minutesInSleepPeriod * 100 (Primis-derived).
     let sleepEfficiencyPct: number | null = null;

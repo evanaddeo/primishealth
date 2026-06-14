@@ -16,6 +16,11 @@
  *   POST   /api/v1/me/onboarding/consent                       — record consent event (CU-033)
  *   GET    /api/v1/provider-connections/google/authorize        — request Google Health auth URL (CU-037)
  *   GET    /api/v1/provider-connections/google/callback         — handle Google Health OAuth callback (CU-037)
+ *   GET    /api/v1/me/providers                                 — list provider connections (CU-046)
+ *   GET    /api/v1/me/providers/:connectionId/capabilities      — static capabilities for provider (CU-046)
+ *   DELETE /api/v1/me/providers/:connectionId                   — disconnect a provider (CU-046)
+ *   GET    /api/v1/me/sync/status                               — sync status per connection (CU-046)
+ *   POST   /api/v1/me/sync/refresh                             — enqueue manual sync job (CU-046)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -35,7 +40,8 @@ import { requestIdMiddleware } from './middleware/requestId.js';
 import { healthRouter } from './routes/health.js';
 import { meRouter } from './routes/me.js';
 import { onboardingRouter } from './routes/onboarding.js';
-import { providerConnectionsRouter } from './routes/providerConnections.js';
+import { meProvidersRouter, providerConnectionsRouter } from './routes/providerConnections.js';
+import { syncRouter } from './routes/sync.js';
 
 // ---------------------------------------------------------------------------
 // Context variable types
@@ -97,6 +103,17 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   // TODO(phase-z): Replace with createProviderConnectionsRouter(realGoogleHealthConnector)
   //   once OAuth credentials are configured in GOOGLE_HEALTH_CLIENT_ID/SECRET env vars.
   app.route('/api/v1/provider-connections', providerConnectionsRouter);
+
+  // ME providers routes (CU-046):
+  //   GET    /api/v1/me/providers                            — list connections
+  //   GET    /api/v1/me/providers/:connectionId/capabilities — static capabilities
+  //   DELETE /api/v1/me/providers/:connectionId              — disconnect
+  app.route('/api/v1/me/providers', meProvidersRouter);
+
+  // Sync management routes (CU-046):
+  //   GET  /api/v1/me/sync/status  — per-connection sync status
+  //   POST /api/v1/me/sync/refresh — enqueue manual refresh job
+  app.route('/api/v1/me/sync', syncRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);

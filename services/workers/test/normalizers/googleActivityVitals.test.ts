@@ -187,15 +187,25 @@ const EMPTY_POINT = { startTimeNanos: START_NANOS_MID_DAY, endTimeNanos: END_NAN
 
 describe('extractNumericValue', () => {
   it('returns fpVal when present', () => {
-    expect(extractNumericValue({ startTimeNanos: '0', endTimeNanos: '0', value: [{ fpVal: 97.3 }] })).toBe(97.3);
+    expect(
+      extractNumericValue({ startTimeNanos: '0', endTimeNanos: '0', value: [{ fpVal: 97.3 }] }),
+    ).toBe(97.3);
   });
 
   it('returns intVal when fpVal is absent', () => {
-    expect(extractNumericValue({ startTimeNanos: '0', endTimeNanos: '0', value: [{ intVal: 8200 }] })).toBe(8200);
+    expect(
+      extractNumericValue({ startTimeNanos: '0', endTimeNanos: '0', value: [{ intVal: 8200 }] }),
+    ).toBe(8200);
   });
 
   it('prefers fpVal over intVal when both are present', () => {
-    expect(extractNumericValue({ startTimeNanos: '0', endTimeNanos: '0', value: [{ fpVal: 1.5, intVal: 1 }] })).toBe(1.5);
+    expect(
+      extractNumericValue({
+        startTimeNanos: '0',
+        endTimeNanos: '0',
+        value: [{ fpVal: 1.5, intVal: 1 }],
+      }),
+    ).toBe(1.5);
   });
 
   it('returns null when value array is empty', () => {
@@ -207,7 +217,13 @@ describe('extractNumericValue', () => {
   });
 
   it('returns null when value[0] has only stringVal', () => {
-    expect(extractNumericValue({ startTimeNanos: '0', endTimeNanos: '0', value: [{ stringVal: 'RUN' }] })).toBeNull();
+    expect(
+      extractNumericValue({
+        startTimeNanos: '0',
+        endTimeNanos: '0',
+        value: [{ stringVal: 'RUN' }],
+      }),
+    ).toBeNull();
   });
 });
 
@@ -616,7 +632,9 @@ describe('invariant — no provider-proprietary scores', () => {
 
   it('normalizeGoogleHrvDailyMean does not produce any unverified score code', () => {
     const raw = makeRaw('daily-heart-rate-variability', listPoints(42.5));
-    const codes = collectMetricCodes(normalizeGoogleHrvDailyMean(raw, TEST_USER, TEST_CONN, TZ_UTC));
+    const codes = collectMetricCodes(
+      normalizeGoogleHrvDailyMean(raw, TEST_USER, TEST_CONN, TZ_UTC),
+    );
     for (const unverified of UNVERIFIED_SCORE_CODES) {
       expect(codes).not.toContain(unverified);
     }
@@ -723,18 +741,26 @@ describe('invariant — malformed data never throws', () => {
 
   it.each(MALFORMED_INPUTS)('normalizeGoogleHrvDailyMean does not throw for data=%o', (data) => {
     expect(() =>
-      normalizeGoogleHrvDailyMean(makeRaw('daily-heart-rate-variability', data), TEST_USER, TEST_CONN, TZ_UTC),
-    ).not.toThrow();
-  });
-
-  it.each(MALFORMED_INPUTS)('normalizeGoogleOxygenSaturation does not throw for data=%o', (data) => {
-    expect(() =>
-      normalizeGoogleOxygenSaturation(
-        makeRaw('daily-oxygen-saturation', data),
+      normalizeGoogleHrvDailyMean(
+        makeRaw('daily-heart-rate-variability', data),
         TEST_USER,
         TEST_CONN,
         TZ_UTC,
       ),
     ).not.toThrow();
   });
+
+  it.each(MALFORMED_INPUTS)(
+    'normalizeGoogleOxygenSaturation does not throw for data=%o',
+    (data) => {
+      expect(() =>
+        normalizeGoogleOxygenSaturation(
+          makeRaw('daily-oxygen-saturation', data),
+          TEST_USER,
+          TEST_CONN,
+          TZ_UTC,
+        ),
+      ).not.toThrow();
+    },
+  );
 });

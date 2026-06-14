@@ -217,9 +217,7 @@ function makeStage(overrides: Partial<NormalizedSleepStage> = {}): NormalizedSle
   };
 }
 
-function makeSleepSession(
-  overrides: Partial<NormalizedSleepSession> = {},
-): NormalizedSleepSession {
+function makeSleepSession(overrides: Partial<NormalizedSleepSession> = {}): NormalizedSleepSession {
   return {
     kind: 'sleep_session',
     userId: TEST_USER_ID,
@@ -571,9 +569,21 @@ describe('writeNormalizedRecords', () => {
 
   it('returns distinct affectedDates when multiple records share the same date', async () => {
     const records = [
-      makeMetricObservation({ localDate: '2024-01-15', metricCode: 'resting_heart_rate', sourceRecordId: 'src-a' }),
-      makeMetricObservation({ localDate: '2024-01-15', metricCode: 'steps', sourceRecordId: 'src-b' }),
-      makeMetricObservation({ localDate: '2024-01-16', metricCode: 'steps', sourceRecordId: 'src-c' }),
+      makeMetricObservation({
+        localDate: '2024-01-15',
+        metricCode: 'resting_heart_rate',
+        sourceRecordId: 'src-a',
+      }),
+      makeMetricObservation({
+        localDate: '2024-01-15',
+        metricCode: 'steps',
+        sourceRecordId: 'src-b',
+      }),
+      makeMetricObservation({
+        localDate: '2024-01-16',
+        metricCode: 'steps',
+        sourceRecordId: 'src-c',
+      }),
     ];
     const result = await writeNormalizedRecords(db, records, DEFAULT_WRITE_CTX);
     // Two distinct dates; the same date must not appear twice.
@@ -711,7 +721,11 @@ describe('writeNormalizedRecords', () => {
 
     const records = [
       makeMetricObservation({ localDate: '2024-01-15', sourceRecordId: 'obs-a' }),
-      makeMetricObservation({ localDate: '2024-01-15', sourceRecordId: 'obs-b', metricCode: 'steps' }),
+      makeMetricObservation({
+        localDate: '2024-01-15',
+        sourceRecordId: 'obs-b',
+        metricCode: 'steps',
+      }),
       makeWorkoutSession({ localDate: '2024-01-16' }),
     ];
 

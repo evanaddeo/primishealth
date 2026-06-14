@@ -54,12 +54,7 @@ export type DataQualityValue = DataQualityLabel;
  * Source classification for a metric observation row.
  * Maps to `metric_observations.source_type` (Data Model §10.2).
  */
-export type ObservationSourceType =
-  | 'provider'
-  | 'manual'
-  | 'derived'
-  | 'imported'
-  | 'ai_assisted';
+export type ObservationSourceType = 'provider' | 'manual' | 'derived' | 'imported' | 'ai_assisted';
 
 /**
  * Temporal granularity level at which an observation was aggregated.
@@ -731,7 +726,5 @@ export type NormalizedRecord =
  * @throws {Error} at runtime if an unrecognised variant is encountered.
  */
 export function assertNeverRecord(record: never): never {
-  throw new Error(
-    `assertNeverRecord: unhandled NormalizedRecord kind — ${JSON.stringify(record)}`,
-  );
+  throw new Error(`assertNeverRecord: unhandled NormalizedRecord kind — ${JSON.stringify(record)}`);
 }

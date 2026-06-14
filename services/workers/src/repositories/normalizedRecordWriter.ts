@@ -197,8 +197,7 @@ export async function upsertSleepSession(
         session.sleepEfficiencyPct !== null ? String(session.sleepEfficiencyPct) : null,
       is_main_sleep: session.isMainSleep,
       data_quality: session.dataQuality,
-      confidence_score:
-        session.confidenceScore !== null ? String(session.confidenceScore) : null,
+      confidence_score: session.confidenceScore !== null ? String(session.confidenceScore) : null,
       metadata: session.metadata,
       // V1.1 columns (migration 000007)
       is_nap: session.isNap,
@@ -213,39 +212,37 @@ export async function upsertSleepSession(
       minutes_awake: session.minutesAwake,
     })
     .onConflict((oc) =>
-      oc
-        .columns(['user_id', 'source_provider', 'source_record_id'])
-        .doUpdateSet((eb) => ({
-          session_start_utc: eb.ref('excluded.session_start_utc'),
-          session_end_utc: eb.ref('excluded.session_end_utc'),
-          local_sleep_date: eb.ref('excluded.local_sleep_date'),
-          timezone: eb.ref('excluded.timezone'),
-          time_in_bed_seconds: eb.ref('excluded.time_in_bed_seconds'),
-          total_sleep_seconds: eb.ref('excluded.total_sleep_seconds'),
-          awake_seconds: eb.ref('excluded.awake_seconds'),
-          light_sleep_seconds: eb.ref('excluded.light_sleep_seconds'),
-          deep_sleep_seconds: eb.ref('excluded.deep_sleep_seconds'),
-          rem_sleep_seconds: eb.ref('excluded.rem_sleep_seconds'),
-          unknown_sleep_seconds: eb.ref('excluded.unknown_sleep_seconds'),
-          sleep_latency_seconds: eb.ref('excluded.sleep_latency_seconds'),
-          wake_after_sleep_onset_seconds: eb.ref('excluded.wake_after_sleep_onset_seconds'),
-          sleep_efficiency_pct: eb.ref('excluded.sleep_efficiency_pct'),
-          is_main_sleep: eb.ref('excluded.is_main_sleep'),
-          data_quality: eb.ref('excluded.data_quality'),
-          confidence_score: eb.ref('excluded.confidence_score'),
-          metadata: eb.ref('excluded.metadata'),
-          is_nap: eb.ref('excluded.is_nap'),
-          provider_sleep_type: eb.ref('excluded.provider_sleep_type'),
-          provider_stages_status: eb.ref('excluded.provider_stages_status'),
-          manually_edited: eb.ref('excluded.manually_edited'),
-          external_sleep_id: eb.ref('excluded.external_sleep_id'),
-          minutes_in_sleep_period: eb.ref('excluded.minutes_in_sleep_period'),
-          minutes_after_wake_up: eb.ref('excluded.minutes_after_wake_up'),
-          minutes_to_fall_asleep: eb.ref('excluded.minutes_to_fall_asleep'),
-          minutes_asleep: eb.ref('excluded.minutes_asleep'),
-          minutes_awake: eb.ref('excluded.minutes_awake'),
-          updated_at: new Date(),
-        })),
+      oc.columns(['user_id', 'source_provider', 'source_record_id']).doUpdateSet((eb) => ({
+        session_start_utc: eb.ref('excluded.session_start_utc'),
+        session_end_utc: eb.ref('excluded.session_end_utc'),
+        local_sleep_date: eb.ref('excluded.local_sleep_date'),
+        timezone: eb.ref('excluded.timezone'),
+        time_in_bed_seconds: eb.ref('excluded.time_in_bed_seconds'),
+        total_sleep_seconds: eb.ref('excluded.total_sleep_seconds'),
+        awake_seconds: eb.ref('excluded.awake_seconds'),
+        light_sleep_seconds: eb.ref('excluded.light_sleep_seconds'),
+        deep_sleep_seconds: eb.ref('excluded.deep_sleep_seconds'),
+        rem_sleep_seconds: eb.ref('excluded.rem_sleep_seconds'),
+        unknown_sleep_seconds: eb.ref('excluded.unknown_sleep_seconds'),
+        sleep_latency_seconds: eb.ref('excluded.sleep_latency_seconds'),
+        wake_after_sleep_onset_seconds: eb.ref('excluded.wake_after_sleep_onset_seconds'),
+        sleep_efficiency_pct: eb.ref('excluded.sleep_efficiency_pct'),
+        is_main_sleep: eb.ref('excluded.is_main_sleep'),
+        data_quality: eb.ref('excluded.data_quality'),
+        confidence_score: eb.ref('excluded.confidence_score'),
+        metadata: eb.ref('excluded.metadata'),
+        is_nap: eb.ref('excluded.is_nap'),
+        provider_sleep_type: eb.ref('excluded.provider_sleep_type'),
+        provider_stages_status: eb.ref('excluded.provider_stages_status'),
+        manually_edited: eb.ref('excluded.manually_edited'),
+        external_sleep_id: eb.ref('excluded.external_sleep_id'),
+        minutes_in_sleep_period: eb.ref('excluded.minutes_in_sleep_period'),
+        minutes_after_wake_up: eb.ref('excluded.minutes_after_wake_up'),
+        minutes_to_fall_asleep: eb.ref('excluded.minutes_to_fall_asleep'),
+        minutes_asleep: eb.ref('excluded.minutes_asleep'),
+        minutes_awake: eb.ref('excluded.minutes_awake'),
+        updated_at: new Date(),
+      })),
     )
     .returning('id')
     .executeTakeFirstOrThrow();
@@ -280,10 +277,7 @@ export async function upsertSleepStageIntervals(
   providerCode: ProviderCode,
   stages: readonly NormalizedSleepStage[],
 ): Promise<void> {
-  await db
-    .deleteFrom('sleep_stage_intervals')
-    .where('sleep_session_id', '=', sessionId)
-    .execute();
+  await db.deleteFrom('sleep_stage_intervals').where('sleep_session_id', '=', sessionId).execute();
 
   if (stages.length === 0) {
     return;
@@ -301,8 +295,7 @@ export async function upsertSleepStageIntervals(
         duration_seconds: stage.durationSeconds,
         source_provider: providerCode,
         source_record_id: stage.sourceRecordId,
-        confidence_score:
-          stage.confidenceScore !== null ? String(stage.confidenceScore) : null,
+        confidence_score: stage.confidenceScore !== null ? String(stage.confidenceScore) : null,
         metadata: stage.metadata,
       })),
     )
@@ -355,35 +348,32 @@ export async function upsertWorkoutSession(
       elevation_gain_m: session.elevationGainM,
       steps_count: session.stepsCount,
       data_quality: session.dataQuality,
-      confidence_score:
-        session.confidenceScore !== null ? String(session.confidenceScore) : null,
+      confidence_score: session.confidenceScore !== null ? String(session.confidenceScore) : null,
       metadata: session.metadata,
     })
     .onConflict((oc) =>
-      oc
-        .columns(['user_id', 'source_provider', 'source_record_id'])
-        .doUpdateSet((eb) => ({
-          workout_type: eb.ref('excluded.workout_type'),
-          display_name: eb.ref('excluded.display_name'),
-          start_time_utc: eb.ref('excluded.start_time_utc'),
-          end_time_utc: eb.ref('excluded.end_time_utc'),
-          local_date: eb.ref('excluded.local_date'),
-          timezone: eb.ref('excluded.timezone'),
-          duration_seconds: eb.ref('excluded.duration_seconds'),
-          active_duration_seconds: eb.ref('excluded.active_duration_seconds'),
-          distance_m: eb.ref('excluded.distance_m'),
-          active_energy_kcal: eb.ref('excluded.active_energy_kcal'),
-          total_energy_kcal: eb.ref('excluded.total_energy_kcal'),
-          avg_hr_bpm: eb.ref('excluded.avg_hr_bpm'),
-          max_hr_bpm: eb.ref('excluded.max_hr_bpm'),
-          min_hr_bpm: eb.ref('excluded.min_hr_bpm'),
-          elevation_gain_m: eb.ref('excluded.elevation_gain_m'),
-          steps_count: eb.ref('excluded.steps_count'),
-          data_quality: eb.ref('excluded.data_quality'),
-          confidence_score: eb.ref('excluded.confidence_score'),
-          metadata: eb.ref('excluded.metadata'),
-          updated_at: new Date(),
-        })),
+      oc.columns(['user_id', 'source_provider', 'source_record_id']).doUpdateSet((eb) => ({
+        workout_type: eb.ref('excluded.workout_type'),
+        display_name: eb.ref('excluded.display_name'),
+        start_time_utc: eb.ref('excluded.start_time_utc'),
+        end_time_utc: eb.ref('excluded.end_time_utc'),
+        local_date: eb.ref('excluded.local_date'),
+        timezone: eb.ref('excluded.timezone'),
+        duration_seconds: eb.ref('excluded.duration_seconds'),
+        active_duration_seconds: eb.ref('excluded.active_duration_seconds'),
+        distance_m: eb.ref('excluded.distance_m'),
+        active_energy_kcal: eb.ref('excluded.active_energy_kcal'),
+        total_energy_kcal: eb.ref('excluded.total_energy_kcal'),
+        avg_hr_bpm: eb.ref('excluded.avg_hr_bpm'),
+        max_hr_bpm: eb.ref('excluded.max_hr_bpm'),
+        min_hr_bpm: eb.ref('excluded.min_hr_bpm'),
+        elevation_gain_m: eb.ref('excluded.elevation_gain_m'),
+        steps_count: eb.ref('excluded.steps_count'),
+        data_quality: eb.ref('excluded.data_quality'),
+        confidence_score: eb.ref('excluded.confidence_score'),
+        metadata: eb.ref('excluded.metadata'),
+        updated_at: new Date(),
+      })),
     )
     .execute();
 }

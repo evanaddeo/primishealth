@@ -323,12 +323,15 @@ describe('normalizeGoogleWorkoutSession — partial/empty metricsSummary', () =>
   it('partial metricsSummary (only calories) — distanceM is null, no crash', () => {
     const session = {
       ...RUN_SESSION,
-      metricsSummary: [
-        { metric: 'com.google.calories.expended', summaryValue: { fpVal: 300.0 } },
-      ],
+      metricsSummary: [{ metric: 'com.google.calories.expended', summaryValue: { fpVal: 300.0 } }],
     };
     expect(() =>
-      normalizeGoogleWorkoutSession(makeWorkoutRaw({ dataPoints: [session] }), TEST_USER, TEST_CONN, TZ_UTC),
+      normalizeGoogleWorkoutSession(
+        makeWorkoutRaw({ dataPoints: [session] }),
+        TEST_USER,
+        TEST_CONN,
+        TZ_UTC,
+      ),
     ).not.toThrow();
     const [result] = normalizeGoogleWorkoutSession(
       makeWorkoutRaw({ dataPoints: [session] }),
@@ -344,7 +347,12 @@ describe('normalizeGoogleWorkoutSession — partial/empty metricsSummary', () =>
   it('empty metricsSummary — all metric fields null, no crash', () => {
     const session = { ...RUN_SESSION, metricsSummary: [] };
     expect(() =>
-      normalizeGoogleWorkoutSession(makeWorkoutRaw({ dataPoints: [session] }), TEST_USER, TEST_CONN, TZ_UTC),
+      normalizeGoogleWorkoutSession(
+        makeWorkoutRaw({ dataPoints: [session] }),
+        TEST_USER,
+        TEST_CONN,
+        TZ_UTC,
+      ),
     ).not.toThrow();
     const [result] = normalizeGoogleWorkoutSession(
       makeWorkoutRaw({ dataPoints: [session] }),
@@ -359,9 +367,7 @@ describe('normalizeGoogleWorkoutSession — partial/empty metricsSummary', () =>
 
   it('no metricsSummary at all — no crash', () => {
     const raw = makeWorkoutRaw({ dataPoints: [BARE_SESSION] });
-    expect(() =>
-      normalizeGoogleWorkoutSession(raw, TEST_USER, TEST_CONN, TZ_UTC),
-    ).not.toThrow();
+    expect(() => normalizeGoogleWorkoutSession(raw, TEST_USER, TEST_CONN, TZ_UTC)).not.toThrow();
   });
 });
 

@@ -136,8 +136,16 @@ const CLASSIC_SESSION = {
   endTimeNanos: SLEEP_END_NANOS,
   type: 'CLASSIC' as const,
   stages: [
-    { startTimeNanos: SLEEP_START_NANOS, endTimeNanos: UTC_MIDNIGHT_NANOS, type: 'ASLEEP' as const },
-    { startTimeNanos: UTC_MIDNIGHT_NANOS, endTimeNanos: STAGE_2AM_NANOS, type: 'RESTLESS' as const },
+    {
+      startTimeNanos: SLEEP_START_NANOS,
+      endTimeNanos: UTC_MIDNIGHT_NANOS,
+      type: 'ASLEEP' as const,
+    },
+    {
+      startTimeNanos: UTC_MIDNIGHT_NANOS,
+      endTimeNanos: STAGE_2AM_NANOS,
+      type: 'RESTLESS' as const,
+    },
     { startTimeNanos: STAGE_2AM_NANOS, endTimeNanos: SLEEP_END_NANOS, type: 'ASLEEP' as const },
   ],
   summary: {
@@ -153,7 +161,7 @@ const CLASSIC_SESSION = {
 /** A nap session. */
 const NAP_SESSION = {
   startTimeNanos: '1705327200000000000', // 2024-01-15T14:00Z
-  endTimeNanos: '1705330800000000000',   // 2024-01-15T15:00Z
+  endTimeNanos: '1705330800000000000', // 2024-01-15T15:00Z
   type: 'STAGES' as const,
   stages: [],
   summary: {
@@ -256,7 +264,7 @@ describe('normalizeGoogleSleepSession — midnight-crossing rule', () => {
     const session = {
       ...MIDNIGHT_CROSSING_SESSION,
       startTimeNanos: '1705327200000000000', // 2024-01-15T14:00Z
-      endTimeNanos: '1705330800000000000',   // 2024-01-15T15:00Z
+      endTimeNanos: '1705330800000000000', // 2024-01-15T15:00Z
       stages: [],
     };
     const raw = makeSleepRaw({ dataPoints: [session] });
@@ -272,9 +280,7 @@ describe('normalizeGoogleSleepSession — midnight-crossing rule', () => {
 describe('normalizeGoogleSleepSession — missing stages', () => {
   it('stages absent in payload → stages: [], no crash', () => {
     const raw = makeSleepRaw({ dataPoints: [SESSION_NO_STAGES] });
-    expect(() =>
-      normalizeGoogleSleepSession(raw, TEST_USER, TEST_CONN, TZ_UTC),
-    ).not.toThrow();
+    expect(() => normalizeGoogleSleepSession(raw, TEST_USER, TEST_CONN, TZ_UTC)).not.toThrow();
     const [result] = normalizeGoogleSleepSession(raw, TEST_USER, TEST_CONN, TZ_UTC);
     expect(result?.stages).toEqual([]);
   });
@@ -477,9 +483,7 @@ describe('normalizeGoogleSleepSession — missing summary', () => {
       // summary intentionally absent
     };
     const raw = makeSleepRaw({ dataPoints: [session] });
-    expect(() =>
-      normalizeGoogleSleepSession(raw, TEST_USER, TEST_CONN, TZ_UTC),
-    ).not.toThrow();
+    expect(() => normalizeGoogleSleepSession(raw, TEST_USER, TEST_CONN, TZ_UTC)).not.toThrow();
     const [result] = normalizeGoogleSleepSession(raw, TEST_USER, TEST_CONN, TZ_UTC);
     expect(result?.timeInBedSeconds).toBeNull();
     expect(result?.totalSleepSeconds).toBeNull();
@@ -508,7 +512,12 @@ describe('normalizeGoogleSleepSession — minutesAfterWakeUp (E-RISK-001)', () =
   it('minutesAfterWakeUp is null when absent from summary', () => {
     const session = {
       ...MIDNIGHT_CROSSING_SESSION,
-      summary: { minutesInSleepPeriod: 480, minutesAsleep: 480, minutesAwake: 0, minutesToFallAsleep: 10 },
+      summary: {
+        minutesInSleepPeriod: 480,
+        minutesAsleep: 480,
+        minutesAwake: 0,
+        minutesToFallAsleep: 10,
+      },
     };
     const raw = makeSleepRaw({ dataPoints: [session] });
     const [result] = normalizeGoogleSleepSession(raw, TEST_USER, TEST_CONN, TZ_UTC);
@@ -612,9 +621,9 @@ describe('normalizeGoogleSleepSession — malformed data', () => {
   });
 
   it.each(MALFORMED_INPUTS)('returns [] for data=%o', (data) => {
-    expect(
-      normalizeGoogleSleepSession(makeSleepRaw(data), TEST_USER, TEST_CONN, TZ_UTC),
-    ).toEqual([]);
+    expect(normalizeGoogleSleepSession(makeSleepRaw(data), TEST_USER, TEST_CONN, TZ_UTC)).toEqual(
+      [],
+    );
   });
 
   it('returns [] for empty dataPoints array', () => {

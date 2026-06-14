@@ -101,7 +101,9 @@ const mockArchive: RawPayloadArchive = {
 };
 
 /** Creates a vi.fn()-based ScoringEnqueuePort for call-count verification. */
-function makeScoringPort(): ScoringEnqueuePort & { enqueueScoringForDates: ReturnType<typeof vi.fn> } {
+function makeScoringPort(): ScoringEnqueuePort & {
+  enqueueScoringForDates: ReturnType<typeof vi.fn>;
+} {
   return {
     enqueueScoringForDates: vi.fn().mockResolvedValue(undefined),
   };
@@ -231,7 +233,9 @@ describe('SyncJobRunner.runJob', () => {
         recordsNormalized: 4,
         payloadsArchived: 2,
         status: 'partial_success',
-        errors: [{ code: 'RATE_LIMITED', message: 'Rate limit on sleep data type', dataType: 'sleep' }],
+        errors: [
+          { code: 'RATE_LIMITED', message: 'Rate limit on sleep data type', dataType: 'sleep' },
+        ],
       });
 
       const runner = new SyncJobRunner(mockDb, connector, mockArchive, makeScoringPort());
@@ -340,12 +344,7 @@ describe('SyncJobRunner.runJob', () => {
       await runner.runJob(BASE_PARAMS);
 
       expect(upsertCursor).toHaveBeenCalledOnce();
-      expect(upsertCursor).toHaveBeenCalledWith(
-        mockDb,
-        TEST_CONN_ID,
-        'all',
-        TEST_WINDOW.endUtc,
-      );
+      expect(upsertCursor).toHaveBeenCalledWith(mockDb, TEST_CONN_ID, 'all', TEST_WINDOW.endUtc);
     });
 
     it('upserts the cursor on partial_success (not fully failed)', async () => {
@@ -404,10 +403,7 @@ describe('SyncJobRunner.runJob', () => {
       await runner.runJob(BASE_PARAMS);
 
       expect(scoringPort.enqueueScoringForDates).toHaveBeenCalledOnce();
-      expect(scoringPort.enqueueScoringForDates).toHaveBeenCalledWith(
-        TEST_USER_ID,
-        EXPECTED_DATES,
-      );
+      expect(scoringPort.enqueueScoringForDates).toHaveBeenCalledWith(TEST_USER_ID, EXPECTED_DATES);
     });
 
     it('does NOT call enqueueScoringForDates when recordsNormalized === 0', async () => {

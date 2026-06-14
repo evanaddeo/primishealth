@@ -1,33 +1,16 @@
 /**
- * Unit tests for provider connection routes (CU-037).
+ * Unit tests for provider connection routes (CU-037 + CU-046).
  *
- * Routes under test:
+ * CU-037 routes under test:
  *   GET /google/authorize — request Google Health authorization URL
  *   GET /google/callback  — handle OAuth callback and exchange code
  *
- * Coverage:
- *   GET /google/authorize:
- *     - Returns 200 with `authorizeUrl` and `state` on success.
- *     - `authorizeUrl` is a non-empty string URL.
- *     - `state` is a non-empty string CSRF nonce.
- *     - Passes optional `scopes` query parameter to the adapter.
- *     - Returns 500 PROVIDER_ERROR when the adapter throws.
- *     - Returns 401 without Authorization header (via createApp()).
+ * CU-046 ME providers routes under test (createMeProvidersRouter):
+ *   GET    /               — list all provider connections
+ *   GET    /:id/capabilities — static capabilities for a connection
+ *   DELETE /:id             — disconnect (soft-delete) a connection
  *
- *   GET /google/callback:
- *     - Returns 200 with connection metadata on success.
- *     - Response does NOT include raw token values (`access_token`, `refresh_token`).
- *     - Returns 400 VALIDATION_ERROR when `code` is missing.
- *     - Returns 400 VALIDATION_ERROR when `state` is missing.
- *     - Returns 400 PROVIDER_ERROR when adapter throws STATE_MISMATCH.
- *     - Returns 500 PROVIDER_ERROR on other adapter errors.
- *     - Returns 401 without Authorization header (via createApp()).
- *
- *   App auth vs Google Health separation:
- *     - These routes require Primis app auth (Cognito token); they are NOT the Google sign-in.
- *     - Raw OAuth tokens are never returned in any route response.
- *
- * All adapter calls are mocked — no real Google API calls, no DB connections.
+ * All DB calls are mocked — no real DB connections or Google API calls.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -73,15 +56,21 @@ vi.mock('../../src/auth/cognitoJwtVerifier.js', () => ({
 
 import {
   createProviderConnectionsRouter,
+  createMeProvidersRouter,
   type GoogleAuthAdapter,
+  type MeProvidersDeps,
 } from '../../src/routes/providerConnections.js';
 import { createApp } from '../../src/app.js';
 import type { ApiSuccessResponse, ApiErrorResponse } from '@primis/api-contracts';
 import type {
   StartAuthorizationResponseDto,
   ConnectionCreatedResponseDto,
+  ListConnectionsResponseDto,
+  ProviderCapabilitiesDto,
+  DisconnectConnectionResponseDto,
 } from '@primis/api-contracts';
 import type { AuthenticatedUser } from '../../src/auth/authMiddleware.js';
+import type { ProviderConnection } from '../../src/db/types.js';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -451,5 +440,266 @@ describe('App auth vs Google Health auth separation', () => {
     expect(bodyStr).not.toContain('cognitoSub');
     expect(bodyStr).not.toContain('idToken');
     expect(bodyStr).not.toContain('cognito');
+  });
+});
+
+// ===========================================================================
+// ME Providers router tests (CU-046)
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Fixtures
+// ---------------------------------------------------------------------------
+
+const MOCK_CONNECTION_ROW: ProviderConnection = {
+  id: '00000000-0000-0000-0000-000000000010',
+  user_id: MOCK_USER_ID,
+  provider_code: 'google_health',
+  connection_status: 'active',
+  external_account_id: null,
+  display_name: null,
+  scopes_granted: ['https://www.googleapis.com/auth/health.activity'],
+  scopes_requested: ['https://www.googleapis.com/auth/health.activity'],
+  // access_token_secret_ref and refresh_token_secret_ref intentionally NOT
+  // in the response DTO — verified by the token non-exposure test below.
+  access_token_secret_ref: 'arn:aws:secretsmanager:us-east-1:000:secret:placeholder',
+  refresh_token_secret_ref: 'arn:aws:secretsmanager:us-east-1:000:secret:placeholder-refresh',
+  token_expires_at: null,
+  last_successful_sync_at: null,
+  last_failed_sync_at: null,
+  last_error_code: null,
+  last_error_message: null,
+  metadata: {},
+  created_at: new Date('2026-01-01T00:00:00.000Z'),
+  updated_at: new Date('2026-01-01T00:00:00.000Z'),
+  deleted_at: null,
+};
+
+/**
+ * Builds an isolated ME providers test app with auth user pre-injected
+ * and the given MeProvidersDeps.
+ */
+function buildMeProvidersApp(
+  deps: MeProvidersDeps,
+  authUser: AuthenticatedUser = MOCK_AUTH_USER,
+): Hono<{ Variables: { user: AuthenticatedUser; requestId: string } }> {
+  const app = new Hono<{
+    Variables: { user: AuthenticatedUser; requestId: string };
+  }>();
+
+  app.use('*', async (c, next) => {
+    c.set('user', authUser);
+    c.set('requestId', 'test-req-id');
+    await next();
+  });
+
+  app.route('/', createMeProvidersRouter(deps));
+  return app;
+}
+
+// ---------------------------------------------------------------------------
+// GET / — list connections
+// ---------------------------------------------------------------------------
+
+describe('GET /me/providers — list connections', () => {
+  it('returns 200 with empty connections array for a user with no connections', async () => {
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn().mockResolvedValue([]),
+      getConnectionForUser: vi.fn(),
+      disconnectConnection: vi.fn(),
+    };
+    const app = buildMeProvidersApp(deps);
+    const res = await app.request('/');
+
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as ApiSuccessResponse<ListConnectionsResponseDto>;
+    expect(body.data.connections).toEqual([]);
+  });
+
+  it('returns 200 with one connection when user has one active connection', async () => {
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn().mockResolvedValue([MOCK_CONNECTION_ROW]),
+      getConnectionForUser: vi.fn(),
+      disconnectConnection: vi.fn(),
+    };
+    const app = buildMeProvidersApp(deps);
+    const res = await app.request('/');
+
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as ApiSuccessResponse<ListConnectionsResponseDto>;
+    expect(body.data.connections).toHaveLength(1);
+    expect(body.data.connections[0]?.id).toBe(MOCK_CONNECTION_ROW.id);
+    expect(body.data.connections[0]?.providerCode).toBe('google_health');
+    expect(body.data.connections[0]?.status).toBe('active');
+  });
+
+  it('response does NOT include access_token_secret_ref or refresh_token_secret_ref', async () => {
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn().mockResolvedValue([MOCK_CONNECTION_ROW]),
+      getConnectionForUser: vi.fn(),
+      disconnectConnection: vi.fn(),
+    };
+    const app = buildMeProvidersApp(deps);
+    const res = await app.request('/');
+    const bodyStr = JSON.stringify(await res.json());
+
+    expect(bodyStr).not.toContain('access_token_secret_ref');
+    expect(bodyStr).not.toContain('refresh_token_secret_ref');
+    expect(bodyStr).not.toContain('access_token');
+    expect(bodyStr).not.toContain('refresh_token');
+  });
+
+  it('calls listConnections with the authenticated user ID', async () => {
+    const listConnections = vi.fn().mockResolvedValue([]);
+    const deps: MeProvidersDeps = {
+      listConnections,
+      getConnectionForUser: vi.fn(),
+      disconnectConnection: vi.fn(),
+    };
+    const app = buildMeProvidersApp(deps);
+    await app.request('/');
+
+    expect(listConnections).toHaveBeenCalledWith(MOCK_USER_ID);
+  });
+
+  it('returns 401 without Authorization header (via createApp)', async () => {
+    mocks.loadBackendEnv.mockReturnValue(mockBackendEnv());
+    const app = createApp();
+    const res = await app.request('/api/v1/me/providers');
+    expect(res.status).toBe(401);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// GET /:connectionId/capabilities
+// ---------------------------------------------------------------------------
+
+describe('GET /me/providers/:connectionId/capabilities', () => {
+  it('returns 200 with static capabilities for google_health connection', async () => {
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn(),
+      getConnectionForUser: vi.fn().mockResolvedValue(MOCK_CONNECTION_ROW),
+      disconnectConnection: vi.fn(),
+    };
+    const app = buildMeProvidersApp(deps);
+    const res = await app.request(`/${MOCK_CONNECTION_ROW.id}/capabilities`);
+
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as ApiSuccessResponse<ProviderCapabilitiesDto>;
+    expect(body.data.providerCode).toBe('google_health');
+    expect(Array.isArray(body.data.metrics)).toBe(true);
+    expect(body.data.metrics.length).toBeGreaterThan(0);
+    expect(body.data.supportsWebhooks).toBe(false);
+  });
+
+  it('all capabilities returned have verified: false in Phase E', async () => {
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn(),
+      getConnectionForUser: vi.fn().mockResolvedValue(MOCK_CONNECTION_ROW),
+      disconnectConnection: vi.fn(),
+    };
+    const app = buildMeProvidersApp(deps);
+    const res = await app.request(`/${MOCK_CONNECTION_ROW.id}/capabilities`);
+    const body = (await res.json()) as ApiSuccessResponse<ProviderCapabilitiesDto>;
+
+    for (const metric of body.data.metrics) {
+      expect(metric.verified).toBe(false);
+    }
+  });
+
+  it('returns 404 when connection is not found', async () => {
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn(),
+      getConnectionForUser: vi.fn().mockResolvedValue(null),
+      disconnectConnection: vi.fn(),
+    };
+    const app = buildMeProvidersApp(deps);
+    const res = await app.request('/00000000-0000-0000-0000-000000000099/capabilities');
+
+    expect(res.status).toBe(404);
+    const body = (await res.json()) as ApiErrorResponse;
+    expect(body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('calls getConnectionForUser with connection ID and user ID', async () => {
+    const getConnectionForUser = vi.fn().mockResolvedValue(MOCK_CONNECTION_ROW);
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn(),
+      getConnectionForUser,
+      disconnectConnection: vi.fn(),
+    };
+    const app = buildMeProvidersApp(deps);
+    await app.request(`/${MOCK_CONNECTION_ROW.id}/capabilities`);
+
+    expect(getConnectionForUser).toHaveBeenCalledWith(MOCK_CONNECTION_ROW.id, MOCK_USER_ID);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// DELETE /:connectionId — disconnect
+// ---------------------------------------------------------------------------
+
+describe('DELETE /me/providers/:connectionId — disconnect', () => {
+  it('returns 200 with success: true when connection is found and deleted', async () => {
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn(),
+      getConnectionForUser: vi.fn(),
+      disconnectConnection: vi.fn().mockResolvedValue(true),
+    };
+    const app = buildMeProvidersApp(deps);
+    const res = await app.request(`/${MOCK_CONNECTION_ROW.id}`, { method: 'DELETE' });
+
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as ApiSuccessResponse<DisconnectConnectionResponseDto>;
+    expect(body.data.success).toBe(true);
+  });
+
+  it('returns 404 when connection belongs to a different user', async () => {
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn(),
+      getConnectionForUser: vi.fn(),
+      // Returns false: cross-user deletion attempt returns not-found
+      disconnectConnection: vi.fn().mockResolvedValue(false),
+    };
+    const app = buildMeProvidersApp(deps);
+    const res = await app.request(`/${MOCK_CONNECTION_ROW.id}`, { method: 'DELETE' });
+
+    expect(res.status).toBe(404);
+    const body = (await res.json()) as ApiErrorResponse;
+    expect(body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 404 when connection does not exist', async () => {
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn(),
+      getConnectionForUser: vi.fn(),
+      disconnectConnection: vi.fn().mockResolvedValue(false),
+    };
+    const app = buildMeProvidersApp(deps);
+    const res = await app.request('/00000000-0000-0000-0000-000000000099', { method: 'DELETE' });
+
+    expect(res.status).toBe(404);
+  });
+
+  it('calls disconnectConnection with connection ID and authenticated user ID', async () => {
+    const disconnectConnection = vi.fn().mockResolvedValue(true);
+    const deps: MeProvidersDeps = {
+      listConnections: vi.fn(),
+      getConnectionForUser: vi.fn(),
+      disconnectConnection,
+    };
+    const app = buildMeProvidersApp(deps);
+    await app.request(`/${MOCK_CONNECTION_ROW.id}`, { method: 'DELETE' });
+
+    expect(disconnectConnection).toHaveBeenCalledWith(MOCK_CONNECTION_ROW.id, MOCK_USER_ID);
+  });
+
+  it('returns 401 without Authorization header (via createApp)', async () => {
+    mocks.loadBackendEnv.mockReturnValue(mockBackendEnv());
+    const app = createApp();
+    const res = await app.request(`/api/v1/me/providers/${MOCK_CONNECTION_ROW.id}`, {
+      method: 'DELETE',
+    });
+    expect(res.status).toBe(401);
   });
 });

@@ -1,7 +1,8 @@
 /**
- * API contracts for provider connection authorization endpoints (CU-037).
+ * API contracts for provider connection authorization and management endpoints.
  *
- * Covers the OAuth authorization skeleton for Google Health.
+ * CU-037: OAuth authorization skeleton for Google Health.
+ * CU-046: List connections, capabilities, and disconnect DTOs.
  *
  * App auth vs Google Health auth separation (TAD §9.2):
  *   - Primis app authentication is managed by AWS Cognito (Google IdP or email/password).
@@ -14,6 +15,9 @@
  *   - `ConnectionCreatedResponseDto` contains ONLY connection metadata, not token values.
  *   - `accessTokenRef` / `refreshTokenRef` are Secrets Manager ARN strings (CU-038) and
  *     are intentionally excluded from the public API response surface.
+ *   - `ProviderConnectionDto` explicitly omits `access_token_secret_ref` and
+ *     `refresh_token_secret_ref` columns — these fields must never appear in any list or
+ *     detail response returned to clients.
  */
 
 import { z } from 'zod';
@@ -141,4 +145,173 @@ export const CONNECTION_CREATED_RESPONSE_FIXTURE: ConnectionCreatedResponseDto =
     'https://www.googleapis.com/auth/health.heart_rate',
   ],
   externalAccountId: 'google-sub-000000000000000000',
+};
+
+// ---------------------------------------------------------------------------
+// ProviderConnectionDto (CU-046)
+// ---------------------------------------------------------------------------
+
+/**
+ * Safe public representation of a single provider connection.
+ *
+ * Security: `access_token_secret_ref` and `refresh_token_secret_ref` are
+ * intentionally excluded from this DTO — they MUST NOT appear in any API response.
+ *
+ * `lastSuccessfulSyncAt` is `null` until the first sync completes.
+ */
+export const ProviderConnectionDtoSchema = z.object({
+  /** Primis internal connection UUID. */
+  id: z.string().uuid(),
+  /** Canonical provider code (ADR-001), e.g. `'google_health'`. */
+  providerCode: z.string().min(1),
+  /**
+   * Connection lifecycle status.
+   * One of: `'active'` | `'needs_reauth'` | `'revoked'` | `'error'` | `'disabled'`.
+   */
+  status: z.string().min(1),
+  /** Human-readable label for the connection, or `null` if not set. */
+  displayName: z.string().nullable(),
+  /** OAuth scopes actually granted by the user during the consent flow. */
+  scopesGranted: z.array(z.string()),
+  /**
+   * ISO 8601 UTC timestamp of the last successful sync, or `null` if no sync
+   * has completed yet.
+   */
+  lastSuccessfulSyncAt: z.string().datetime().nullable(),
+  /** ISO 8601 UTC timestamp when the connection was first created. */
+  createdAt: z.string().datetime(),
+});
+
+/** Public-safe DTO for a single provider connection. */
+export type ProviderConnectionDto = z.infer<typeof ProviderConnectionDtoSchema>;
+
+// ---------------------------------------------------------------------------
+// ListConnectionsResponseDto (CU-046)
+// ---------------------------------------------------------------------------
+
+/**
+ * Response from `GET /api/v1/me/providers`.
+ *
+ * Returns all non-deleted connections for the authenticated user.
+ * Returns an empty array when the user has no connected providers.
+ */
+export const ListConnectionsResponseDtoSchema = z.object({
+  connections: z.array(ProviderConnectionDtoSchema),
+});
+
+/** DTO containing all active provider connections for a user. */
+export type ListConnectionsResponseDto = z.infer<typeof ListConnectionsResponseDtoSchema>;
+
+// ---------------------------------------------------------------------------
+// ProviderCapabilityMetricDto (CU-046)
+// ---------------------------------------------------------------------------
+
+/**
+ * Describes a single metric exposed by a provider's capability declaration.
+ *
+ * All availability values are scaffold-level only (not live-validated).
+ * See `docs/decisions/google-health-api-metric-availability.md` for the full
+ * Phase Z validation matrix.
+ */
+export const ProviderCapabilityMetricDtoSchema = z.object({
+  /** Canonical Primis metric code (data model §9.2). */
+  metricType: z.string().min(1),
+  /** Access level for this data type from the provider. */
+  access: z.enum(['read', 'write', 'read_write']),
+  /** Time granularity of available data. */
+  granularity: z.enum(['raw', 'session', 'daily', 'summary']),
+  /**
+   * Whether this metric has been live-validated against a real provider payload.
+   *
+   * `false` for all Phase E metrics (validation deferred to Phase Z / Phase AA).
+   * See guardrail G-07.
+   */
+  verified: z.boolean(),
+});
+
+/** DTO describing a single metric in the provider capability list. */
+export type ProviderCapabilityMetricDto = z.infer<typeof ProviderCapabilityMetricDtoSchema>;
+
+// ---------------------------------------------------------------------------
+// ProviderCapabilitiesDto (CU-046)
+// ---------------------------------------------------------------------------
+
+/**
+ * Response from `GET /api/v1/me/providers/:connectionId/capabilities`.
+ *
+ * Returns static capability metadata for the provider type associated with
+ * the given connection. No DB query is required — capability data is static
+ * per provider code.
+ *
+ * ⚠ All metrics are marked `verified: false` in Phase E. Do not treat any
+ * capability as guaranteed until Phase AA live validation is complete.
+ */
+export const ProviderCapabilitiesDtoSchema = z.object({
+  /** Canonical provider code (ADR-001). */
+  providerCode: z.string().min(1),
+  /** List of metric capabilities declared by this provider. */
+  metrics: z.array(ProviderCapabilityMetricDtoSchema),
+  /**
+   * Whether the provider supports real-time webhook data push.
+   * `false` for all Phase E providers (webhook support is Phase Z).
+   */
+  supportsWebhooks: z.boolean(),
+});
+
+/** DTO containing the static capability declaration for a provider. */
+export type ProviderCapabilitiesDto = z.infer<typeof ProviderCapabilitiesDtoSchema>;
+
+// ---------------------------------------------------------------------------
+// DisconnectConnectionResponseDto (CU-046)
+// ---------------------------------------------------------------------------
+
+/**
+ * Response from `DELETE /api/v1/me/providers/:connectionId`.
+ *
+ * Indicates whether the soft-delete succeeded. The underlying health data is
+ * NOT deleted (Phase J data-deletion workflow). The Google token is NOT
+ * revoked at the provider (Phase Z OAuth hardening).
+ */
+export const DisconnectConnectionResponseDtoSchema = z.object({
+  success: z.boolean(),
+});
+
+/** DTO returned after disconnecting a provider connection. */
+export type DisconnectConnectionResponseDto = z.infer<typeof DisconnectConnectionResponseDtoSchema>;
+
+// ---------------------------------------------------------------------------
+// Fixtures (CU-046)
+// ---------------------------------------------------------------------------
+
+/** Fixture for `ProviderConnectionDto`. No token refs included. */
+export const PROVIDER_CONNECTION_FIXTURE: ProviderConnectionDto = {
+  id: '00000000-0000-0000-0000-000000000010',
+  providerCode: 'google_health',
+  status: 'active',
+  displayName: null,
+  scopesGranted: [
+    'https://www.googleapis.com/auth/health.activity',
+    'https://www.googleapis.com/auth/health.sleep',
+  ],
+  lastSuccessfulSyncAt: null,
+  createdAt: '2026-01-01T00:00:00.000Z',
+};
+
+/** Fixture for `ListConnectionsResponseDto` with a single connection. */
+export const LIST_CONNECTIONS_RESPONSE_FIXTURE: ListConnectionsResponseDto = {
+  connections: [PROVIDER_CONNECTION_FIXTURE],
+};
+
+/** Fixture for `ProviderCapabilitiesDto` for google_health (Phase E scaffold). */
+export const PROVIDER_CAPABILITIES_FIXTURE: ProviderCapabilitiesDto = {
+  providerCode: 'google_health',
+  metrics: [
+    { metricType: 'steps', access: 'read', granularity: 'daily', verified: false },
+    { metricType: 'active_energy_kcal', access: 'read', granularity: 'daily', verified: false },
+    { metricType: 'hrv_daily_mean', access: 'read', granularity: 'daily', verified: false },
+    { metricType: 'resting_heart_rate', access: 'read', granularity: 'daily', verified: false },
+    { metricType: 'oxygen_saturation', access: 'read', granularity: 'daily', verified: false },
+    { metricType: 'sleep_duration', access: 'read', granularity: 'session', verified: false },
+  ],
+  supportsWebhooks: false,
 };

@@ -123,9 +123,7 @@ describe('normalizeMetricObservation — unknown unit conversion', () => {
       canonicalUnit: 'seconds',
     } as const;
 
-    expect(() => normalizeMetricObservation(badParams)).toThrow(
-      UnitConversionNormalizationError,
-    );
+    expect(() => normalizeMetricObservation(badParams)).toThrow(UnitConversionNormalizationError);
   });
 
   it('the thrown error is a NormalizationError subclass', () => {

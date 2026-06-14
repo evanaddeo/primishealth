@@ -41,10 +41,24 @@
  *   - ConnectionCreatedResponseDto, ConnectionCreatedResponseDtoSchema,
  *     CONNECTION_CREATED_RESPONSE_FIXTURE
  *
+ * CU-046 exports (provider connection management + sync DTOs):
+ *   - ProviderConnectionDto, ProviderConnectionDtoSchema, PROVIDER_CONNECTION_FIXTURE
+ *   - ListConnectionsResponseDto, ListConnectionsResponseDtoSchema,
+ *     LIST_CONNECTIONS_RESPONSE_FIXTURE
+ *   - ProviderCapabilityMetricDto, ProviderCapabilityMetricDtoSchema
+ *   - ProviderCapabilitiesDto, ProviderCapabilitiesDtoSchema, PROVIDER_CAPABILITIES_FIXTURE
+ *   - DisconnectConnectionResponseDto, DisconnectConnectionResponseDtoSchema
+ *   - SyncStatusDto, SyncStatusDtoSchema, SYNC_STATUS_NO_HISTORY_FIXTURE,
+ *     SYNC_STATUS_SUCCEEDED_FIXTURE
+ *   - SyncStatusListResponseDto, SyncStatusListResponseDtoSchema
+ *   - ManualSyncRequestDto, ManualSyncRequestDtoSchema
+ *   - ManualSyncResponseDto, ManualSyncResponseDtoSchema, MANUAL_SYNC_RESPONSE_FIXTURE
+ *
  * envelope/errors/pagination modules do NOT import from @primis/core-types (CU-011 constraint).
  * scores/dataQuality modules add the @primis/core-types dependency (CU-012).
  * user/onboarding modules are self-contained (no @primis/core-types dependency).
  * providerConnections module is self-contained (no @primis/core-types dependency).
+ * sync module is self-contained (no @primis/core-types dependency).
  */
 
 export * from './dataQuality.js';
@@ -54,4 +68,5 @@ export * from './onboarding.js';
 export * from './pagination.js';
 export * from './providerConnections.js';
 export * from './scores.js';
+export * from './sync.js';
 export * from './user.js';
