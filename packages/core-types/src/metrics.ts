@@ -100,27 +100,45 @@ export const AGGREGATION_METHODS: readonly AggregationMethod[] = [
 
 /**
  * Quality classification attached to a `metric_observations` row.
- * Values sourced from Data Model column comment on `metric_observations.data_quality`.
+ *
+ * Eight values are sourced from the `metric_observations.data_quality` DB column comment
+ * (Data Model §10.2). Five additional values are sourced from Data Model §22 (the full
+ * data-quality enum spec) and are required by the normalization pipeline (CU-041):
+ *   'user_reported', 'provider_unverified', 'permission_missing', 'no_data', 'error'.
+ *
+ * TODO(ADR): The §10.2 column comment and §22 full enum listed different sets. This type
+ * now covers the full §22 set (13 values). A future ADR should add the missing values to
+ * the `metric_observations.data_quality` column comment in a schema migration.
  */
 export type DataQualityLabel =
   | 'normal'
   | 'estimated'
+  | 'user_reported'
   | 'partial'
   | 'sparse'
   | 'stale'
   | 'duplicate_candidate'
   | 'corrected'
-  | 'low_confidence';
+  | 'low_confidence'
+  | 'provider_unverified'
+  | 'permission_missing'
+  | 'no_data'
+  | 'error';
 
 export const DATA_QUALITY_LABELS: readonly DataQualityLabel[] = [
   'normal',
   'estimated',
+  'user_reported',
   'partial',
   'sparse',
   'stale',
   'duplicate_candidate',
   'corrected',
   'low_confidence',
+  'provider_unverified',
+  'permission_missing',
+  'no_data',
+  'error',
 ];
 
 // ---------------------------------------------------------------------------
