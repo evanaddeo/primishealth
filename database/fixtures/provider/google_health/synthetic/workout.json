@@ -1,0 +1,39 @@
+{
+  "_fixture_metadata": {
+    "status": "documented_schema_fixture",
+    "redacted": true,
+    "created_by": "CU-043",
+    "created_at": "2026-06-14",
+    "description": "Synthetic running exercise session with distance and calorie summary metrics. All IDs and timestamps are synthetic.",
+    "data_type": "exercise",
+    "scope": "activity_and_fitness",
+    "validation_status": "documented_schema_fixture",
+    "phase_z_path": "database/fixtures/provider/google_health/redacted/exercise_session.json",
+    "ref": "docs/decisions/google-health-api-metric-availability.md Activity — Additional section",
+    "note": "TODO(Phase-AA): verify exerciseType codes and metricsSummary metric name strings against real payload."
+  },
+  "dataPoints": [
+    {
+      "startTimeNanos": "1705327200000000000",
+      "endTimeNanos": "1705330800000000000",
+      "exerciseType": 45,
+      "activeDuration": 3600000,
+      "metricsSummary": [
+        {
+          "metric": "com.google.calories.expended",
+          "summaryValue": { "fpVal": 450.0 }
+        },
+        {
+          "metric": "com.google.distance.delta",
+          "summaryValue": { "fpVal": 8046.72 }
+        },
+        {
+          "metric": "com.google.step_count.delta",
+          "summaryValue": { "intVal": 9200 }
+        }
+      ],
+      "createTime": "2024-01-15T15:05:00Z",
+      "updateTime": "2024-01-15T15:05:00Z"
+    }
+  ]
+}

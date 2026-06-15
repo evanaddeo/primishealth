@@ -275,6 +275,70 @@ export async function upsertDataAvailability(
 }
 
 /**
+ * Finds an active provider connection by ID, scoped to a specific user.
+ *
+ * Returns `null` when the connection does not exist, has been soft-deleted, or
+ * belongs to a different user. Use this in route handlers that operate on a
+ * connection ID supplied by the client — never look up by ID alone.
+ *
+ * @param id     - Internal connection UUID from the client request.
+ * @param userId - Internal user UUID from the auth middleware context.
+ * @param kysely - Optional Kysely instance.
+ */
+export async function findConnectionByIdForUser(
+  id: string,
+  userId: string,
+  kysely: Kysely<Database> = defaultDb,
+): Promise<ProviderConnection | null> {
+  const result = await kysely
+    .selectFrom('provider_connections')
+    .selectAll()
+    .where('id', '=', id)
+    .where('user_id', '=', userId)
+    .where('deleted_at', 'is', null)
+    .executeTakeFirst();
+
+  return result ?? null;
+}
+
+/**
+ * Soft-deletes a provider connection, enforcing user ownership before deletion.
+ *
+ * Sets `connection_status: 'revoked'` and `deleted_at: now()` only when BOTH
+ * `id` and `user_id` match — preventing cross-user deletion attacks.
+ *
+ * Returns `true` when the row was found and deleted, `false` when not found or
+ * not owned by the specified user.
+ *
+ * NOTE (Phase Z): This does NOT call the Google token revocation endpoint.
+ * NOTE (Phase J): This does NOT delete any associated health data.
+ *
+ * @param connectionId - Internal connection UUID from the client request.
+ * @param userId       - Internal user UUID from the auth middleware context.
+ * @param kysely       - Optional Kysely instance.
+ */
+export async function disconnectConnectionByUser(
+  connectionId: string,
+  userId: string,
+  kysely: Kysely<Database> = defaultDb,
+): Promise<boolean> {
+  const result = await kysely
+    .updateTable('provider_connections')
+    .set({
+      connection_status: 'revoked' satisfies ConnectionStatus,
+      deleted_at: new Date(),
+      updated_at: new Date(),
+    })
+    .where('id', '=', connectionId)
+    .where('user_id', '=', userId)
+    .where('deleted_at', 'is', null)
+    .returning('id')
+    .executeTakeFirst();
+
+  return result !== undefined;
+}
+
+/**
  * Returns all availability records for a user, optionally filtered by provider.
  *
  * @param userId       - Internal user UUID.

@@ -1,0 +1,36 @@
+{
+  "_fixture_meta": {
+    "description": "Synthetic Google Health dailyRollUp response for `steps` (CU-042).",
+    "dataType": "steps",
+    "operation": "dailyRollUp",
+    "validationStatus": "documented",
+    "fixtureType": "synthetic",
+    "referenceDate": "2024-01-15",
+    "createdBy": "CU-042",
+    "sensitivityLevel": "S2",
+    "notes": [
+      "All identifiers are synthetic. No real user data.",
+      "Timestamps are nanosecond epoch strings based on 2024-01-15T14:00:00Z.",
+      "startTimeNanos 1705327200000000000 = 2024-01-15T14:00:00.000Z (9am ET, unambiguous local date).",
+      "endTimeNanos   1705330800000000000 = 2024-01-15T15:00:00.000Z.",
+      "Second row uses startTimeNanos 1705276800000000000 = 2024-01-15T00:00:00.000Z (midnight UTC = 2024-01-14 in New York) to exercise localDate timezone logic.",
+      "Run through scripts/redact-fixture.ts before committing — no sensitive fields present."
+    ]
+  },
+  "rows": [
+    {
+      "startTimeNanos": "1705327200000000000",
+      "endTimeNanos": "1705330800000000000",
+      "dataTypeName": "steps",
+      "value": [{ "intVal": 8200 }],
+      "originDataSourceId": "raw:com.google.step_count.delta:REDACTED_DEVICE_ID:steps"
+    },
+    {
+      "startTimeNanos": "1705276800000000000",
+      "endTimeNanos": "1705363200000000000",
+      "dataTypeName": "steps",
+      "value": [{ "intVal": 12450 }],
+      "originDataSourceId": "raw:com.google.step_count.delta:REDACTED_DEVICE_ID:steps"
+    }
+  ]
+}

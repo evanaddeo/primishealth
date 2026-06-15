@@ -364,11 +364,19 @@ describe('AggregationMethod', () => {
 });
 
 describe('DataQualityLabel', () => {
-  it('contains exactly 8 values from Data Model column comments', () => {
-    expect(DATA_QUALITY_LABELS).toHaveLength(8);
+  it('contains exactly 13 values from Data Model §22 full set', () => {
+    // CU-041 expanded from the original 8-value column comment subset to the
+    // complete 13-value set defined in primis_data_model_health_metric_schema.md §22.
+    // See the comment in packages/core-types/src/metrics.ts above DataQualityLabel.
+    expect(DATA_QUALITY_LABELS).toHaveLength(13);
     expect(DATA_QUALITY_LABELS).toContain('duplicate_candidate');
     expect(DATA_QUALITY_LABELS).toContain('low_confidence');
     expect(DATA_QUALITY_LABELS).toContain('corrected');
+    expect(DATA_QUALITY_LABELS).toContain('normal');
+    expect(DATA_QUALITY_LABELS).toContain('provider_unverified');
+    expect(DATA_QUALITY_LABELS).toContain('permission_missing');
+    expect(DATA_QUALITY_LABELS).toContain('no_data');
+    expect(DATA_QUALITY_LABELS).toContain('error');
   });
 });
 

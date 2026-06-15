@@ -1,0 +1,27 @@
+{
+  "name": "@primis/workers",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@primis/config": "workspace:*",
+    "@primis/core-types": "workspace:*",
+    "@primis/health-metrics": "workspace:*",
+    "kysely": "^0.29.2",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/pg": "^8.20.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.1"
+  }
+}
