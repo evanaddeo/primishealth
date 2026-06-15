@@ -209,6 +209,12 @@ export const PREFERRED_OPERATION_FOR_DATA_TYPE: Readonly<
  * See `docs/decisions/google-health-api-metric-availability.md §Phase Z`.
  * Provider-proprietary scores (`sleep_score`, `recovery_score`, `strain_score`)
  * are deliberately excluded — they are `Available?: NO (unverified)`.
+ *
+ * NOTE: `WEIGHT` is included here as a P1 data type (fetched during syncWindow)
+ * but its normalizer (`normalizeGoogleWeight`) does not yet exist.
+ * TODO(Phase-Z): add `normalizeGoogleWeight` to `normalizers/vitals.ts` when
+ * wiring the full normalization dispatch in Phase Z. Weight payloads are fetched
+ * and archived; normalization (→ `weight_kg`) is deferred until Phase Z validation.
  */
 export const DEFAULT_SYNC_DATA_TYPES: ReadonlyArray<GoogleHealthDataType> = [
   GOOGLE_HEALTH_DATA_TYPES.STEPS,
