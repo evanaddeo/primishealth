@@ -191,6 +191,16 @@ importers:
         specifier: ^1.6.1
         version: 1.6.1(@types/node@20.19.42)(lightningcss@1.32.0)(terser@5.48.0)
 
+  packages/scoring:
+    dependencies:
+      '@primis/core-types':
+        specifier: workspace:*
+        version: link:../core-types
+    devDependencies:
+      vitest:
+        specifier: ^1.6.1
+        version: 1.6.1(@types/node@20.19.42)(lightningcss@1.32.0)(terser@5.48.0)
+
   services/api:
     dependencies:
       '@hono/node-server':
