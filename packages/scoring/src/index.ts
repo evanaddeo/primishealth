@@ -14,3 +14,5 @@
 export * from './primitives/index.js';
 export * from './sleep/index.js';
 export * from './recovery/index.js';
+export * from './activity/index.js';
+export * from './training/index.js';
