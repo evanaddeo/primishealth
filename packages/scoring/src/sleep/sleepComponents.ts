@@ -24,7 +24,13 @@ import {
 } from '../primitives/index.js';
 import type { WeightedComponent } from '../primitives/index.js';
 
+import { sleepConsistencyScore } from './sleepConsistency.js';
 import type { OvernightRecoveryInput, SleepStageInput } from './sleepTypes.js';
+
+// Re-exported so the Sleep Score engine and the package surface keep importing the
+// consistency banding function from the components module (its canonical home is
+// the CU-051 consistency engine, which owns the §10.6 formula).
+export { sleepConsistencyScore };
 
 /**
  * Sleep duration score (§10.4, `ALG-SLEEP-002`).
@@ -68,28 +74,6 @@ export function sleepEfficiencyScore(efficiencyPct: number): number {
 }
 
 /**
- * Sleep consistency score (§10.6, `ALG-SLEEP-004`).
- *
- * Combines bedtime and wake deviations (bedtime weighted slightly higher) into a
- * banded score. Deviations are pre-computed circular-time distances (minutes).
- *
- * @param bedtimeDeviationMinutes - Absolute bedtime deviation from baseline (minutes, >= 0).
- * @param wakeDeviationMinutes - Absolute wake-time deviation from baseline (minutes, >= 0).
- * @returns Component score in `[0, 100]`.
- */
-export function sleepConsistencyScore(
-  bedtimeDeviationMinutes: number,
-  wakeDeviationMinutes: number,
-): number {
-  const weightedDeviation = bedtimeDeviationMinutes * 0.55 + wakeDeviationMinutes * 0.45;
-  if (weightedDeviation <= 20) return 100;
-  if (weightedDeviation <= 45) return 85;
-  if (weightedDeviation <= 90) return 65;
-  if (weightedDeviation <= 150) return 40;
-  return 20;
-}
-
-/**
  * Score a single sleep stage (deep or REM) against its personal 30-day baseline
  * (§10.7, `ALG-SLEEP-005`).
  *
@@ -103,7 +87,10 @@ export function sleepConsistencyScore(
  *
  * @returns Component score in `[0, 100]`, or null when the input/baseline is unusable.
  */
-export function stageScore(actualMinutes: number | null, baselineMinutes: number | null): number | null {
+export function stageScore(
+  actualMinutes: number | null,
+  baselineMinutes: number | null,
+): number | null {
   if (actualMinutes == null || baselineMinutes == null || baselineMinutes <= 0) {
     return null;
   }

@@ -16,6 +16,7 @@
  * - §7.9 direction        → targetRange.ts
  * - §9.1–9.4 component scores → targetRange.ts
  * - §9.5 recency-weighted average → baseline.ts
+ * - §28 circular time → circularTime.ts (shared by sleep consistency + bedtime)
  */
 
 export { clamp, clampScore } from './clamp.js';
@@ -41,3 +42,15 @@ export {
   type MetricDirection,
   METRIC_DIRECTIONS,
 } from './targetRange.js';
+export {
+  MINUTES_PER_DAY,
+  HALF_DAY_MINUTES,
+  normalizeMinutes,
+  circularMinuteDifference,
+  signedCircularDifference,
+  circularMean,
+  circularResultantLength,
+  circularStandardDeviationMinutes,
+  parseLocalTimeToMinutes,
+  minutesToLocalTime,
+} from './circularTime.js';
