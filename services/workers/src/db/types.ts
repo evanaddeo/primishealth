@@ -54,6 +54,17 @@ type UpdatedAt = Generated<Date>;
  */
 type NullableCol<T> = ColumnType<T | null, T | null | undefined, T | null>;
 
+/**
+ * Nullable `numeric`/`decimal` column. The `pg` driver returns Postgres `numeric`
+ * as a string to preserve precision, but accepts a JS `number` on write, so writes
+ * may pass either form. SELECT/UPDATE read as `string | null`.
+ */
+type NumericCol = ColumnType<
+  string | null,
+  number | string | null | undefined,
+  number | string | null
+>;
+
 // ---------------------------------------------------------------------------
 // users (000002_identity_preferences.sql — §7.1)
 // ---------------------------------------------------------------------------
@@ -574,6 +585,47 @@ export type NewDailyMetricSummary = Insertable<DailyMetricSummariesTable>;
 export type DailyMetricSummaryUpdate = Updateable<DailyMetricSummariesTable>;
 
 // ---------------------------------------------------------------------------
+// rolling_metric_baselines (000004_metrics.sql — §10.5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Personal rolling baselines per `(user_id, metric_code, as_of_local_date,
+ * window_days, baseline_method)`. Written by the CU-049 baseline builder; read by
+ * the recovery/activity/readiness engines (CU-052/053). Stores the primary baseline
+ * value plus dispersion/extent columns; the richer §7.4 stats (median, percentiles,
+ * `algorithm_version`, `baselineStatus`, window bounds) live in `metadata`.
+ */
+export interface RollingMetricBaselinesTable {
+  id: UuidPk;
+  user_id: string;
+  metric_code: string;
+  /** Anchor date (user-local) the window ends on; ISO `YYYY-MM-DD`. */
+  as_of_local_date: string;
+  timezone: string;
+  /** Rolling window length in calendar days: 7 | 14 | 30 | 60 | 90. */
+  window_days: number;
+  /** Allowed: 'mean' | 'median' | 'ewma' | 'trimmed_mean'. */
+  baseline_method: string;
+  /** Primary baseline value matching `baseline_method` (e.g. the mean). */
+  baseline_value: NullableCol<number>;
+  stddev_value: NullableCol<number>;
+  min_value: NullableCol<number>;
+  max_value: NullableCol<number>;
+  /** Count of valid (observed, numeric) days inside the window. */
+  sample_days: Generated<number>;
+  /** Observed-over-expected coverage as a percentage (0–100). */
+  coverage_pct: NumericCol;
+  /** Confidence in `[0, 1]`, stored at 4-decimal precision. */
+  confidence_score: NumericCol;
+  generated_at: Generated<Date>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type RollingMetricBaseline = Selectable<RollingMetricBaselinesTable>;
+export type NewRollingMetricBaseline = Insertable<RollingMetricBaselinesTable>;
+export type RollingMetricBaselineUpdate = Updateable<RollingMetricBaselinesTable>;
+
+// ---------------------------------------------------------------------------
 // Database — Kysely table registry
 // ---------------------------------------------------------------------------
 
@@ -581,7 +633,7 @@ export type DailyMetricSummaryUpdate = Updateable<DailyMetricSummariesTable>;
  * Kysely `Database` interface for `@primis/workers`.
  *
  * Only tables that workers reads or writes are registered here.
- * Omitted tables (score tables, baselines, identity tables, etc.) are populated
+ * Omitted tables (score tables, identity tables, etc.) are populated
  * by `services/api` or later Phase F/G CUs — do not add them speculatively.
  */
 export interface Database {
@@ -597,4 +649,5 @@ export interface Database {
   sleep_stage_intervals: SleepStageIntervalsTable;
   workout_sessions: WorkoutSessionsTable;
   daily_metric_summaries: DailyMetricSummariesTable;
+  rolling_metric_baselines: RollingMetricBaselinesTable;
 }

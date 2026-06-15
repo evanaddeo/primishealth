@@ -246,6 +246,9 @@ importers:
 
   services/workers:
     dependencies:
+      '@primis/api-contracts':
+        specifier: workspace:*
+        version: link:../../packages/api-contracts
       '@primis/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -255,6 +258,9 @@ importers:
       '@primis/health-metrics':
         specifier: workspace:*
         version: link:../../packages/health-metrics
+      '@primis/scoring':
+        specifier: workspace:*
+        version: link:../../packages/scoring
       kysely:
         specifier: ^0.29.2
         version: 0.29.2
