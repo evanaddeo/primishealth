@@ -518,6 +518,62 @@ export type NewWorkoutSession = Insertable<WorkoutSessionsTable>;
 export type WorkoutSessionUpdate = Updateable<WorkoutSessionsTable>;
 
 // ---------------------------------------------------------------------------
+// daily_metric_summaries (000004_metrics.sql — §10.4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Precomputed per-day rollups of `metric_observations`, one row per
+ * `(user_id, local_date, metric_code, source_provider)`.
+ *
+ * Populated by the daily summary builder (CU-048) — never during ingestion.
+ * Deduplication: unique(user_id, local_date, metric_code, source_provider).
+ * Upsert via ON CONFLICT DO UPDATE for idempotent re-runs. `source_provider`
+ * is always set by the builder, so the conflict key never hits Postgres'
+ * NULL-inequality behaviour.
+ *
+ * Numeric `numeric(p,s)` columns (`coverage_pct`, `confidence_score`) are
+ * typed as `string` to preserve precision, matching `metric_observations`.
+ */
+export interface DailyMetricSummariesTable {
+  id: UuidPk;
+  user_id: string;
+  /** ISO YYYY-MM-DD in the user's primary timezone (DATA-PRIN-004). */
+  local_date: string;
+  timezone: string;
+  metric_code: string;
+
+  /** Primary aggregated value per the metric's `defaultAggregation`. */
+  value: NullableCol<number>;
+  /** Canonical unit from the `@primis/health-metrics` registry. */
+  unit: NullableCol<string>;
+  min_value: NullableCol<number>;
+  max_value: NullableCol<number>;
+  avg_value: NullableCol<number>;
+  sum_value: NullableCol<number>;
+  latest_value: NullableCol<number>;
+  sample_count: Generated<number>;
+  coverage_pct: NullableCol<string>;
+
+  source_provider: NullableCol<string>;
+  source_priority_rank: NullableCol<number>;
+  /**
+   * Allowed: 'normal' | 'estimated' | 'partial' | 'sparse' | 'stale' |
+   *   'duplicate_candidate' | 'corrected' | 'low_confidence'
+   */
+  data_quality: Generated<string>;
+  confidence_score: NullableCol<string>;
+  component_metadata: Generated<Record<string, unknown>>;
+
+  generated_at: Generated<Date>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+}
+
+export type DailyMetricSummary = Selectable<DailyMetricSummariesTable>;
+export type NewDailyMetricSummary = Insertable<DailyMetricSummariesTable>;
+export type DailyMetricSummaryUpdate = Updateable<DailyMetricSummariesTable>;
+
+// ---------------------------------------------------------------------------
 // Database — Kysely table registry
 // ---------------------------------------------------------------------------
 
@@ -540,4 +596,5 @@ export interface Database {
   sleep_sessions: SleepSessionsTable;
   sleep_stage_intervals: SleepStageIntervalsTable;
   workout_sessions: WorkoutSessionsTable;
+  daily_metric_summaries: DailyMetricSummariesTable;
 }
