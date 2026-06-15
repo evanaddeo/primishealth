@@ -12,3 +12,4 @@
  */
 
 export * from './primitives/index.js';
+export * from './sleep/index.js';
