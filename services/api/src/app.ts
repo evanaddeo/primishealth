@@ -21,6 +21,7 @@
  *   DELETE /api/v1/me/providers/:connectionId                   — disconnect a provider (CU-046)
  *   GET    /api/v1/me/sync/status                               — sync status per connection (CU-046)
  *   POST   /api/v1/me/sync/refresh                             — enqueue manual sync job (CU-046)
+ *   GET    /api/v1/dashboard/today                              — precomputed home dashboard summary (CU-056)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -37,6 +38,7 @@ import { makeErrorResponse } from '@primis/api-contracts';
 import { createAuthMiddleware, type AuthVariables } from './auth/authMiddleware.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
+import { dashboardRouter } from './routes/dashboard.js';
 import { healthRouter } from './routes/health.js';
 import { meRouter } from './routes/me.js';
 import { onboardingRouter } from './routes/onboarding.js';
@@ -114,6 +116,10 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   //   GET  /api/v1/me/sync/status  — per-connection sync status
   //   POST /api/v1/me/sync/refresh — enqueue manual refresh job
   app.route('/api/v1/me/sync', syncRouter);
+
+  // Dashboard summary routes (CU-056):
+  //   GET /api/v1/dashboard/today[?date=YYYY-MM-DD] — precomputed home summary
+  app.route('/api/v1/dashboard', dashboardRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);

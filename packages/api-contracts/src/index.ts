@@ -54,6 +54,14 @@
  *   - ManualSyncRequestDto, ManualSyncRequestDtoSchema
  *   - ManualSyncResponseDto, ManualSyncResponseDtoSchema, MANUAL_SYNC_RESPONSE_FIXTURE
  *
+ * CU-056 exports (home dashboard summary DTOs):
+ *   - TodayDashboardResponseDto, TodayDashboardResponseDtoSchema, TODAY_DASHBOARD_FIXTURE
+ *   - DashboardScoresDto, DashboardScoresDtoSchema, DASHBOARD_SCORE_SLOTS
+ *   - InsightCardDto, InsightCardDtoSchema, InsightSeverity, InsightSeveritySchema, INSIGHT_SEVERITIES
+ *   - RecommendationCardDto, RecommendationCardDtoSchema
+ *   - DashboardWidgetSummaryDto, DashboardWidgetSummaryDtoSchema
+ *   - BedtimeWidgetSummaryDto, BedtimeWidgetSummaryDtoSchema
+ *
  * envelope/errors/pagination modules do NOT import from @primis/core-types (CU-011 constraint).
  * scores/dataQuality modules add the @primis/core-types dependency (CU-012).
  * user/onboarding modules are self-contained (no @primis/core-types dependency).
@@ -61,6 +69,7 @@
  * sync module is self-contained (no @primis/core-types dependency).
  */
 
+export * from './dashboard.js';
 export * from './dataQuality.js';
 export * from './envelope.js';
 export * from './errors.js';
