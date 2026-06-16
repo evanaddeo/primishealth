@@ -21,6 +21,11 @@
  *   DELETE /api/v1/me/providers/:connectionId                   — disconnect a provider (CU-046)
  *   GET    /api/v1/me/sync/status                               — sync status per connection (CU-046)
  *   POST   /api/v1/me/sync/refresh                             — enqueue manual sync job (CU-046)
+ *   GET    /api/v1/dashboard/today                              — precomputed home dashboard summary (CU-056)
+ *   GET    /api/v1/sleep[?date=YYYY-MM-DD]                       — chart-ready sleep detail (CU-057)
+ *   GET    /api/v1/recovery[?date=YYYY-MM-DD]                    — chart-ready recovery detail (CU-057)
+ *   GET    /api/v1/activity[?date=YYYY-MM-DD]                    — chart-ready activity detail (CU-057)
+ *   GET    /api/v1/vitals[?date=YYYY-MM-DD]                      — chart-ready vitals detail (CU-057)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -37,11 +42,16 @@ import { makeErrorResponse } from '@primis/api-contracts';
 import { createAuthMiddleware, type AuthVariables } from './auth/authMiddleware.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
+import { activityRouter } from './routes/activity.js';
+import { dashboardRouter } from './routes/dashboard.js';
 import { healthRouter } from './routes/health.js';
 import { meRouter } from './routes/me.js';
 import { onboardingRouter } from './routes/onboarding.js';
 import { meProvidersRouter, providerConnectionsRouter } from './routes/providerConnections.js';
+import { recoveryRouter } from './routes/recovery.js';
+import { sleepRouter } from './routes/sleep.js';
 import { syncRouter } from './routes/sync.js';
+import { vitalsRouter } from './routes/vitals.js';
 
 // ---------------------------------------------------------------------------
 // Context variable types
@@ -114,6 +124,21 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   //   GET  /api/v1/me/sync/status  — per-connection sync status
   //   POST /api/v1/me/sync/refresh — enqueue manual refresh job
   app.route('/api/v1/me/sync', syncRouter);
+
+  // Dashboard summary routes (CU-056):
+  //   GET /api/v1/dashboard/today[?date=YYYY-MM-DD] — precomputed home summary
+  app.route('/api/v1/dashboard', dashboardRouter);
+
+  // Health detail routes (CU-057, ADR-006): chart-ready per-domain detail read
+  // from precomputed rows only. Each accepts an optional ?date=YYYY-MM-DD.
+  //   GET /api/v1/sleep     — sleep detail (features, stages, score breakdown)
+  //   GET /api/v1/recovery  — recovery detail (vitals, deltas, recommended intensity)
+  //   GET /api/v1/activity  — activity detail (totals, workouts, load trend)
+  //   GET /api/v1/vitals    — vitals detail (HRV/RHR/resp/SpO2/VO2; no score)
+  app.route('/api/v1/sleep', sleepRouter);
+  app.route('/api/v1/recovery', recoveryRouter);
+  app.route('/api/v1/activity', activityRouter);
+  app.route('/api/v1/vitals', vitalsRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);

@@ -191,6 +191,16 @@ importers:
         specifier: ^1.6.1
         version: 1.6.1(@types/node@20.19.42)(lightningcss@1.32.0)(terser@5.48.0)
 
+  packages/scoring:
+    dependencies:
+      '@primis/core-types':
+        specifier: workspace:*
+        version: link:../core-types
+    devDependencies:
+      vitest:
+        specifier: ^1.6.1
+        version: 1.6.1(@types/node@20.19.42)(lightningcss@1.32.0)(terser@5.48.0)
+
   services/api:
     dependencies:
       '@hono/node-server':
@@ -236,6 +246,9 @@ importers:
 
   services/workers:
     dependencies:
+      '@primis/api-contracts':
+        specifier: workspace:*
+        version: link:../../packages/api-contracts
       '@primis/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -245,6 +258,9 @@ importers:
       '@primis/health-metrics':
         specifier: workspace:*
         version: link:../../packages/health-metrics
+      '@primis/scoring':
+        specifier: workspace:*
+        version: link:../../packages/scoring
       kysely:
         specifier: ^0.29.2
         version: 0.29.2

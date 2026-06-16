@@ -27,6 +27,9 @@ coverage/
 .idea/
 .vscode/settings.json
 
+# Claude Code local settings (personal, machine-specific — never commit)
+.claude/settings.local.json
+
 # pnpm
 .pnpm-store/
 

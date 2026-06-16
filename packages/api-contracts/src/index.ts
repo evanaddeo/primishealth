@@ -54,6 +54,26 @@
  *   - ManualSyncRequestDto, ManualSyncRequestDtoSchema
  *   - ManualSyncResponseDto, ManualSyncResponseDtoSchema, MANUAL_SYNC_RESPONSE_FIXTURE
  *
+ * CU-056 exports (home dashboard summary DTOs):
+ *   - TodayDashboardResponseDto, TodayDashboardResponseDtoSchema, TODAY_DASHBOARD_FIXTURE
+ *   - DashboardScoresDto, DashboardScoresDtoSchema, DASHBOARD_SCORE_SLOTS
+ *   - InsightCardDto, InsightCardDtoSchema, InsightSeverity, InsightSeveritySchema, INSIGHT_SEVERITIES
+ *   - RecommendationCardDto, RecommendationCardDtoSchema
+ *   - DashboardWidgetSummaryDto, DashboardWidgetSummaryDtoSchema
+ *   - BedtimeWidgetSummaryDto, BedtimeWidgetSummaryDtoSchema
+ *
+ * CU-057 exports (sleep/recovery/activity/vitals detail DTOs):
+ *   - chart primitives: ChartPointDto, TrendSeriesDto, SleepStageSegmentDto,
+ *     SleepStageSummaryDto, SleepStageDto, SLEEP_STAGES (+ schemas)
+ *   - SleepDetailResponseDto, SleepDetailResponseDtoSchema, SLEEP_DETAIL_FIXTURE,
+ *     SleepSummaryDto, SleepStagesDto, SleepOvernightVitalsDto
+ *   - RecoveryDetailResponseDto, RecoveryDetailResponseDtoSchema, RECOVERY_DETAIL_FIXTURE,
+ *     RecoveryVitalsDto, RecommendedIntensityDto, RECOMMENDED_INTENSITY_LEVELS
+ *   - ActivityDetailResponseDto, ActivityDetailResponseDtoSchema, ACTIVITY_DETAIL_FIXTURE,
+ *     ActivitySummaryDto, WorkoutSummaryDto
+ *   - VitalsDetailResponseDto, VitalsDetailResponseDtoSchema, VITALS_DETAIL_FIXTURE,
+ *     VitalsMetricsDto, VitalsBaselineDeviationsDto
+ *
  * envelope/errors/pagination modules do NOT import from @primis/core-types (CU-011 constraint).
  * scores/dataQuality modules add the @primis/core-types dependency (CU-012).
  * user/onboarding modules are self-contained (no @primis/core-types dependency).
@@ -61,7 +81,12 @@
  * sync module is self-contained (no @primis/core-types dependency).
  */
 
+export * from './activity.js';
+export * from './chart.js';
+export * from './dashboard.js';
 export * from './dataQuality.js';
+export * from './recovery.js';
+export * from './sleep.js';
 export * from './envelope.js';
 export * from './errors.js';
 export * from './onboarding.js';
@@ -70,3 +95,4 @@ export * from './providerConnections.js';
 export * from './scores.js';
 export * from './sync.js';
 export * from './user.js';
+export * from './vitals.js';
