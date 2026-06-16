@@ -626,6 +626,171 @@ export type NewRollingMetricBaseline = Insertable<RollingMetricBaselinesTable>;
 export type RollingMetricBaselineUpdate = Updateable<RollingMetricBaselinesTable>;
 
 // ---------------------------------------------------------------------------
+// score_snapshots (000006_outputs_and_dashboard.sql — §16.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * Stores a computed Primis score for a user on a specific date. Written by the
+ * CU-055 score snapshot worker — NEVER during ingestion.
+ *
+ * Mirrors `services/api/src/db/types.ts` `ScoreSnapshotsTable` (workers must not
+ * import from `services/api`; ADR-003). One row per
+ * `(user_id, score_type, local_date, algorithm_version)` — the unique constraint
+ * enables idempotent upserts when the scoring engine re-runs.
+ *
+ * `score_type` is constrained by a DB CHECK (§16.1):
+ *   'sleep_score' | 'recovery_score' | 'training_readiness_score' |
+ *   'strain_score' | 'nutrition_score' | 'wellbeing_score' |
+ *   'bedtime_adherence_score'
+ *
+ * Upserting a snapshot CASCADE-deletes child `score_component_values`; callers
+ * MUST re-insert component values after every upsert (see CU-055 writer).
+ */
+export interface ScoreSnapshotsTable {
+  id: UuidPk;
+  user_id: string;
+  /** Constrained by DB CHECK; see §16.1 values above. */
+  score_type: string;
+  /** Local calendar date (user's timezone) the score was computed for. */
+  local_date: string;
+  timezone: string;
+  /** Final composite score 0–100.00 (numeric(5,2); `pg` returns a string). */
+  score_value: NumericCol;
+  /** Qualitative band; free text (no DB CHECK). Aligns with core-types ScoreBand. */
+  score_band: NullableCol<string>;
+  /** Scoring algorithm version stamp (§26.1). */
+  algorithm_version: string;
+  /** First-computation timestamp; preserved across idempotent re-upserts. */
+  generated_at: CreatedAt;
+  valid_for_start_utc: NullableCol<Date>;
+  valid_for_end_utc: NullableCol<Date>;
+  /** Percentage of expected input data available (0–100.00). */
+  data_coverage_pct: NumericCol;
+  /** Confidence score (0.0000–1.0000). */
+  confidence_score: NumericCol;
+  /** Serialized ScoreDriverDto[] — top factors influencing the score. */
+  primary_drivers: Generated<unknown[]>;
+  /** Serialized MissingMetricDto[] — metrics absent during scoring. */
+  missing_inputs: Generated<unknown[]>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type ScoreSnapshot = Selectable<ScoreSnapshotsTable>;
+export type NewScoreSnapshot = Insertable<ScoreSnapshotsTable>;
+export type ScoreSnapshotUpdate = Updateable<ScoreSnapshotsTable>;
+
+// ---------------------------------------------------------------------------
+// score_component_values (000006_outputs_and_dashboard.sql — §16.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Per-component breakdown for a score snapshot. Cascade-deleted when the parent
+ * `score_snapshots` row is deleted, so a snapshot re-upsert replaces components
+ * automatically. The CU-055 writer always re-inserts after upserting.
+ */
+export interface ScoreComponentValuesTable {
+  id: UuidPk;
+  /** FK to `score_snapshots.id` — CASCADE DELETE. */
+  score_snapshot_id: string;
+  user_id: string;
+  /** Stable component identifier, e.g. 'hrv_balance', 'sleep_debt'. */
+  component_code: string;
+  component_label: string;
+  /** Raw input value before normalization (double precision). */
+  raw_value: NullableCol<number>;
+  /** Normalized value (numeric(7,4); `pg` returns a string). */
+  normalized_value: NumericCol;
+  /** Weighted contribution to the composite (numeric(8,4)). */
+  weighted_contribution: NumericCol;
+  /** Configured weight 0–1 before renormalization (numeric(7,4)). */
+  weight: NumericCol;
+  unit: NullableCol<string>;
+  /** Directionality: 'positive' | 'negative' | 'neutral'. */
+  direction: NullableCol<string>;
+  explanation: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type ScoreComponentValue = Selectable<ScoreComponentValuesTable>;
+export type NewScoreComponentValue = Insertable<ScoreComponentValuesTable>;
+export type ScoreComponentValueUpdate = Updateable<ScoreComponentValuesTable>;
+
+// ---------------------------------------------------------------------------
+// algorithm_runs (000006_outputs_and_dashboard.sql — §16.4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Audit log for scoring engine executions (ALG-PRIN-008). Append-only: the
+ * CU-055 worker inserts a `running` row, then updates it to a terminal status.
+ *
+ * run_type CHECK: 'daily_scores' | 'backfill' | 'reprocess' | 'manual' | 'experiment'
+ * status CHECK:   'running' | 'succeeded' | 'failed' | 'partial_success'
+ */
+export interface AlgorithmRunsTable {
+  id: UuidPk;
+  /** FK to `users.id`; null for system-wide runs. */
+  user_id: NullableCol<string>;
+  algorithm_name: string;
+  algorithm_version: string;
+  run_type: string;
+  status: string;
+  input_window_start_utc: NullableCol<Date>;
+  input_window_end_utc: NullableCol<Date>;
+  started_at: CreatedAt;
+  finished_at: NullableCol<Date>;
+  records_processed: NullableCol<number>;
+  error_code: NullableCol<string>;
+  error_message: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type AlgorithmRun = Selectable<AlgorithmRunsTable>;
+export type NewAlgorithmRun = Insertable<AlgorithmRunsTable>;
+export type AlgorithmRunUpdate = Updateable<AlgorithmRunsTable>;
+
+// ---------------------------------------------------------------------------
+// insight_candidates (000006_outputs_and_dashboard.sql — §17.1)
+// ---------------------------------------------------------------------------
+
+/**
+ * Deterministic insight candidates derived from score components / baseline
+ * deviations (Scoring Spec §21). The CU-055 worker emits these with NO AI calls;
+ * `natural_language_summary` stays null until a later AI phase populates it.
+ *
+ * severity CHECK:     'info' | 'positive' | 'warning' | 'critical_nonmedical'
+ * status CHECK:       'active' | 'dismissed' | 'expired' | 'superseded'
+ * insight_type values: 'recovery_driver' | 'sleep_pattern' | 'training_load' |
+ *   'nutrition_correlation' | 'anomaly' | 'recommendation'
+ */
+export interface InsightCandidatesTable {
+  id: UuidPk;
+  user_id: string;
+  insight_type: string;
+  local_date: NullableCol<string>;
+  start_date: NullableCol<string>;
+  end_date: NullableCol<string>;
+  severity: Generated<string>;
+  confidence_score: NumericCol;
+  title: string;
+  /** Machine-readable structured content for explainability / AI context. */
+  structured_summary: Record<string, unknown>;
+  /** AI-generated copy; null until a later AI phase populates it (NO AI in CU-055). */
+  natural_language_summary: NullableCol<string>;
+  recommended_action: NullableCol<string>;
+  related_metric_codes: Generated<string[]>;
+  related_score_snapshot_ids: Generated<string[]>;
+  source_algorithm_version: NullableCol<string>;
+  status: Generated<string>;
+  generated_at: CreatedAt;
+  expires_at: NullableCol<Date>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type InsightCandidate = Selectable<InsightCandidatesTable>;
+export type NewInsightCandidate = Insertable<InsightCandidatesTable>;
+export type InsightCandidateUpdate = Updateable<InsightCandidatesTable>;
+
+// ---------------------------------------------------------------------------
 // Database — Kysely table registry
 // ---------------------------------------------------------------------------
 
@@ -650,4 +815,8 @@ export interface Database {
   workout_sessions: WorkoutSessionsTable;
   daily_metric_summaries: DailyMetricSummariesTable;
   rolling_metric_baselines: RollingMetricBaselinesTable;
+  score_snapshots: ScoreSnapshotsTable;
+  score_component_values: ScoreComponentValuesTable;
+  algorithm_runs: AlgorithmRunsTable;
+  insight_candidates: InsightCandidatesTable;
 }

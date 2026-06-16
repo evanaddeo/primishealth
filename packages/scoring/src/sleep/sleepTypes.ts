@@ -15,12 +15,7 @@
  * `MissingReason`) is reused from `@primis/core-types` — never redefined here.
  */
 
-import type {
-  MissingReason,
-  ScoreBand,
-  ScoreConfidence,
-  ScoreState,
-} from '@primis/core-types';
+import type { MissingReason, ScoreBand, ScoreConfidence, ScoreState } from '@primis/core-types';
 
 /**
  * Algorithm version stamped onto every Sleep Score result.

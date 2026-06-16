@@ -44,18 +44,18 @@ and explicit about missing / stale / low-confidence data.
 
 ### 2.1 What Phases A–E already created
 
-| Area | Artifact | Phase F relevance |
-|------|----------|-------------------|
-| Tooling | pnpm workspace, `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`), root `vitest.workspace.ts`, ESLint/Prettier, CI in `.github/workflows/` | All new packages/dirs must conform; CI runs `lint`/`typecheck`/`test`/`format:check`. |
-| `@primis/core-types` | `src/scores.ts` (`ScoreType`, `ScoreState`, `ScoreConfidence`, `ScoreBand`, `SCORE_BAND_RANGES`, `scoreToBand()`), `src/metrics.ts`, `src/redaction.ts` | **Reuse these enums/helpers. Do NOT redefine score taxonomy.** |
-| `@primis/health-metrics` | `src/registry.ts`, `src/units.ts`, `src/categories.ts` | Canonical metric codes + units. Scoring inputs reference metric codes from here — **no ad hoc metric codes.** |
-| `@primis/api-contracts` | `src/scores.ts` (311 lines), `src/dataQuality.ts` (169 lines), `src/envelope.ts`, `src/errors.ts`, `src/pagination.ts` | Score/data-quality response DTOs and the API envelope/error schema. CU-056/057 **reuse and extend** these. |
-| `@primis/scoring` | **EMPTY** (`.gitkeep` only) | CU-047 bootstraps `package.json` + `tsconfig.json` + `vitest.config.ts` (mirror `@primis/health-metrics`). |
-| `database/migrations` | `000001`–`000007` | All Phase F tables exist (see §2.2). **Do not add migrations in Phase F.** |
-| `services/workers` | `normalization/`, `sync/`, `providers/`, `repositories/`, `db/{client,types}.ts`, `storage/` | New `summaries/`, `baselines/`, `scoring/` dirs added here. Reuse `db/client.ts` (Kysely) + repository patterns. |
-| `services/api` | Repositories: `scoreRepository`, `dashboardRepository`, `sleepRepository`, `vitalRepository`, `activityRepository`, `insightRepository`, `metricRepository`, +more. Routes: `providerConnections`, `onboarding`, `me`, `user`, `sync`, `health`. Middleware: `requestId`, `errorHandler`. Auth: `authMiddleware`, `mockAuth`, `cognitoJwtVerifier`. | CU-056/057 add **routes only**, reusing existing repositories. No dashboard/score/detail route exists yet. |
-| Scripts | `db-migrate.ts`, `db-seed.ts`, `db-reset.sh`, `db-up.sh`, `redact-fixture.ts` | Use for local DB + fixture redaction. |
-| Fixtures | `database/fixtures/` (`README.md`, `provider/`) | Golden scoring fixtures (spec §27.2) live under `database/fixtures/` — **redacted only**. |
+| Area                     | Artifact                                                                                                                                                                                                                                                                                                                                            | Phase F relevance                                                                                                |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Tooling                  | pnpm workspace, `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`), root `vitest.workspace.ts`, ESLint/Prettier, CI in `.github/workflows/`                                                                                                                                                                    | All new packages/dirs must conform; CI runs `lint`/`typecheck`/`test`/`format:check`.                            |
+| `@primis/core-types`     | `src/scores.ts` (`ScoreType`, `ScoreState`, `ScoreConfidence`, `ScoreBand`, `SCORE_BAND_RANGES`, `scoreToBand()`), `src/metrics.ts`, `src/redaction.ts`                                                                                                                                                                                             | **Reuse these enums/helpers. Do NOT redefine score taxonomy.**                                                   |
+| `@primis/health-metrics` | `src/registry.ts`, `src/units.ts`, `src/categories.ts`                                                                                                                                                                                                                                                                                              | Canonical metric codes + units. Scoring inputs reference metric codes from here — **no ad hoc metric codes.**    |
+| `@primis/api-contracts`  | `src/scores.ts` (311 lines), `src/dataQuality.ts` (169 lines), `src/envelope.ts`, `src/errors.ts`, `src/pagination.ts`                                                                                                                                                                                                                              | Score/data-quality response DTOs and the API envelope/error schema. CU-056/057 **reuse and extend** these.       |
+| `@primis/scoring`        | **EMPTY** (`.gitkeep` only)                                                                                                                                                                                                                                                                                                                         | CU-047 bootstraps `package.json` + `tsconfig.json` + `vitest.config.ts` (mirror `@primis/health-metrics`).       |
+| `database/migrations`    | `000001`–`000007`                                                                                                                                                                                                                                                                                                                                   | All Phase F tables exist (see §2.2). **Do not add migrations in Phase F.**                                       |
+| `services/workers`       | `normalization/`, `sync/`, `providers/`, `repositories/`, `db/{client,types}.ts`, `storage/`                                                                                                                                                                                                                                                        | New `summaries/`, `baselines/`, `scoring/` dirs added here. Reuse `db/client.ts` (Kysely) + repository patterns. |
+| `services/api`           | Repositories: `scoreRepository`, `dashboardRepository`, `sleepRepository`, `vitalRepository`, `activityRepository`, `insightRepository`, `metricRepository`, +more. Routes: `providerConnections`, `onboarding`, `me`, `user`, `sync`, `health`. Middleware: `requestId`, `errorHandler`. Auth: `authMiddleware`, `mockAuth`, `cognitoJwtVerifier`. | CU-056/057 add **routes only**, reusing existing repositories. No dashboard/score/detail route exists yet.       |
+| Scripts                  | `db-migrate.ts`, `db-seed.ts`, `db-reset.sh`, `db-up.sh`, `redact-fixture.ts`                                                                                                                                                                                                                                                                       | Use for local DB + fixture redaction.                                                                            |
+| Fixtures                 | `database/fixtures/` (`README.md`, `provider/`)                                                                                                                                                                                                                                                                                                     | Golden scoring fixtures (spec §27.2) live under `database/fixtures/` — **redacted only**.                        |
 
 ### 2.2 Phase F tables (already migrated — populate/read only)
 
@@ -70,6 +70,7 @@ and explicit about missing / stale / low-confidence data.
 ### 2.3 `scoreRepository` contract (critical for CU-055 idempotency)
 
 `services/api/src/repositories/scoreRepository.ts` already provides:
+
 - `upsertScoreSnapshot(NewScoreSnapshot)` — dedup key
   **`(user_id, score_type, local_date, algorithm_version)`**; on conflict updates mutable columns,
   **preserves original `generated_at`**, and **CASCADE-deletes child `score_component_values`** →
@@ -80,13 +81,13 @@ and explicit about missing / stale / low-confidence data.
 
 ### 2.4 ADRs affecting Phase F
 
-| ADR | Effect on Phase F |
-|-----|-------------------|
-| `ADR-003-query-layer-and-migrations.md` | **Kysely is the exclusive query layer**; types are hand-maintained in `services/*/src/db/types.ts`; raw SQL migrations; no ORM codegen. All CU-048/049/055/056/057 DB access uses Kysely. |
-| `ADR-001-provider-code-naming.md` | Canonical provider codes — relevant when scores record provider freshness/availability. |
-| `ADR-002-ai-intent-count-discrepancy.md` | AI scope only; informs the CU-055 insight-candidate / AI boundary (do not call AI). |
-| `ADR-0001-vitest-workspace-file-name.md` | New packages must ship `vitest.config.ts` to be auto-discovered by the root workspace. |
-| `google-health-api-metric-availability.md` | **Required provider-availability context.** Scores MUST degrade confidence / mark missing/unverified per this doc — never assume HRV, SpO2, stages, respiratory rate, etc. are present. |
+| ADR                                        | Effect on Phase F                                                                                                                                                                         |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADR-003-query-layer-and-migrations.md`    | **Kysely is the exclusive query layer**; types are hand-maintained in `services/*/src/db/types.ts`; raw SQL migrations; no ORM codegen. All CU-048/049/055/056/057 DB access uses Kysely. |
+| `ADR-001-provider-code-naming.md`          | Canonical provider codes — relevant when scores record provider freshness/availability.                                                                                                   |
+| `ADR-002-ai-intent-count-discrepancy.md`   | AI scope only; informs the CU-055 insight-candidate / AI boundary (do not call AI).                                                                                                       |
+| `ADR-0001-vitest-workspace-file-name.md`   | New packages must ship `vitest.config.ts` to be auto-discovered by the root workspace.                                                                                                    |
+| `google-health-api-metric-availability.md` | **Required provider-availability context.** Scores MUST degrade confidence / mark missing/unverified per this doc — never assume HRV, SpO2, stages, respiratory rate, etc. are present.   |
 
 ### 2.5 Repo drift / mismatches executing agents must account for
 
@@ -110,6 +111,7 @@ and explicit about missing / stale / low-confidence data.
 ## 3. Required source docs and exact sections (read before each CU)
 
 Always-read for every Phase F CU:
+
 - `.ai-agent-instructions.md` (boundary rules), `CONTRIBUTING.md` (commit/branch format),
   `docs/README.md` (conflict-resolution priority).
 - `primis_full_implementation_spec_commit_plan.md` — §1–§5, §3.5 Definition of Done, and the CU's
@@ -119,19 +121,19 @@ Always-read for every Phase F CU:
 
 Per-CU additional reading:
 
-| CU | Scoring spec | Data model spec | Other |
-|----|--------------|-----------------|-------|
-| 047 | §7.1–7.9, §9.1–9.5, §8.1–8.4 | — | TAD §0 (purity boundary) |
-| 048 | §8.3 missingness | `daily_metric_summaries`; §0; local_date/timezone conventions | TAD precompute + idempotency |
-| 049 | §7.3–7.5, §8.1 | `rolling_metric_baselines` | — |
-| 050 | §10.1–10.11 | `sleep_daily_features`, `sleep_sessions`, `sleep_stage_intervals` | UI/UX Sleep (output shape) |
-| 051 | §11, §10.6 | `sleep_daily_features` | — |
-| 052 | §12.1–12.12 | `vital_daily_features`, `sleep_daily_features` | PRD Recovery; provider-availability ADR |
-| 053 | §13, §14, §15 | `daily_metric_summaries`, `workout_sessions`, `training_load_daily` | UI/UX Activity/Recovery |
-| 054 | §20.1–20.15 | `sleep_daily_features` (rhythm) | PRD Bedtime; UI/UX §6.3 |
-| 055 | §25, §26, §21.1–21.6, §8.4, §24 (AI boundary) | `score_snapshots`, `score_component_values`, `insight_candidates`, `algorithm_runs` | TAD precompute/idempotency |
-| 056 | §29.1 | `dashboard_widgets`, `score_snapshots` | UI/UX Home; `api-contracts/scores.ts` |
-| 057 | §29.2 | sleep/vital/activity tables | UI/UX Sleep/Recovery/Activity; `api-contracts/scores.ts` |
+| CU  | Scoring spec                                  | Data model spec                                                                     | Other                                                    |
+| --- | --------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 047 | §7.1–7.9, §9.1–9.5, §8.1–8.4                  | —                                                                                   | TAD §0 (purity boundary)                                 |
+| 048 | §8.3 missingness                              | `daily_metric_summaries`; §0; local_date/timezone conventions                       | TAD precompute + idempotency                             |
+| 049 | §7.3–7.5, §8.1                                | `rolling_metric_baselines`                                                          | —                                                        |
+| 050 | §10.1–10.11                                   | `sleep_daily_features`, `sleep_sessions`, `sleep_stage_intervals`                   | UI/UX Sleep (output shape)                               |
+| 051 | §11, §10.6                                    | `sleep_daily_features`                                                              | —                                                        |
+| 052 | §12.1–12.12                                   | `vital_daily_features`, `sleep_daily_features`                                      | PRD Recovery; provider-availability ADR                  |
+| 053 | §13, §14, §15                                 | `daily_metric_summaries`, `workout_sessions`, `training_load_daily`                 | UI/UX Activity/Recovery                                  |
+| 054 | §20.1–20.15                                   | `sleep_daily_features` (rhythm)                                                     | PRD Bedtime; UI/UX §6.3                                  |
+| 055 | §25, §26, §21.1–21.6, §8.4, §24 (AI boundary) | `score_snapshots`, `score_component_values`, `insight_candidates`, `algorithm_runs` | TAD precompute/idempotency                               |
+| 056 | §29.1                                         | `dashboard_widgets`, `score_snapshots`                                              | UI/UX Home; `api-contracts/scores.ts`                    |
+| 057 | §29.2                                         | sleep/vital/activity tables                                                         | UI/UX Sleep/Recovery/Activity; `api-contracts/scores.ts` |
 
 ---
 
@@ -419,7 +421,7 @@ are parallelizable once 055 lands.
   **No AI model calls.**
 - **Read:** Scoring spec §25 (jobs), §26 (versioning), §21 (insight candidates), §8.4, §24 (AI
   boundary — what insights may contain); TAD precompute/idempotency; `services/api/src/repositories/
-  scoreRepository.ts` (write contract, dedup, CASCADE); `insightRepository.ts`;
+scoreRepository.ts` (write contract, dedup, CASCADE); `insightRepository.ts`;
   `services/workers/src/db/{client,types}.ts`.
 - **Files created:**
   ```text
@@ -447,7 +449,7 @@ are parallelizable once 055 lands.
 - **Goal:** Serve the precomputed home dashboard for the latest local date. **No heavy computation
   in request handlers.**
 - **Read:** Scoring spec §29.1 (`TodayDashboardResponse` shape); UI/UX Home; `api-contracts/src/
-  scores.ts` + `dataQuality.ts`; existing `dashboardRepository`, `scoreRepository`,
+scores.ts` + `dataQuality.ts`; existing `dashboardRepository`, `scoreRepository`,
   `insightRepository`; existing route pattern (`services/api/src/routes/me.ts`), `authMiddleware`,
   `errorHandler`, `envelope`.
 - **Files created/edited:**
@@ -569,6 +571,7 @@ Finish with a short implementation summary.
 ## 10. Open questions / assumptions
 
 **Assumptions (proceed unless corrected):**
+
 1. Phase F = CU-047→057 only; CU-056/057 are the only API CUs (later API/UI CUs are Phase G).
 2. Pure formulas → `packages/scoring`; orchestration + DB I/O → `services/workers`/`services/api`
    (commit-plan paths over spec §28 monolith).
@@ -579,6 +582,7 @@ Finish with a short implementation summary.
 6. Workers run locally; no AWS scheduling in Phase F.
 
 **Questions to resolve at the flagged CU (non-blocking for the plan):**
+
 - CU-055: confirm single DB write path + location of `algorithm_runs`/score row types in
   `services/api/src/db/types.ts` (and whether a workers-side mirror is needed).
 - CU-056/057: confirm whether dashboard/detail response DTOs already exist in
@@ -592,4 +596,7 @@ Phase G builds the mobile surfaces that consume Phase F outputs: Home dashboard,
 Planner, Recovery, Activity, Vitals screens (commit plan CU-058+). Phase F's API response shapes
 (§29) and `@primis/api-contracts` DTOs are the contract Phase G renders against — keep them stable,
 chart-ready, and explainable so Phase G needs no scoring logic on-device.
+
+```
+
 ```
