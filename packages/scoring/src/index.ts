@@ -16,3 +16,4 @@ export * from './sleep/index.js';
 export * from './recovery/index.js';
 export * from './activity/index.js';
 export * from './training/index.js';
+export * from './bedtime/index.js';
