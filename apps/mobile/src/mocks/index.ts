@@ -57,3 +57,14 @@ export {
   MOCK_AI_STALE_DATA,
 } from './ai';
 export type { MockAiSummary } from './ai';
+
+// Provider connections + sync status (CU-060)
+export {
+  DEFAULT_MOCK_CONNECTION_STATE,
+  MOCK_DISCONNECT_RESPONSE,
+  MOCK_GOOGLE_HEALTH_CAPABILITIES,
+  MOCK_MANUAL_SYNC_RESPONSE,
+  MOCK_START_AUTHORIZATION,
+  getMockConnections,
+} from './connections';
+export type { MockConnectionState, MockConnectionsSnapshot } from './connections';

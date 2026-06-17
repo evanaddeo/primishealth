@@ -75,6 +75,59 @@ export const API_ENDPOINTS = {
    * Phase D backend provides this route (CU-033).
    */
   ONBOARDING_CONSENT: '/v1/me/onboarding/consent',
+
+  /**
+   * List the authenticated user's provider connections.
+   * GET — returns ListConnectionsResponseDto (empty array when none).
+   * Phase E backend provides this route (CU-046).
+   *
+   * NOTE: This is the Google Health *data* authorization surface, distinct from
+   * app sign-in. Token refs are never returned (providerConnections.ts §security).
+   * @see TAD §9.2 — app auth vs health provider auth separation
+   */
+  PROVIDER_CONNECTIONS: '/v1/me/providers',
+
+  /**
+   * Static capability declaration for a provider connection.
+   * GET — returns ProviderCapabilitiesDto. `:connectionId` must be interpolated.
+   * All metrics are `verified: false` until Phase AA live validation.
+   * Phase E backend provides this route (CU-046).
+   */
+  PROVIDER_CAPABILITIES: '/v1/me/providers/:connectionId/capabilities',
+
+  /**
+   * Disconnect (soft-delete) a single provider connection.
+   * DELETE — returns DisconnectConnectionResponseDto. `:connectionId` must be
+   * interpolated. Health data is not deleted; the provider token is not revoked
+   * here (Phase Z OAuth hardening).
+   * Phase E backend provides this route (CU-046).
+   */
+  PROVIDER_DISCONNECT: '/v1/me/providers/:connectionId',
+
+  /**
+   * Begin the Google Health data-authorization consent flow.
+   * GET — returns StartAuthorizationResponseDto (`authorizeUrl` + CSRF `state`).
+   * The mobile client opens `authorizeUrl` in a browser; it never talks to Google
+   * directly or handles raw tokens. Phase E backend provides this route (CU-037).
+   *
+   * NOTE: `authorizeUrl` leads to a Google Health *data permissions* screen, not a
+   * Google sign-in screen — these are separate grants (providerConnections.ts).
+   */
+  PROVIDER_AUTHORIZE: '/v1/provider-connections/google/authorize',
+
+  /**
+   * Per-connection sync status summary for the authenticated user.
+   * GET — returns SyncStatusListResponseDto (empty array when no connections).
+   * Phase E backend provides this route (CU-046).
+   */
+  SYNC_STATUS: '/v1/me/sync/status',
+
+  /**
+   * Enqueue a manual refresh sync job for a provider.
+   * POST — returns ManualSyncResponseDto (job created in `queued` status only).
+   * Mobile polls SYNC_STATUS for progress. Phase E backend provides this (CU-046).
+   */
+  SYNC_REFRESH: '/v1/me/sync/refresh',
 } as const;
 
 /** Union of all registered endpoint keys. */
