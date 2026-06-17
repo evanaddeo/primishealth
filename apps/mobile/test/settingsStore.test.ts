@@ -72,6 +72,10 @@ describe('useSettingsStore — defaults', () => {
   it('defaults onboardingComplete to false', () => {
     expect(useSettingsStore.getState().onboardingComplete).toBe(false);
   });
+
+  it('defaults goals to an empty list', () => {
+    expect(useSettingsStore.getState().goals).toEqual([]);
+  });
 });
 
 describe('useSettingsStore — actions', () => {
@@ -106,6 +110,11 @@ describe('useSettingsStore — actions', () => {
   it('setOnboardingComplete marks onboarding done', () => {
     useSettingsStore.getState().setOnboardingComplete(true);
     expect(useSettingsStore.getState().onboardingComplete).toBe(true);
+  });
+
+  it('setGoals replaces the ranked goal list in order', () => {
+    useSettingsStore.getState().setGoals(['sleep', 'longevity']);
+    expect(useSettingsStore.getState().goals).toEqual(['sleep', 'longevity']);
   });
 });
 

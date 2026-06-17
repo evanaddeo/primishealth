@@ -16,6 +16,7 @@ import { createJSONStorage, persist, type StateStorage } from 'zustand/middlewar
 
 import { createMMKV } from 'react-native-mmkv';
 
+import type { GoalCode } from '@primis/api-contracts';
 import type { AccentColor, ThemeMode } from '@primis/design-system';
 
 // ── Storage key constants ──────────────────────────────────────────────────────
@@ -58,6 +59,12 @@ interface SettingsState {
   /** AI summary tone preference — stub for Phase G (UX Spec §14.3). */
   summaryTone: SummaryTone;
   /**
+   * Ranked onboarding goals (highest priority first). Captured in the CU-058
+   * onboarding flow (PRD-FR-ONB-001/002); persisted so selections survive an
+   * app restart. Stored as goal-code strings; the setter is typed to GoalCode.
+   */
+  goals: GoalCode[];
+  /**
    * True once the user completes the onboarding flow.
    * Controls first-launch routing in Phase D+.
    */
@@ -69,6 +76,7 @@ interface SettingsActions {
   setAccentColor: (color: AccentColor) => void;
   setCoachTone: (tone: CoachTone) => void;
   setSummaryTone: (tone: SummaryTone) => void;
+  setGoals: (goals: GoalCode[]) => void;
   setOnboardingComplete: (complete: boolean) => void;
 }
 
@@ -81,6 +89,7 @@ export const SETTINGS_DEFAULTS: SettingsState = {
   accentColor: 'electricBlue',
   coachTone: 'motivating',
   summaryTone: 'concise',
+  goals: [],
   onboardingComplete: false,
 };
 
@@ -111,6 +120,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setAccentColor: (color) => set({ accentColor: color }),
       setCoachTone: (tone) => set({ coachTone: tone }),
       setSummaryTone: (tone) => set({ summaryTone: tone }),
+      setGoals: (goals) => set({ goals }),
       setOnboardingComplete: (complete) => set({ onboardingComplete: complete }),
     }),
     {
