@@ -6,32 +6,53 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { queryClient } from '../src/api/queryClient';
+import { isMockAuthEnabled } from '../src/features/auth';
 import { ThemeProvider } from '../src/providers/ThemeProvider';
+import { useAuthStore } from '../src/state/authStore';
 import { useSettingsStore } from '../src/state/settingsStore';
 
 /**
- * Redirects first-run users into the onboarding flow and back out once it is
- * complete (CU-058). The `onboardingComplete` flag is read from the MMKV-backed
- * settings store, which hydrates synchronously, so the decision is stable from
- * the first render; the redirect runs in an effect (after mount) to avoid
+ * First-run navigation gate: onboarding → (mock) auth → tabs (CU-058 + CU-059).
+ *
+ * The MMKV-backed stores hydrate synchronously, so both decisions are stable
+ * from the first render; the redirect runs in an effect (after mount) to avoid
  * navigating before the navigator is ready.
  *
- * Users are never trapped: completing the flow flips the flag and routes to the
- * tabs; the gate only intervenes when the location and flag disagree.
+ * Order:
+ *  1. Onboarding incomplete → send to `/onboarding`.
+ *  2. Onboarding done but no session → send to `/auth/sign-in`.
+ *  3. Signed in but stuck in onboarding/auth → send to `/(tabs)`.
+ *
+ * The auth redirect is enforced only when mock auth is available (dev/mock
+ * builds). Production builds have no real auth wired yet, so we never trap users
+ * at a not-yet-functional sign-in — real auth enforcement lands in a later phase
+ * (app auth is separate from Google Health authorization; TAD §9.2).
  */
-function useOnboardingGate(): void {
+function useFirstRunGate(): void {
   const onboardingComplete = useSettingsStore((s) => s.onboardingComplete);
+  const isSignedIn = useAuthStore((s) => s.status === 'signedIn');
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    const inOnboarding = segments[0] === 'onboarding';
-    if (!onboardingComplete && !inOnboarding) {
-      router.replace('/onboarding');
-    } else if (onboardingComplete && inOnboarding) {
+    const group = segments[0];
+    const inOnboarding = group === 'onboarding';
+    const inAuth = group === 'auth';
+
+    if (!onboardingComplete) {
+      if (!inOnboarding) router.replace('/onboarding');
+      return;
+    }
+
+    if (!isSignedIn && isMockAuthEnabled()) {
+      if (!inAuth) router.replace('/auth/sign-in');
+      return;
+    }
+
+    if (isSignedIn && (inAuth || inOnboarding)) {
       router.replace('/(tabs)');
     }
-  }, [onboardingComplete, segments, router]);
+  }, [onboardingComplete, isSignedIn, segments, router]);
 }
 
 /**
@@ -45,7 +66,7 @@ function useOnboardingGate(): void {
  * 5. Stack                  — expo-router navigation stack (tabs + onboarding)
  */
 export default function RootLayout() {
-  useOnboardingGate();
+  useFirstRunGate();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

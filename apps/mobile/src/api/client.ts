@@ -19,6 +19,7 @@
 
 import { loadPublicEnv } from '@primis/config';
 
+import { getInjectedAuthToken } from './authToken';
 import { ApiClientError, MockModeError, parseApiError } from './errors';
 
 // Load env at module init time (not inside a render function or hook).
@@ -232,11 +233,13 @@ function isSuccessEnvelope(value: unknown): value is { success: true; data: unkn
  * so local development never requires a running backend. Set
  * `EXPO_PUBLIC_MOCK_MODE=false` in staging/production build pipelines.
  *
- * Phase D: supply `getAuthToken` from the Cognito auth module here.
+ * The token getter reads from `authToken.ts`, the mobile-side injection seam.
+ * In Phase G the auth feature (CU-059) registers a dev/mock token there; a
+ * later phase swaps in a real Cognito token getter with no call-site changes.
  */
 export const apiClient = new PrimisApiClient({
   baseUrl: _env.EXPO_PUBLIC_API_BASE_URL,
   mockMode: _env.EXPO_PUBLIC_MOCK_MODE === 'true',
-  // TODO(ADR): Phase D — replace with real Cognito token getter (no call-site changes needed).
-  getAuthToken: () => Promise.resolve(null),
+  // TODO(ADR): later phase — register a real Cognito token getter via setInjectedAuthToken.
+  getAuthToken: getInjectedAuthToken,
 });
