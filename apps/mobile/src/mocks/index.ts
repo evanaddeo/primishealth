@@ -17,12 +17,21 @@
 // Dashboard assembler and shared dashboard types
 export {
   getMockDashboard,
+  getMockHomeSnapshot,
+  getMockTodayDashboard,
   MOCK_LOW_RECOVERY,
   MOCK_MISSING_DATA,
   MOCK_NORMAL,
   MOCK_STALE_DATA,
 } from './dashboard';
-export type { MockDashboard, MockDashboardState, MockSyncStatus } from './dashboard';
+export type {
+  HomeTrendPoint,
+  HomeWidgetSupplement,
+  MockDashboard,
+  MockDashboardState,
+  MockHomeSnapshot,
+  MockSyncStatus,
+} from './dashboard';
 
 // Sleep score snapshots
 export {
