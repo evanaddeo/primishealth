@@ -169,4 +169,15 @@ describe('useWidgetStore — actions', () => {
     expect(hiddenWidgets.has('hrv_trend')).toBe(true);
     expect(hiddenWidgets.size).toBe(2);
   });
+
+  it('resetWidgets restores the default order and clears hidden widgets', () => {
+    useWidgetStore.getState().setWidgetOrder(['sleep_score', 'recovery_score']);
+    useWidgetStore.getState().toggleWidget('sleep_score');
+
+    useWidgetStore.getState().resetWidgets();
+
+    const state = useWidgetStore.getState();
+    expect(state.widgetOrder).toEqual([...DEFAULT_WIDGET_ORDER]);
+    expect(state.hiddenWidgets.size).toBe(0);
+  });
 });

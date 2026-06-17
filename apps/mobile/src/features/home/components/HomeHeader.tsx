@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text, useTheme } from '@primis/design-system';
 
@@ -18,6 +18,8 @@ export interface HomeHeaderProps {
   /** Dashboard local date, YYYY-MM-DD. */
   localDate: string;
   freshness: FreshnessVm;
+  /** Open the Home widget customization screen (CU-062). */
+  onPressEdit?: () => void;
   testID?: string;
 }
 
@@ -51,7 +53,12 @@ function formatLocalDate(localDate: string): string {
   return `${weekday}, ${monthName} ${day}`;
 }
 
-export function HomeHeader({ localDate, freshness, testID }: HomeHeaderProps): React.JSX.Element {
+export function HomeHeader({
+  localDate,
+  freshness,
+  onPressEdit,
+  testID,
+}: HomeHeaderProps): React.JSX.Element {
   const { spacing } = useTheme();
 
   return (
@@ -65,7 +72,23 @@ export function HomeHeader({ localDate, freshness, testID }: HomeHeaderProps): R
             {formatLocalDate(localDate)}
           </Text>
         </View>
-        <FreshnessChip freshness={freshness} testID="home-freshness" />
+        <View style={[styles.actions, { gap: spacing.xs }]}>
+          <FreshnessChip freshness={freshness} testID="home-freshness" />
+          {onPressEdit !== undefined && (
+            <Pressable
+              onPress={onPressEdit}
+              accessibilityRole="button"
+              accessibilityLabel="Edit Home widgets"
+              hitSlop={8}
+              style={styles.editButton}
+              testID="home-edit-widgets"
+            >
+              <Text variant="bodyMedium" color="accent" weight="semibold">
+                Edit
+              </Text>
+            </Pressable>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -82,5 +105,12 @@ const styles = StyleSheet.create({
   },
   titleBlock: {
     flexShrink: 1,
+  },
+  actions: {
+    alignItems: 'flex-end',
+  },
+  editButton: {
+    minHeight: 44,
+    justifyContent: 'center',
   },
 });

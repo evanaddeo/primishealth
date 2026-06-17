@@ -81,7 +81,11 @@ export function HomeScreen(): React.JSX.Element {
   return (
     <Screen testID="screen-home" contentStyle={{ paddingTop: spacing.xl }}>
       <Animated.View style={{ opacity: fade, gap: spacing.lg }}>
-        <HomeHeader localDate={snapshot.dashboard.localDate} freshness={freshness} />
+        <HomeHeader
+          localDate={snapshot.dashboard.localDate}
+          freshness={freshness}
+          onPressEdit={() => router.navigate('/settings/home-widgets')}
+        />
 
         {visibleWidgets.map((id) => {
           const Widget = HOME_WIDGET_REGISTRY[id];

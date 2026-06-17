@@ -59,6 +59,11 @@ interface WidgetActions {
    * If `id` is currently hidden it becomes visible; if visible it becomes hidden.
    */
   toggleWidget: (id: string) => void;
+  /**
+   * Restore the spec default layout: original widget order and no hidden
+   * widgets. Order and visibility are reset together so the two never desync.
+   */
+  resetWidgets: () => void;
 }
 
 export type WidgetStore = WidgetState & WidgetActions;
@@ -102,6 +107,12 @@ export const useWidgetStore = create<WidgetStore>()(
         }
         set({ hiddenWidgets: next });
       },
+
+      resetWidgets: () =>
+        set({
+          widgetOrder: [...DEFAULT_WIDGET_ORDER],
+          hiddenWidgets: new Set<string>(),
+        }),
     }),
     {
       name: STORAGE_KEYS.WIDGETS,
