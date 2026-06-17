@@ -36,6 +36,14 @@ export const API_ENDPOINTS = {
   DASHBOARD: '/v1/dashboard',
 
   /**
+   * Sleep detail payload for a single wake-date.
+   * GET — returns SleepDetailResponseDto (score + summary + stage timeline +
+   * overnight vitals + trends), precomputed (ADR-006). Accepts `?date=YYYY-MM-DD`.
+   * Phase F backend provides this route (CU-057); mobile renders it directly.
+   */
+  SLEEP: '/v1/sleep',
+
+  /**
    * Score snapshot for a single score type.
    * `:type` must be replaced with a valid score type (e.g. 'sleep', 'recovery').
    * Phase D backend provides this route.

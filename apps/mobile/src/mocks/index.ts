@@ -33,13 +33,15 @@ export type {
   MockSyncStatus,
 } from './dashboard';
 
-// Sleep score snapshots
+// Sleep score snapshots + sleep detail fixtures (CU-063)
 export {
+  getMockSleepDetail,
   MOCK_SLEEP_LOW_RECOVERY,
   MOCK_SLEEP_MISSING,
   MOCK_SLEEP_NORMAL,
   MOCK_SLEEP_STALE,
 } from './sleep';
+export type { MockSleepDetailState } from './sleep';
 
 // Recovery score snapshots
 export {
