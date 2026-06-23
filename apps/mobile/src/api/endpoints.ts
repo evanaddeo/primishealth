@@ -44,6 +44,15 @@ export const API_ENDPOINTS = {
   SLEEP: '/v1/sleep',
 
   /**
+   * Recovery detail payload for a single local date.
+   * GET — returns RecoveryDetailResponseDto (recovery score + components,
+   * recovery vitals + baseline deviations, recommended intensity, trends),
+   * precomputed (ADR-006). Accepts `?date=YYYY-MM-DD`.
+   * Phase F backend provides this route (CU-057); mobile renders it directly.
+   */
+  RECOVERY: '/v1/recovery',
+
+  /**
    * Score snapshot for a single score type.
    * `:type` must be replaced with a valid score type (e.g. 'sleep', 'recovery').
    * Phase D backend provides this route.

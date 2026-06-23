@@ -47,13 +47,16 @@ export type { MockSleepDetailState } from './sleep';
 export { DEFAULT_MOCK_BEDTIME_STATE, getMockBedtimePlan } from './bedtime';
 export type { MockBedtimeState } from './bedtime';
 
-// Recovery score snapshots
+// Recovery score snapshots + recovery detail fixtures (CU-065)
 export {
+  getMockRecoveryDetail,
   MOCK_RECOVERY_LOW_RECOVERY,
   MOCK_RECOVERY_MISSING,
   MOCK_RECOVERY_NORMAL,
+  MOCK_RECOVERY_PROVISIONAL,
   MOCK_RECOVERY_STALE,
 } from './recovery';
+export type { MockRecoveryDetailState } from './recovery';
 
 // Activity summaries
 export {
