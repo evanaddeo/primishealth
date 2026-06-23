@@ -64,8 +64,9 @@ export {
   MOCK_ACTIVITY_MISSING,
   MOCK_ACTIVITY_NORMAL,
   MOCK_ACTIVITY_STALE,
+  getMockActivityDetail,
 } from './activity';
-export type { MockActivitySummary } from './activity';
+export type { MockActivitySummary, MockActivityDetailState } from './activity';
 
 // AI coach summaries
 export {

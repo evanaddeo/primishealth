@@ -6,7 +6,8 @@
  * Theme context: ThemeContext, useTheme(), useThemeSafe() for component consumption.
  * UI primitives: Screen, Card, Text, Button, MetricValue, StatusBadge, ProgressBar.
  * Motion: timing presets, transition presets, reduced-motion resolver helpers.
- * Charts: LineChart, StageTimeline, RingProgress + shared data types and resolvers (CU-020).
+ * Charts: LineChart, BarChart, StageTimeline, RingProgress + shared data types and resolvers
+ * (CU-020; BarChart added CU-066).
  */
 
 // Token modules

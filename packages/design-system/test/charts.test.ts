@@ -32,6 +32,7 @@ import {
   resolveRingArcDegrees,
   resolveStageLaneIndex,
   resolveStageColor,
+  resolveBarHeightFraction,
 } from '../src/charts/chartResolvers.js';
 import type { ChartPoint, SleepStage, SleepStageSegment, ChartState } from '../src/charts/types.js';
 
@@ -311,5 +312,30 @@ describe('resolveStageColor()', () => {
     ALL_STAGES.forEach((stage) => {
       expect(resolveStageColor(stage)).toBe(STAGE_COLORS[stage]);
     });
+  });
+});
+
+// ── resolveBarHeightFraction (BarChart, CU-066) ─────────────────────────────────
+
+describe('resolveBarHeightFraction()', () => {
+  it('maps a value to its proportion of the series max', () => {
+    expect(resolveBarHeightFraction(50, 100)).toBe(0.5);
+    expect(resolveBarHeightFraction(100, 100)).toBe(1);
+    expect(resolveBarHeightFraction(25, 100)).toBe(0.25);
+  });
+
+  it('clamps values above the max to 1 (never overflows the plot)', () => {
+    expect(resolveBarHeightFraction(150, 100)).toBe(1);
+  });
+
+  it('returns 0 for null / non-positive values (gap collapses to baseline)', () => {
+    expect(resolveBarHeightFraction(null, 100)).toBe(0);
+    expect(resolveBarHeightFraction(0, 100)).toBe(0);
+    expect(resolveBarHeightFraction(-10, 100)).toBe(0);
+  });
+
+  it('returns 0 for a non-positive max (no NaN layout)', () => {
+    expect(resolveBarHeightFraction(50, 0)).toBe(0);
+    expect(resolveBarHeightFraction(50, -1)).toBe(0);
   });
 });

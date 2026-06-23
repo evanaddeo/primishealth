@@ -1,12 +1,3 @@
-import { Screen, Text } from '@primis/design-system';
+import { ActivityScreen } from '../../src/features/activity';
 
-export default function ActivityScreen() {
-  return (
-    <Screen testID="screen-activity">
-      <Text variant="titleLarge">Activity</Text>
-      <Text variant="bodyMedium" color="secondary">
-        Placeholder — CU-018
-      </Text>
-    </Screen>
-  );
-}
+export default ActivityScreen;

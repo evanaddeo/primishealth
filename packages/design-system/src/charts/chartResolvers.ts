@@ -119,6 +119,22 @@ export function resolveChartEmptyHint(state: ChartState): string | null {
 }
 
 /**
+ * Resolves the proportional height fraction (0–1) of a bar relative to the
+ * series maximum. Used by BarChart to size each bar within a fixed-height plot.
+ *
+ * Returns 0 for degenerate inputs (non-positive max, or a null/negative value)
+ * so a missing bar collapses to the baseline rather than producing NaN layout.
+ * Clamps to 1 so a value above the provided max never overflows the plot.
+ *
+ * @param value    - The bar's value (null → 0; treated as a gap by the caller).
+ * @param maxValue - The series maximum used as the full-height reference.
+ */
+export function resolveBarHeightFraction(value: number | null, maxValue: number): number {
+  if (maxValue <= 0 || value === null || value <= 0) return 0;
+  return Math.min(1, value / maxValue);
+}
+
+/**
  * Maps a 0–100 progress value to a ring arc sweep angle in degrees (0–360).
  * Input is clamped to [0, 100] before conversion.
  *

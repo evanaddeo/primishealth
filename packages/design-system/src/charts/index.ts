@@ -17,8 +17,11 @@
  *   resolveStageLaneIndex     — vertical lane ordering for sleep stages
  *   resolveStageColor         — Primis visual language color per sleep stage
  *
- * Phase G additions (out of scope for CU-020):
- *   AreaChart, BarChart, StackedBarChart, ZoneChart, Sparkline, CorrelationChart
+ * Phase G additions:
+ *   BarChart — discrete/daily bar chart with optional baseline line (CU-066).
+ *   resolveBarHeightFraction — bar height (0–1) relative to the series max.
+ *
+ * Still pending (later CUs): AreaChart, StackedBarChart, ZoneChart, Sparkline.
  */
 
 // ── Shared data types ─────────────────────────────────────────────────────────
@@ -44,12 +47,18 @@ export {
   resolveRingArcDegrees,
   resolveStageLaneIndex,
   resolveStageColor,
+  resolveBarHeightFraction,
 } from './chartResolvers.js';
 
 // ── LineChart ─────────────────────────────────────────────────────────────────
 
 export { LineChart } from './LineChart.js';
 export type { LineChartProps, BaselineBand } from './LineChart.js';
+
+// ── BarChart ──────────────────────────────────────────────────────────────────
+
+export { BarChart } from './BarChart.js';
+export type { BarChartProps } from './BarChart.js';
 
 // ── StageTimeline ─────────────────────────────────────────────────────────────
 

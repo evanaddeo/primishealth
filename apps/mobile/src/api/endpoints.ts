@@ -53,6 +53,15 @@ export const API_ENDPOINTS = {
   RECOVERY: '/v1/recovery',
 
   /**
+   * Activity detail payload for a single local date.
+   * GET — returns ActivityDetailResponseDto (activity score + components, daily
+   * movement summary, workout list, and chart-ready load/strain trends),
+   * precomputed (ADR-006). Accepts `?date=YYYY-MM-DD`.
+   * Phase F backend provides this route (CU-057); mobile renders it directly.
+   */
+  ACTIVITY: '/v1/activity',
+
+  /**
    * Score snapshot for a single score type.
    * `:type` must be replaced with a valid score type (e.g. 'sleep', 'recovery').
    * Phase D backend provides this route.
