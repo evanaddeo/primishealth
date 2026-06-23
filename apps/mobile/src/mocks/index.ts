@@ -43,6 +43,10 @@ export {
 } from './sleep';
 export type { MockSleepDetailState } from './sleep';
 
+// Bedtime Planner deterministic output (CU-064)
+export { DEFAULT_MOCK_BEDTIME_STATE, getMockBedtimePlan } from './bedtime';
+export type { MockBedtimeState } from './bedtime';
+
 // Recovery score snapshots
 export {
   MOCK_RECOVERY_LOW_RECOVERY,
