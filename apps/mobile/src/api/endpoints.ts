@@ -62,6 +62,18 @@ export const API_ENDPOINTS = {
   ACTIVITY: '/v1/activity',
 
   /**
+   * Vitals detail payload for a single local date.
+   * GET — returns VitalsDetailResponseDto (HRV, resting/avg/min/max HR,
+   * respiratory rate, SpO₂, VO₂ max, skin-temp delta + baseline deviations and
+   * chart-ready trends), precomputed (ADR-006). Accepts `?date=YYYY-MM-DD`.
+   * Phase F backend provides this route (CU-057); mobile renders it directly.
+   *
+   * NOTE: Vitals is a domain VIEW, not a score type — there is no `score` block
+   * and no `/v1/scores/{type}` mapping (vitals.ts; ADR-006).
+   */
+  VITALS: '/v1/vitals',
+
+  /**
    * Score snapshot for a single score type.
    * `:type` must be replaced with a valid score type (e.g. 'sleep', 'recovery').
    * Phase D backend provides this route.

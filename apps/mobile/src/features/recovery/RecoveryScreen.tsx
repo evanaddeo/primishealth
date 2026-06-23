@@ -19,12 +19,14 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Animated, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Animated, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button, Card, Screen, Text, useTheme } from '@primis/design-system';
+import { useRouter } from 'expo-router';
 
 import { useRecoveryDetail } from '../../api/hooks/useRecoveryDetail';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { VITALS_ROUTE } from '../vitals/routes';
 import {
   hasRecoveryScore,
   resolveEmptyRecoveryMessage,
@@ -42,6 +44,7 @@ import {
 
 export function RecoveryScreen(): React.JSX.Element {
   const { colors, spacing } = useTheme();
+  const router = useRouter();
   const { getTimingConfig, isReducedMotion } = useReducedMotion();
   const { detail, status, refetch } = useRecoveryDetail();
 
@@ -113,6 +116,30 @@ export function RecoveryScreen(): React.JSX.Element {
               testID="recovery-guidance"
             />
             <RecoveryVitalsCard vitals={detail.vitals} testID="recovery-vitals" />
+            <Pressable
+              onPress={() => router.navigate(VITALS_ROUTE)}
+              accessibilityRole="button"
+              accessibilityLabel="View all vitals"
+              accessibilityHint="Opens HRV, resting heart rate, SpO₂, respiratory rate, and VO₂ max with trends"
+              style={styles.linkPressable}
+              testID="recovery-vitals-link"
+            >
+              <Card>
+                <View style={styles.linkRow}>
+                  <View style={styles.linkText}>
+                    <Text variant="bodyLarge" weight="semibold">
+                      View all vitals
+                    </Text>
+                    <Text variant="bodySmall" color="secondary">
+                      HRV, resting HR, SpO₂, respiratory rate, VO₂ max
+                    </Text>
+                  </View>
+                  <Text variant="titleMedium" color="accent">
+                    ›
+                  </Text>
+                </View>
+              </Card>
+            </Pressable>
             {detail.score !== null && (
               <RecoveryContributorsCard score={detail.score} testID="recovery-contributors" />
             )}
@@ -141,5 +168,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 48,
+  },
+  linkPressable: {
+    minHeight: 44,
+  },
+  linkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  linkText: {
+    flexShrink: 1,
   },
 });

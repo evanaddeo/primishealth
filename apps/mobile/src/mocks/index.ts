@@ -58,6 +58,14 @@ export {
 } from './recovery';
 export type { MockRecoveryDetailState } from './recovery';
 
+// Vitals detail fixtures (CU-067)
+export { getMockVitalsDetail } from './vitals';
+export type { MockVitalsDetailState } from './vitals';
+
+// Body composition fixtures — local shape, no contract yet (CU-067)
+export { getMockBodyComposition } from './bodyComposition';
+export type { MockBodyCompositionState } from './bodyComposition';
+
 // Activity summaries
 export {
   MOCK_ACTIVITY_LOW_RECOVERY,
