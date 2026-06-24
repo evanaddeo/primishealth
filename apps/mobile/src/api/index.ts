@@ -17,3 +17,5 @@ export { API_ENDPOINTS } from './endpoints';
 export type { ApiEndpointKey, ApiEndpointPath } from './endpoints';
 
 export { ApiClientError, MockModeError, parseApiError } from './errors';
+
+export { setInjectedAuthToken, getInjectedAuthToken } from './authToken';

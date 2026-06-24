@@ -72,6 +72,10 @@ describe('useSettingsStore — defaults', () => {
   it('defaults onboardingComplete to false', () => {
     expect(useSettingsStore.getState().onboardingComplete).toBe(false);
   });
+
+  it('defaults goals to an empty list', () => {
+    expect(useSettingsStore.getState().goals).toEqual([]);
+  });
 });
 
 describe('useSettingsStore — actions', () => {
@@ -106,6 +110,11 @@ describe('useSettingsStore — actions', () => {
   it('setOnboardingComplete marks onboarding done', () => {
     useSettingsStore.getState().setOnboardingComplete(true);
     expect(useSettingsStore.getState().onboardingComplete).toBe(true);
+  });
+
+  it('setGoals replaces the ranked goal list in order', () => {
+    useSettingsStore.getState().setGoals(['sleep', 'longevity']);
+    expect(useSettingsStore.getState().goals).toEqual(['sleep', 'longevity']);
   });
 });
 
@@ -159,5 +168,16 @@ describe('useWidgetStore — actions', () => {
     expect(hiddenWidgets.has('sleep_score')).toBe(true);
     expect(hiddenWidgets.has('hrv_trend')).toBe(true);
     expect(hiddenWidgets.size).toBe(2);
+  });
+
+  it('resetWidgets restores the default order and clears hidden widgets', () => {
+    useWidgetStore.getState().setWidgetOrder(['sleep_score', 'recovery_score']);
+    useWidgetStore.getState().toggleWidget('sleep_score');
+
+    useWidgetStore.getState().resetWidgets();
+
+    const state = useWidgetStore.getState();
+    expect(state.widgetOrder).toEqual([...DEFAULT_WIDGET_ORDER]);
+    expect(state.hiddenWidgets.size).toBe(0);
   });
 });

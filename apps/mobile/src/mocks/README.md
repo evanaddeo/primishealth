@@ -21,6 +21,21 @@ All `ScoreSnapshotDto` objects in this directory conform to `ScoreSnapshotDtoSch
 `@primis/api-contracts`. The schema validation tests in `test/mocks/dashboard.test.ts` enforce
 this — no ad hoc type assertions are used to skip validation.
 
+## Known contract gap — Body Composition (CU-067)
+
+`vitals.ts` fixtures conform to the Phase F `VitalsDetailResponseDto`
+(`@primis/api-contracts`). **Body composition does not yet have a contract.**
+Phase F shipped sleep / recovery / activity / vitals detail DTOs but no
+body-composition DTO and no `/v1/body-composition` route.
+
+To avoid silently extending the shared contract (a Phase G guardrail), CU-067
+defines a **local, clearly-synthetic shape** — `BodyCompositionDetail` in
+`src/features/bodyComposition/bodyCompositionModel.ts` — and serves it from
+`bodyComposition.ts`. Its trend series reuse the existing `TrendSeriesDto`
+primitive so a future DTO can adopt them verbatim. `useBodyComposition` is the
+single seam a future `@primis/api-contracts` `BodyCompositionDetailResponseDto` +
+`/v1/body-composition` route (ADR pending) swaps into — no screen changes needed.
+
 ## Safety Rules
 
 Mock data must **NEVER** contain:
