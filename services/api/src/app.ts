@@ -26,6 +26,9 @@
  *   GET    /api/v1/recovery[?date=YYYY-MM-DD]                    — chart-ready recovery detail (CU-057)
  *   GET    /api/v1/activity[?date=YYYY-MM-DD]                    — chart-ready activity detail (CU-057)
  *   GET    /api/v1/vitals[?date=YYYY-MM-DD]                      — chart-ready vitals detail (CU-057)
+ *   POST   /api/v1/checkins                                     — create a manual check-in (CU-069)
+ *   GET    /api/v1/checkins?from=&to=                           — list check-ins by local date (CU-069)
+ *   PATCH  /api/v1/checkins/:id                                 — correct a manual check-in (CU-069)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -45,6 +48,7 @@ import { requestIdMiddleware } from './middleware/requestId.js';
 import { activityRouter } from './routes/activity.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { healthRouter } from './routes/health.js';
+import { manualInputRouter } from './routes/manualInputs.js';
 import { meRouter } from './routes/me.js';
 import { onboardingRouter } from './routes/onboarding.js';
 import { meProvidersRouter, providerConnectionsRouter } from './routes/providerConnections.js';
@@ -139,6 +143,12 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   app.route('/api/v1/recovery', recoveryRouter);
   app.route('/api/v1/activity', activityRouter);
   app.route('/api/v1/vitals', vitalsRouter);
+
+  // Manual check-in routes (CU-069): the first health-data write path.
+  //   POST  /api/v1/checkins            — create a check-in
+  //   GET   /api/v1/checkins?from=&to=  — list check-ins for a local-date range
+  //   PATCH /api/v1/checkins/:id        — correct an existing check-in
+  app.route('/api/v1/checkins', manualInputRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);

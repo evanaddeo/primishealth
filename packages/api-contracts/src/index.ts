@@ -74,6 +74,13 @@
  *   - VitalsDetailResponseDto, VitalsDetailResponseDtoSchema, VITALS_DETAIL_FIXTURE,
  *     VitalsMetricsDto, VitalsBaselineDeviationsDto
  *
+ * CU-069 exports (manual check-in DTOs):
+ *   - ManualCheckinDto, ManualCheckinDtoSchema, MANUAL_CHECKIN_FIXTURE
+ *   - CheckinType, CheckinTypeSchema, CHECKIN_TYPE_VALUES
+ *   - CreateCheckinRequestDto, CreateCheckinRequestDtoSchema
+ *   - UpdateCheckinRequestDto, UpdateCheckinRequestDtoSchema
+ *   - CheckinListResponseDto, CheckinListResponseDtoSchema
+ *
  * envelope/errors/pagination modules do NOT import from @primis/core-types (CU-011 constraint).
  * scores/dataQuality modules add the @primis/core-types dependency (CU-012).
  * user/onboarding modules are self-contained (no @primis/core-types dependency).
@@ -89,6 +96,7 @@ export * from './recovery.js';
 export * from './sleep.js';
 export * from './envelope.js';
 export * from './errors.js';
+export * from './manualInputs.js';
 export * from './onboarding.js';
 export * from './pagination.js';
 export * from './providerConnections.js';

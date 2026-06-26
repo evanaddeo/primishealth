@@ -21,6 +21,7 @@ import { db } from '../db/client.js';
 import type {
   ManualCheckin,
   NewManualCheckin,
+  ManualCheckinUpdate,
   CustomTag,
   NewCustomTag,
   TagEvent,
@@ -81,6 +82,54 @@ export async function getCheckins(userId: string, dateRange: DateRange): Promise
     .where('local_date', '<=', dateRange.to)
     .orderBy('occurred_at_utc', 'desc')
     .execute();
+}
+
+/**
+ * Returns a single check-in by id, scoped to its owner.
+ *
+ * The `userId` filter makes cross-user access impossible: another user's id
+ * resolves to `undefined`, never another user's row.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param checkinId - Check-in UUID.
+ * @returns The check-in, or undefined when not found / not owned.
+ */
+export async function getCheckinById(
+  userId: string,
+  checkinId: string,
+): Promise<ManualCheckin | undefined> {
+  return db
+    .selectFrom('manual_checkins')
+    .selectAll()
+    .where('id', '=', checkinId)
+    .where('user_id', '=', userId)
+    .executeTakeFirst();
+}
+
+/**
+ * Applies a partial correction to a check-in, scoped to its owner.
+ *
+ * `updated_at` is set in the app layer (D-A-008). Time anchors
+ * (occurred_at_utc/local_date/timezone) are not mutated here — check-ins are
+ * append-only events, so a misdated entry is re-created rather than re-dated.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param checkinId - Check-in UUID.
+ * @param patch     - Columns to update (already snake_cased).
+ * @returns The updated row, or undefined when not found / not owned.
+ */
+export async function updateCheckin(
+  userId: string,
+  checkinId: string,
+  patch: ManualCheckinUpdate,
+): Promise<ManualCheckin | undefined> {
+  return db
+    .updateTable('manual_checkins')
+    .set({ ...patch, updated_at: new Date() })
+    .where('id', '=', checkinId)
+    .where('user_id', '=', userId)
+    .returningAll()
+    .executeTakeFirst();
 }
 
 // ---------------------------------------------------------------------------
