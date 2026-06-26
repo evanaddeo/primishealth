@@ -212,6 +212,26 @@ export async function createHydrationEntry(data: NewHydrationEntry): Promise<Hyd
   return row;
 }
 
+/**
+ * Returns a user's hydration entries for a single local date.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param localDate - ISO date (YYYY-MM-DD) in the user's timezone.
+ * @returns Entries ordered by occurred_at_utc descending.
+ */
+export async function getHydrationEntriesForDate(
+  userId: string,
+  localDate: string,
+): Promise<HydrationEntry[]> {
+  return db
+    .selectFrom('hydration_entries')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('local_date', '=', localDate)
+    .orderBy('occurred_at_utc', 'desc')
+    .execute();
+}
+
 // ---------------------------------------------------------------------------
 // caffeine_entries
 // ---------------------------------------------------------------------------
@@ -236,6 +256,26 @@ export async function createCaffeineEntry(data: NewCaffeineEntry): Promise<Caffe
   return row;
 }
 
+/**
+ * Returns a user's caffeine entries for a single local date.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param localDate - ISO date (YYYY-MM-DD) in the user's timezone.
+ * @returns Entries ordered by occurred_at_utc descending.
+ */
+export async function getCaffeineEntriesForDate(
+  userId: string,
+  localDate: string,
+): Promise<CaffeineEntry[]> {
+  return db
+    .selectFrom('caffeine_entries')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('local_date', '=', localDate)
+    .orderBy('occurred_at_utc', 'desc')
+    .execute();
+}
+
 // ---------------------------------------------------------------------------
 // alcohol_entries
 // ---------------------------------------------------------------------------
@@ -254,6 +294,26 @@ export async function createAlcoholEntry(data: NewAlcoholEntry): Promise<Alcohol
   }
 
   return row;
+}
+
+/**
+ * Returns a user's alcohol entries for a single local date.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param localDate - ISO date (YYYY-MM-DD) in the user's timezone.
+ * @returns Entries ordered by occurred_at_utc descending.
+ */
+export async function getAlcoholEntriesForDate(
+  userId: string,
+  localDate: string,
+): Promise<AlcoholEntry[]> {
+  return db
+    .selectFrom('alcohol_entries')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('local_date', '=', localDate)
+    .orderBy('occurred_at_utc', 'desc')
+    .execute();
 }
 
 // ---------------------------------------------------------------------------

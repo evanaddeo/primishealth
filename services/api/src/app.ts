@@ -29,6 +29,13 @@
  *   POST   /api/v1/checkins                                     — create a manual check-in (CU-069)
  *   GET    /api/v1/checkins?from=&to=                           — list check-ins by local date (CU-069)
  *   PATCH  /api/v1/checkins/:id                                 — correct a manual check-in (CU-069)
+ *   POST   /api/v1/hydration                                    — log fluid intake (CU-070)
+ *   GET    /api/v1/hydration?date=                              — list hydration entries (CU-070)
+ *   POST   /api/v1/caffeine                                     — log caffeine intake (CU-070)
+ *   GET    /api/v1/caffeine?date=                               — list caffeine entries (CU-070)
+ *   POST   /api/v1/alcohol                                      — log alcohol intake (CU-070)
+ *   GET    /api/v1/alcohol?date=                                — list alcohol entries (CU-070)
+ *   GET    /api/v1/lifestyle?date=                              — daily lifestyle summary + entries (CU-070)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -48,6 +55,7 @@ import { requestIdMiddleware } from './middleware/requestId.js';
 import { activityRouter } from './routes/activity.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { healthRouter } from './routes/health.js';
+import { lifestyleLogRouter } from './routes/lifestyleLogs.js';
 import { manualInputRouter } from './routes/manualInputs.js';
 import { meRouter } from './routes/me.js';
 import { onboardingRouter } from './routes/onboarding.js';
@@ -149,6 +157,14 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   //   GET   /api/v1/checkins?from=&to=  — list check-ins for a local-date range
   //   PATCH /api/v1/checkins/:id        — correct an existing check-in
   app.route('/api/v1/checkins', manualInputRouter);
+
+  // Lifestyle log routes (CU-070): hydration / caffeine / alcohol write-paths +
+  // the ADR-008 daily roll-up that feeds the Nutrition tab.
+  //   POST /api/v1/hydration | GET /api/v1/hydration?date=
+  //   POST /api/v1/caffeine  | GET /api/v1/caffeine?date=
+  //   POST /api/v1/alcohol   | GET /api/v1/alcohol?date=
+  //   GET  /api/v1/lifestyle?date= — precomputed summary + the day's entries
+  app.route('/api/v1', lifestyleLogRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);
