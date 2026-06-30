@@ -104,6 +104,11 @@ export {
   mockCreatedCaffeine,
   mockCreatedHydration,
 } from './lifestyle';
-export { getMockNutritionDay, mockCreatedNutritionEntry } from './nutrition';
+export {
+  getMockNutritionDay,
+  getMockNutritionDetail,
+  mockCreatedNutritionEntry,
+} from './nutrition';
+export type { MockNutritionDetail, MockNutritionDetailState } from './nutrition';
 export { mockCreatedDigestion } from './digestion';
 export { getMockTags, mockCreatedTagEvent, mockUpsertTag } from './tags';
