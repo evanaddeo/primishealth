@@ -31,3 +31,26 @@ export type { StatusBadgeProps, StatusBadgeStatus } from './StatusBadge.js';
 
 export { ProgressBar, resolveProgressFill } from './ProgressBar.js';
 export type { ProgressBarProps } from './ProgressBar.js';
+
+// Form input primitives (H-PRE, CU-074)
+export { TextField } from './TextField.js';
+export type { TextFieldProps } from './TextField.js';
+
+export {
+  NumberStepper,
+  clampStepperValue,
+  nextStepperValue,
+  canIncrementStepper,
+  canDecrementStepper,
+} from './NumberStepper.js';
+export type { NumberStepperProps } from './NumberStepper.js';
+export type { StepperBounds } from '../utils/componentResolvers.js';
+
+export { SegmentedControl } from './SegmentedControl.js';
+export type { SegmentedControlProps, SegmentOption } from './SegmentedControl.js';
+
+export { Chip, ChipRow } from './Chip.js';
+export type { ChipProps } from './Chip.js';
+
+export { BottomSheet } from './BottomSheet.js';
+export type { BottomSheetProps } from './BottomSheet.js';

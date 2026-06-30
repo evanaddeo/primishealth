@@ -21,6 +21,7 @@ import { db } from '../db/client.js';
 import type {
   ManualCheckin,
   NewManualCheckin,
+  ManualCheckinUpdate,
   CustomTag,
   NewCustomTag,
   TagEvent,
@@ -83,6 +84,54 @@ export async function getCheckins(userId: string, dateRange: DateRange): Promise
     .execute();
 }
 
+/**
+ * Returns a single check-in by id, scoped to its owner.
+ *
+ * The `userId` filter makes cross-user access impossible: another user's id
+ * resolves to `undefined`, never another user's row.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param checkinId - Check-in UUID.
+ * @returns The check-in, or undefined when not found / not owned.
+ */
+export async function getCheckinById(
+  userId: string,
+  checkinId: string,
+): Promise<ManualCheckin | undefined> {
+  return db
+    .selectFrom('manual_checkins')
+    .selectAll()
+    .where('id', '=', checkinId)
+    .where('user_id', '=', userId)
+    .executeTakeFirst();
+}
+
+/**
+ * Applies a partial correction to a check-in, scoped to its owner.
+ *
+ * `updated_at` is set in the app layer (D-A-008). Time anchors
+ * (occurred_at_utc/local_date/timezone) are not mutated here — check-ins are
+ * append-only events, so a misdated entry is re-created rather than re-dated.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param checkinId - Check-in UUID.
+ * @param patch     - Columns to update (already snake_cased).
+ * @returns The updated row, or undefined when not found / not owned.
+ */
+export async function updateCheckin(
+  userId: string,
+  checkinId: string,
+  patch: ManualCheckinUpdate,
+): Promise<ManualCheckin | undefined> {
+  return db
+    .updateTable('manual_checkins')
+    .set({ ...patch, updated_at: new Date() })
+    .where('id', '=', checkinId)
+    .where('user_id', '=', userId)
+    .returningAll()
+    .executeTakeFirst();
+}
+
 // ---------------------------------------------------------------------------
 // custom_tags
 // ---------------------------------------------------------------------------
@@ -119,6 +168,47 @@ export async function upsertCustomTag(data: NewCustomTag): Promise<CustomTag> {
   return row;
 }
 
+/**
+ * Returns a user's active custom tags, ordered for stable display.
+ *
+ * The `userId` filter makes cross-user access impossible — tags are user-owned
+ * and cannot collide across users (unique on `(user_id, tag_code)`).
+ *
+ * @param userId - Internal user UUID (ownership filter).
+ * @returns Active tags ordered by display_name ascending.
+ */
+export async function getCustomTags(userId: string): Promise<CustomTag[]> {
+  return db
+    .selectFrom('custom_tags')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('is_active', '=', true)
+    .orderBy('display_name', 'asc')
+    .execute();
+}
+
+/**
+ * Returns a single custom tag by its (user-scoped) tag_code, if it exists.
+ *
+ * Used to auto-link a tag event to its definition. The `userId` filter makes
+ * cross-user access impossible.
+ *
+ * @param userId  - Internal user UUID (ownership filter).
+ * @param tagCode - Deterministic tag slug.
+ * @returns The tag, or undefined when not found / not owned.
+ */
+export async function getCustomTagByCode(
+  userId: string,
+  tagCode: string,
+): Promise<CustomTag | undefined> {
+  return db
+    .selectFrom('custom_tags')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('tag_code', '=', tagCode)
+    .executeTakeFirst();
+}
+
 // ---------------------------------------------------------------------------
 // tag_events
 // ---------------------------------------------------------------------------
@@ -137,6 +227,26 @@ export async function createTagEvent(data: NewTagEvent): Promise<TagEvent> {
   }
 
   return row;
+}
+
+/**
+ * Returns a user's tag events within an inclusive local-date range.
+ *
+ * The `userId` filter makes cross-user access impossible.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param dateRange - Inclusive ISO date range (local_date).
+ * @returns Tag events ordered by occurred_at_utc descending.
+ */
+export async function getTagEvents(userId: string, dateRange: DateRange): Promise<TagEvent[]> {
+  return db
+    .selectFrom('tag_events')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('local_date', '>=', dateRange.from)
+    .where('local_date', '<=', dateRange.to)
+    .orderBy('occurred_at_utc', 'desc')
+    .execute();
 }
 
 // ---------------------------------------------------------------------------
@@ -163,6 +273,26 @@ export async function createHydrationEntry(data: NewHydrationEntry): Promise<Hyd
   return row;
 }
 
+/**
+ * Returns a user's hydration entries for a single local date.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param localDate - ISO date (YYYY-MM-DD) in the user's timezone.
+ * @returns Entries ordered by occurred_at_utc descending.
+ */
+export async function getHydrationEntriesForDate(
+  userId: string,
+  localDate: string,
+): Promise<HydrationEntry[]> {
+  return db
+    .selectFrom('hydration_entries')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('local_date', '=', localDate)
+    .orderBy('occurred_at_utc', 'desc')
+    .execute();
+}
+
 // ---------------------------------------------------------------------------
 // caffeine_entries
 // ---------------------------------------------------------------------------
@@ -187,6 +317,26 @@ export async function createCaffeineEntry(data: NewCaffeineEntry): Promise<Caffe
   return row;
 }
 
+/**
+ * Returns a user's caffeine entries for a single local date.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param localDate - ISO date (YYYY-MM-DD) in the user's timezone.
+ * @returns Entries ordered by occurred_at_utc descending.
+ */
+export async function getCaffeineEntriesForDate(
+  userId: string,
+  localDate: string,
+): Promise<CaffeineEntry[]> {
+  return db
+    .selectFrom('caffeine_entries')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('local_date', '=', localDate)
+    .orderBy('occurred_at_utc', 'desc')
+    .execute();
+}
+
 // ---------------------------------------------------------------------------
 // alcohol_entries
 // ---------------------------------------------------------------------------
@@ -205,6 +355,26 @@ export async function createAlcoholEntry(data: NewAlcoholEntry): Promise<Alcohol
   }
 
   return row;
+}
+
+/**
+ * Returns a user's alcohol entries for a single local date.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param localDate - ISO date (YYYY-MM-DD) in the user's timezone.
+ * @returns Entries ordered by occurred_at_utc descending.
+ */
+export async function getAlcoholEntriesForDate(
+  userId: string,
+  localDate: string,
+): Promise<AlcoholEntry[]> {
+  return db
+    .selectFrom('alcohol_entries')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('local_date', '=', localDate)
+    .orderBy('occurred_at_utc', 'desc')
+    .execute();
 }
 
 // ---------------------------------------------------------------------------
@@ -228,4 +398,25 @@ export async function createBowelEntry(data: NewBowelEntry): Promise<BowelEntry>
   }
 
   return row;
+}
+
+/**
+ * Returns a user's bowel entries within an inclusive local-date range.
+ *
+ * Used for trend/correlation reads only — never for diagnosis. The `userId`
+ * filter makes cross-user access impossible.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param dateRange - Inclusive ISO date range (local_date).
+ * @returns Entries ordered by occurred_at_utc descending.
+ */
+export async function getBowelEntries(userId: string, dateRange: DateRange): Promise<BowelEntry[]> {
+  return db
+    .selectFrom('bowel_entries')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('local_date', '>=', dateRange.from)
+    .where('local_date', '<=', dateRange.to)
+    .orderBy('occurred_at_utc', 'desc')
+    .execute();
 }

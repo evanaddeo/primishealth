@@ -14,6 +14,7 @@
  * ```
  */
 
+export * from './aggregation/dailyManualAggregation.js';
 export * from './categories.js';
 export * from './registry.js';
 export * from './units.js';

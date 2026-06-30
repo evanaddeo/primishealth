@@ -24,6 +24,7 @@ import { useRouter } from 'expo-router';
 import { useTodayDashboard } from '../../api/hooks/useTodayDashboard';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useWidgetStore } from '../../state/widgetStore';
+import { QuickAddLauncher } from '../quickAdd';
 import { HOME_WIDGET_META, resolveFreshness, resolveVisibleWidgets } from './homeModel';
 import { HomeHeader } from './components/HomeHeader';
 import { HOME_WIDGET_REGISTRY } from './widgets';
@@ -86,6 +87,21 @@ export function HomeScreen(): React.JSX.Element {
           freshness={freshness}
           onPressEdit={() => router.navigate('/settings/home-widgets')}
         />
+
+        <View style={{ flexDirection: 'row', gap: spacing.sm }} testID="home-quick-actions">
+          <View style={{ flex: 1 }}>
+            <QuickAddLauncher label="Quick add" testID="home-quick-add" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Button
+              variant="secondary"
+              label="Check in"
+              onPress={() => router.navigate('/check-in')}
+              accessibilityHint="Opens the daily check-in"
+              testID="home-check-in"
+            />
+          </View>
+        </View>
 
         {visibleWidgets.map((id) => {
           const Widget = HOME_WIDGET_REGISTRY[id];
