@@ -81,6 +81,17 @@
  *   - UpdateCheckinRequestDto, UpdateCheckinRequestDtoSchema
  *   - CheckinListResponseDto, CheckinListResponseDtoSchema
  *
+ * CU-073 exports (custom tag DTOs):
+ *   - CustomTagDto, CustomTagDtoSchema, CUSTOM_TAG_FIXTURE
+ *   - CreateTagRequestDto, CreateTagRequestDtoSchema
+ *   - TagListResponseDto, TagListResponseDtoSchema
+ *   - TagEventDto, TagEventDtoSchema, TAG_EVENT_FIXTURE
+ *   - CreateTagEventRequestDto, CreateTagEventRequestDtoSchema
+ *   - TagEventListResponseDto, TagEventListResponseDtoSchema
+ *   - TagCategory, TagCategorySchema, TAG_CATEGORY_VALUES
+ *   - TagLinkedEntityType, TagLinkedEntityTypeSchema, TAG_LINKED_ENTITY_TYPE_VALUES
+ *   - normalizeTagCode
+ *
  * envelope/errors/pagination modules do NOT import from @primis/core-types (CU-011 constraint).
  * scores/dataQuality modules add the @primis/core-types dependency (CU-012).
  * user/onboarding modules are self-contained (no @primis/core-types dependency).
@@ -105,5 +116,6 @@ export * from './pagination.js';
 export * from './providerConnections.js';
 export * from './scores.js';
 export * from './sync.js';
+export * from './tags.js';
 export * from './user.js';
 export * from './vitals.js';

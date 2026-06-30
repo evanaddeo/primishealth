@@ -40,6 +40,10 @@
  *   GET    /api/v1/digestion?from=&to=                          — list digestion entries by date (CU-071)
  *   POST   /api/v1/nutrition/entries                            — log a manual macro entry (CU-072)
  *   GET    /api/v1/nutrition?date=                              — daily macro summary + entries (CU-072)
+ *   POST   /api/v1/tags                                        — create-or-upsert a custom tag (CU-073)
+ *   GET    /api/v1/tags                                        — list active custom tags (CU-073)
+ *   POST   /api/v1/tags/events                                 — log a tag event (CU-073)
+ *   GET    /api/v1/tags/events?from=&to=                       — list tag events by local date (CU-073)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -69,6 +73,7 @@ import { meProvidersRouter, providerConnectionsRouter } from './routes/providerC
 import { recoveryRouter } from './routes/recovery.js';
 import { sleepRouter } from './routes/sleep.js';
 import { syncRouter } from './routes/sync.js';
+import { tagRouter } from './routes/tags.js';
 import { vitalsRouter } from './routes/vitals.js';
 
 // ---------------------------------------------------------------------------
@@ -183,6 +188,14 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   //   POST /api/v1/nutrition/entries — log a manual macro entry
   //   GET  /api/v1/nutrition?date=   — precomputed daily macro summary + entries
   app.route('/api/v1/nutrition', nutritionRouter);
+
+  // Custom tag routes (CU-073): user-owned behavior/event markers for future
+  // correlations and AI context (Phase I) — no correlations are made here.
+  //   POST /api/v1/tags                 — create-or-upsert a tag definition
+  //   GET  /api/v1/tags                 — list the user's active tags
+  //   POST /api/v1/tags/events          — log a tag event (optionally linked)
+  //   GET  /api/v1/tags/events?from=&to= — list tag events for a local-date range
+  app.route('/api/v1/tags', tagRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);

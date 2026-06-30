@@ -168,6 +168,47 @@ export async function upsertCustomTag(data: NewCustomTag): Promise<CustomTag> {
   return row;
 }
 
+/**
+ * Returns a user's active custom tags, ordered for stable display.
+ *
+ * The `userId` filter makes cross-user access impossible — tags are user-owned
+ * and cannot collide across users (unique on `(user_id, tag_code)`).
+ *
+ * @param userId - Internal user UUID (ownership filter).
+ * @returns Active tags ordered by display_name ascending.
+ */
+export async function getCustomTags(userId: string): Promise<CustomTag[]> {
+  return db
+    .selectFrom('custom_tags')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('is_active', '=', true)
+    .orderBy('display_name', 'asc')
+    .execute();
+}
+
+/**
+ * Returns a single custom tag by its (user-scoped) tag_code, if it exists.
+ *
+ * Used to auto-link a tag event to its definition. The `userId` filter makes
+ * cross-user access impossible.
+ *
+ * @param userId  - Internal user UUID (ownership filter).
+ * @param tagCode - Deterministic tag slug.
+ * @returns The tag, or undefined when not found / not owned.
+ */
+export async function getCustomTagByCode(
+  userId: string,
+  tagCode: string,
+): Promise<CustomTag | undefined> {
+  return db
+    .selectFrom('custom_tags')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('tag_code', '=', tagCode)
+    .executeTakeFirst();
+}
+
 // ---------------------------------------------------------------------------
 // tag_events
 // ---------------------------------------------------------------------------
@@ -186,6 +227,26 @@ export async function createTagEvent(data: NewTagEvent): Promise<TagEvent> {
   }
 
   return row;
+}
+
+/**
+ * Returns a user's tag events within an inclusive local-date range.
+ *
+ * The `userId` filter makes cross-user access impossible.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param dateRange - Inclusive ISO date range (local_date).
+ * @returns Tag events ordered by occurred_at_utc descending.
+ */
+export async function getTagEvents(userId: string, dateRange: DateRange): Promise<TagEvent[]> {
+  return db
+    .selectFrom('tag_events')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('local_date', '>=', dateRange.from)
+    .where('local_date', '<=', dateRange.to)
+    .orderBy('occurred_at_utc', 'desc')
+    .execute();
 }
 
 // ---------------------------------------------------------------------------
