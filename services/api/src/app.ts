@@ -38,6 +38,8 @@
  *   GET    /api/v1/lifestyle?date=                              — daily lifestyle summary + entries (CU-070)
  *   POST   /api/v1/digestion                                   — log a digestion entry (CU-071)
  *   GET    /api/v1/digestion?from=&to=                          — list digestion entries by date (CU-071)
+ *   POST   /api/v1/nutrition/entries                            — log a manual macro entry (CU-072)
+ *   GET    /api/v1/nutrition?date=                              — daily macro summary + entries (CU-072)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -61,6 +63,7 @@ import { healthRouter } from './routes/health.js';
 import { lifestyleLogRouter } from './routes/lifestyleLogs.js';
 import { manualInputRouter } from './routes/manualInputs.js';
 import { meRouter } from './routes/me.js';
+import { nutritionRouter } from './routes/nutrition.js';
 import { onboardingRouter } from './routes/onboarding.js';
 import { meProvidersRouter, providerConnectionsRouter } from './routes/providerConnections.js';
 import { recoveryRouter } from './routes/recovery.js';
@@ -174,6 +177,12 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   //   POST /api/v1/digestion           — log a digestion entry
   //   GET  /api/v1/digestion?from=&to= — list entries for a local-date range
   app.route('/api/v1/digestion', digestionRouter);
+
+  // Manual macro nutrition routes (CU-072): basic calorie/macro logging before any
+  // food database, plus the ADR-008 daily macro roll-up that feeds the Nutrition tab.
+  //   POST /api/v1/nutrition/entries — log a manual macro entry
+  //   GET  /api/v1/nutrition?date=   — precomputed daily macro summary + entries
+  app.route('/api/v1/nutrition', nutritionRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);

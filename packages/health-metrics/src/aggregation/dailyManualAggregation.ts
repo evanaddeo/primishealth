@@ -98,3 +98,77 @@ export function aggregateLifestyleDay(inputs: LifestyleDayInputs): LifestyleDail
 
   return { hydrationMl, caffeineMg, latestCaffeineTimeUtc, alcoholStandardDrinks };
 }
+
+// ---------------------------------------------------------------------------
+// Manual macro nutrition (CU-072)
+// ---------------------------------------------------------------------------
+
+/**
+ * One nutrition entry's contribution to the day's macro totals. Each macro is
+ * already in its canonical unit (kcal / grams) and may be `null` when the user
+ * left a field blank on a manual estimate.
+ */
+export interface MacroAggregateInput {
+  /** Energy in canonical kilocalories, or `null` when not logged. */
+  readonly caloriesKcal: number | null;
+  /** Protein in canonical grams, or `null` when not logged. */
+  readonly proteinG: number | null;
+  /** Carbohydrate in canonical grams, or `null` when not logged. */
+  readonly carbsG: number | null;
+  /** Fat in canonical grams, or `null` when not logged. */
+  readonly fatG: number | null;
+  /** Fiber in canonical grams, or `null` when not logged. */
+  readonly fiberG: number | null;
+}
+
+/**
+ * The macro subset of `daily_nutrition_summaries` this function owns.
+ *
+ * Each field is `null` when there are no nutrition entries for the day, so a
+ * write-through upsert can leave it untouched rather than zeroing it. (When
+ * entries exist, a blank field contributes `0` to the sum.)
+ */
+export interface MacroDailyAggregate {
+  /** Sum of energy in kilocalories, or `null` when nothing was logged. */
+  readonly caloriesKcal: number | null;
+  /** Sum of protein in grams, or `null` when nothing was logged. */
+  readonly proteinG: number | null;
+  /** Sum of carbohydrate in grams, or `null` when nothing was logged. */
+  readonly carbsG: number | null;
+  /** Sum of fat in grams, or `null` when nothing was logged. */
+  readonly fatG: number | null;
+  /** Sum of fiber in grams, or `null` when nothing was logged. */
+  readonly fiberG: number | null;
+}
+
+/**
+ * Aggregates a single day's manual nutrition entries into the macro/calorie
+ * summary fields it owns. Pure and deterministic (ADR-008 §2): the same inputs
+ * always produce the same output, which keeps the write-through upsert
+ * idempotent.
+ *
+ * Each field is the simple sum of that macro across the day's entries (a blank
+ * field counts as `0`), or `null` when there are no entries at all so the
+ * write-through never clobbers a real value with a spurious `0`. It computes
+ * ONLY sums — never `nutrition_score`, targets, `calories_out`, or
+ * `calorie_balance` (those stay Phase-F / provider owned).
+ *
+ * @param entries - The day's nutrition entries' macro contributions.
+ * @returns The owned macro/calorie summary fields.
+ */
+export function aggregateMacroDay(entries: readonly MacroAggregateInput[]): MacroDailyAggregate {
+  if (entries.length === 0) {
+    return { caloriesKcal: null, proteinG: null, carbsG: null, fatG: null, fiberG: null };
+  }
+
+  const sumOf = (pick: (e: MacroAggregateInput) => number | null): number =>
+    entries.reduce((sum, e) => sum + (pick(e) ?? 0), 0);
+
+  return {
+    caloriesKcal: sumOf((e) => e.caloriesKcal),
+    proteinG: sumOf((e) => e.proteinG),
+    carbsG: sumOf((e) => e.carbsG),
+    fatG: sumOf((e) => e.fatG),
+    fiberG: sumOf((e) => e.fiberG),
+  };
+}

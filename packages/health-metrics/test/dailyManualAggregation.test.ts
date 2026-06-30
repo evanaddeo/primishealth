@@ -12,7 +12,10 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { aggregateLifestyleDay } from '../src/aggregation/dailyManualAggregation.js';
+import {
+  aggregateLifestyleDay,
+  aggregateMacroDay,
+} from '../src/aggregation/dailyManualAggregation.js';
 
 describe('aggregateLifestyleDay', () => {
   it('sums hydration, caffeine, and alcohol and derives the latest caffeine time', () => {
@@ -80,5 +83,50 @@ describe('aggregateLifestyleDay', () => {
     } as const;
 
     expect(aggregateLifestyleDay(inputs)).toEqual(aggregateLifestyleDay(inputs));
+  });
+});
+
+describe('aggregateMacroDay', () => {
+  it('sums calories and each macro across the day', () => {
+    const result = aggregateMacroDay([
+      { caloriesKcal: 500, proteinG: 40, carbsG: 50, fatG: 15, fiberG: 6 },
+      { caloriesKcal: 700, proteinG: 50, carbsG: 60, fatG: 20, fiberG: 4 },
+    ]);
+
+    expect(result.caloriesKcal).toBe(1200);
+    expect(result.proteinG).toBe(90);
+    expect(result.carbsG).toBe(110);
+    expect(result.fatG).toBe(35);
+    expect(result.fiberG).toBe(10);
+  });
+
+  it('returns all-null for an empty day (does not clobber with 0)', () => {
+    const result = aggregateMacroDay([]);
+
+    expect(result.caloriesKcal).toBeNull();
+    expect(result.proteinG).toBeNull();
+    expect(result.carbsG).toBeNull();
+    expect(result.fatG).toBeNull();
+    expect(result.fiberG).toBeNull();
+  });
+
+  it('treats blank fields as 0 when at least one entry exists', () => {
+    const result = aggregateMacroDay([
+      { caloriesKcal: 300, proteinG: 25, carbsG: null, fatG: null, fiberG: null },
+      { caloriesKcal: null, proteinG: 10, carbsG: 20, fatG: 5, fiberG: null },
+    ]);
+
+    expect(result.caloriesKcal).toBe(300);
+    expect(result.proteinG).toBe(35);
+    expect(result.carbsG).toBe(20);
+    expect(result.fatG).toBe(5);
+    // entries exist but none logged fiber → 0, not null
+    expect(result.fiberG).toBe(0);
+  });
+
+  it('is deterministic for identical inputs (idempotent recompute)', () => {
+    const inputs = [{ caloriesKcal: 450, proteinG: 30, carbsG: 40, fatG: 12, fiberG: 5 }] as const;
+
+    expect(aggregateMacroDay(inputs)).toEqual(aggregateMacroDay(inputs));
   });
 });
