@@ -95,3 +95,15 @@ export {
   getMockConnections,
 } from './connections';
 export type { MockConnectionState, MockConnectionsSnapshot } from './connections';
+
+// Manual inputs & nutrition write-paths (CU-074)
+export { getMockCheckins, mockCreatedCheckin } from './checkins';
+export {
+  getMockLifestyleDay,
+  mockCreatedAlcohol,
+  mockCreatedCaffeine,
+  mockCreatedHydration,
+} from './lifestyle';
+export { getMockNutritionDay, mockCreatedNutritionEntry } from './nutrition';
+export { mockCreatedDigestion } from './digestion';
+export { getMockTags, mockCreatedTagEvent, mockUpsertTag } from './tags';

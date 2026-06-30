@@ -107,3 +107,40 @@ export function resolveProgressFill(value: number): number {
   const clamped = Math.min(100, Math.max(0, value));
   return clamped / 100;
 }
+
+// ── NumberStepper ───────────────────────────────────────────────────────────────
+
+/** Bounds + granularity for a {@link NumberStepper}-style control. */
+export interface StepperBounds {
+  readonly min: number;
+  readonly max: number;
+  /** Increment granularity. Defaults to 1 at the call site. */
+  readonly step: number;
+}
+
+/**
+ * Clamps `value` into `[min, max]`. Out-of-range inputs are clamped silently —
+ * never throws. Used so a stepper can never display a value outside its bounds.
+ */
+export function clampStepperValue(value: number, bounds: StepperBounds): number {
+  return Math.min(bounds.max, Math.max(bounds.min, value));
+}
+
+/**
+ * Returns the next stepper value when the user taps +/-. Adds (or subtracts)
+ * one `step` and clamps to the bounds. `direction` is `+1` to increment or
+ * `-1` to decrement. Deterministic and side-effect free.
+ */
+export function nextStepperValue(value: number, direction: 1 | -1, bounds: StepperBounds): number {
+  return clampStepperValue(value + direction * bounds.step, bounds);
+}
+
+/** True when the increment button should be enabled (value below max). */
+export function canIncrementStepper(value: number, bounds: StepperBounds): boolean {
+  return value < bounds.max;
+}
+
+/** True when the decrement button should be enabled (value above min). */
+export function canDecrementStepper(value: number, bounds: StepperBounds): boolean {
+  return value > bounds.min;
+}

@@ -166,6 +166,71 @@ export const API_ENDPOINTS = {
    * Mobile polls SYNC_STATUS for progress. Phase E backend provides this (CU-046).
    */
   SYNC_REFRESH: '/v1/me/sync/refresh',
+
+  // ── Manual inputs & nutrition write-paths (Phase H, CU-069 → CU-073) ───────────
+
+  /**
+   * Manual daily check-ins (energy / mood / stress / soreness / notes).
+   * POST — create a check-in (CreateCheckinRequestDto → ManualCheckinDto).
+   * GET `?from=&to=` — list by local-date range (CheckinListResponseDto).
+   * PATCH `/:id` — correct an entry. Phase H backend provides this (CU-069).
+   */
+  CHECKINS: '/v1/checkins',
+
+  /**
+   * Hydration entries. POST logs `amount` + `unit` (normalized to ml server-side).
+   * GET `?date=` lists the day's entries. Phase H backend (CU-070).
+   */
+  HYDRATION: '/v1/hydration',
+
+  /**
+   * Caffeine entries (mg + beverage type + latest-time roll-up).
+   * POST creates; GET `?date=` lists. Phase H backend (CU-070).
+   */
+  CAFFEINE: '/v1/caffeine',
+
+  /**
+   * Alcohol entries (standard drinks + range + type), recorded without judgment.
+   * POST creates; GET `?date=` lists. Phase H backend (CU-070).
+   */
+  ALCOHOL: '/v1/alcohol',
+
+  /**
+   * Precomputed lifestyle daily roll-up + entries (ADR-008 write-through).
+   * GET `?date=` returns LifestyleDayResponseDto. Phase H backend (CU-070).
+   */
+  LIFESTYLE: '/v1/lifestyle',
+
+  /**
+   * Optional, discreet digestion (bowel) tracking — trends/correlations only.
+   * POST creates; GET `?from=&to=` lists. Phase H backend (CU-071).
+   */
+  DIGESTION: '/v1/digestion',
+
+  /**
+   * Daily nutrition summary + manual macro entries.
+   * GET `?date=` returns NutritionDayResponseDto. Phase H backend (CU-072).
+   */
+  NUTRITION: '/v1/nutrition',
+
+  /**
+   * Manual macro nutrition entries.
+   * POST — create a manual entry (CreateNutritionEntryRequestDto → NutritionEntryDto).
+   * Phase H backend (CU-072).
+   */
+  NUTRITION_ENTRIES: '/v1/nutrition/entries',
+
+  /**
+   * Custom tag definitions (reusable behavior/event markers).
+   * POST upserts a tag; GET lists the user's active tags. Phase H backend (CU-073).
+   */
+  TAGS: '/v1/tags',
+
+  /**
+   * Tag events (a tag applied at a moment, optionally linked to an entity).
+   * POST logs an event; GET `?from=&to=` lists. Phase H backend (CU-073).
+   */
+  TAG_EVENTS: '/v1/tags/events',
 } as const;
 
 /** Union of all registered endpoint keys. */
