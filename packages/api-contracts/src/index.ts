@@ -92,6 +92,7 @@ export * from './activity.js';
 export * from './chart.js';
 export * from './dashboard.js';
 export * from './dataQuality.js';
+export * from './digestion.js';
 export * from './recovery.js';
 export * from './sleep.js';
 export * from './envelope.js';

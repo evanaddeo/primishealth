@@ -36,6 +36,8 @@
  *   POST   /api/v1/alcohol                                      — log alcohol intake (CU-070)
  *   GET    /api/v1/alcohol?date=                                — list alcohol entries (CU-070)
  *   GET    /api/v1/lifestyle?date=                              — daily lifestyle summary + entries (CU-070)
+ *   POST   /api/v1/digestion                                   — log a digestion entry (CU-071)
+ *   GET    /api/v1/digestion?from=&to=                          — list digestion entries by date (CU-071)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -54,6 +56,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { activityRouter } from './routes/activity.js';
 import { dashboardRouter } from './routes/dashboard.js';
+import { digestionRouter } from './routes/digestion.js';
 import { healthRouter } from './routes/health.js';
 import { lifestyleLogRouter } from './routes/lifestyleLogs.js';
 import { manualInputRouter } from './routes/manualInputs.js';
@@ -165,6 +168,12 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   //   POST /api/v1/alcohol   | GET /api/v1/alcohol?date=
   //   GET  /api/v1/lifestyle?date= — precomputed summary + the day's entries
   app.route('/api/v1', lifestyleLogRouter);
+
+  // Digestion tracking routes (CU-071): optional, discreet structured gut tracking
+  // for future trends/correlations only — no diagnosis, no daily summary.
+  //   POST /api/v1/digestion           — log a digestion entry
+  //   GET  /api/v1/digestion?from=&to= — list entries for a local-date range
+  app.route('/api/v1/digestion', digestionRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);

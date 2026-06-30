@@ -338,3 +338,24 @@ export async function createBowelEntry(data: NewBowelEntry): Promise<BowelEntry>
 
   return row;
 }
+
+/**
+ * Returns a user's bowel entries within an inclusive local-date range.
+ *
+ * Used for trend/correlation reads only — never for diagnosis. The `userId`
+ * filter makes cross-user access impossible.
+ *
+ * @param userId    - Internal user UUID (ownership filter).
+ * @param dateRange - Inclusive ISO date range (local_date).
+ * @returns Entries ordered by occurred_at_utc descending.
+ */
+export async function getBowelEntries(userId: string, dateRange: DateRange): Promise<BowelEntry[]> {
+  return db
+    .selectFrom('bowel_entries')
+    .selectAll()
+    .where('user_id', '=', userId)
+    .where('local_date', '>=', dateRange.from)
+    .where('local_date', '<=', dateRange.to)
+    .orderBy('occurred_at_utc', 'desc')
+    .execute();
+}
