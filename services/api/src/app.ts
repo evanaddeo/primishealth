@@ -26,6 +26,7 @@
  *   GET    /api/v1/recovery[?date=YYYY-MM-DD]                    — chart-ready recovery detail (CU-057)
  *   GET    /api/v1/activity[?date=YYYY-MM-DD]                    — chart-ready activity detail (CU-057)
  *   GET    /api/v1/vitals[?date=YYYY-MM-DD]                      — chart-ready vitals detail (CU-057)
+ *   POST   /api/v1/ai/chat                                       — AI Coach chat (+ SSE stream) (CU-082)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -43,6 +44,7 @@ import { createAuthMiddleware, type AuthVariables } from './auth/authMiddleware.
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { activityRouter } from './routes/activity.js';
+import { aiChatRouter } from './routes/aiChat.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { healthRouter } from './routes/health.js';
 import { meRouter } from './routes/me.js';
@@ -139,6 +141,11 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   app.route('/api/v1/recovery', recoveryRouter);
   app.route('/api/v1/activity', activityRouter);
   app.route('/api/v1/vitals', vitalsRouter);
+
+  // AI Coach chat route (CU-082): POST /api/v1/ai/chat — classify → build context →
+  // gateway → answer (+ optional SSE token stream). Backend-only; mobile never calls
+  // a model provider. Persists metadata only (no raw prompts/health in logs — §19.3).
+  app.route('/api/v1/ai', aiChatRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);

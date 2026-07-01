@@ -237,6 +237,9 @@ importers:
       '@hono/node-server':
         specifier: ^2.0.4
         version: 2.0.4(hono@4.12.25)
+      '@primis/ai':
+        specifier: workspace:*
+        version: link:../ai
       '@primis/api-contracts':
         specifier: workspace:*
         version: link:../../packages/api-contracts

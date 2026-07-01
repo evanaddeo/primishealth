@@ -84,6 +84,12 @@
  *   - AiOutputContract (+ AiOutputResponseType, AiOutputSection); SleepAnalysisContext (V1.1 §25.1)
  *   - findRawContentViolation (raw-content guard) — all in aiContext.ts
  *
+ * CU-082 exports (AI Coach chat request + streaming contract):
+ *   - AiChatRequest, AiChatRequestSchema, AiChatClientContext(+Schema)
+ *   - AiChatResponseDto, AiChatResponseDtoSchema, AI_CHAT_RESPONSE_FIXTURE
+ *   - AiChatEvidenceChip, AiChatFollowUp, AiChatUiCard, AiChatModelInfo (+ schemas)
+ *   - AiChatStreamEvent(+Schema): start | token | metadata | error; AI_CHAT_STREAM_EVENTS
+ *
  * envelope/errors/pagination modules do NOT import from @primis/core-types (CU-011 constraint).
  * scores/dataQuality modules add the @primis/core-types dependency (CU-012).
  * user/onboarding modules are self-contained (no @primis/core-types dependency).
@@ -92,6 +98,7 @@
  */
 
 export * from './activity.js';
+export * from './aiChat.js';
 export * from './aiContext.js';
 export * from './chart.js';
 export * from './dashboard.js';
