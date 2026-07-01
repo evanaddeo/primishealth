@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.109.0",
+    "@primis/api-contracts": "workspace:*",
     "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",
     "openai": "^6.45.0"

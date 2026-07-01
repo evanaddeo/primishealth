@@ -74,6 +74,16 @@
  *   - VitalsDetailResponseDto, VitalsDetailResponseDtoSchema, VITALS_DETAIL_FIXTURE,
  *     VitalsMetricsDto, VitalsBaselineDeviationsDto
  *
+ * CU-078 exports (versioned AI context packet + evidence schemas):
+ *   - AiContextPacketDto shape: AiContextPacket, AiContextPacketSchema, AI_CONTEXT_PACKET_VERSION,
+ *     AI_CONTEXT_PACKET_FIXTURE
+ *   - TimeRangeSpec/TimeRangeLabel (+ schemas); AiUserProfileContext (+ RankedGoal, AiGoalCode,
+ *     NutritionPhilosophyContext, AiCoachStyle, AiSummaryStyle, PreferredUnits, training/tracking prefs)
+ *   - AiSafetyContext; AiDataAvailabilityContext (+ AiMetricAvailability/State, ProviderConnectionSummary)
+ *   - AiEvidence/AiEvidenceType/AiEvidenceSource; AiConfidence; ContextDomainSchema; AiContextProvider
+ *   - AiOutputContract (+ AiOutputResponseType, AiOutputSection); SleepAnalysisContext (V1.1 §25.1)
+ *   - findRawContentViolation (raw-content guard) — all in aiContext.ts
+ *
  * envelope/errors/pagination modules do NOT import from @primis/core-types (CU-011 constraint).
  * scores/dataQuality modules add the @primis/core-types dependency (CU-012).
  * user/onboarding modules are self-contained (no @primis/core-types dependency).
@@ -82,6 +92,7 @@
  */
 
 export * from './activity.js';
+export * from './aiContext.js';
 export * from './chart.js';
 export * from './dashboard.js';
 export * from './dataQuality.js';

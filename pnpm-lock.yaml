@@ -206,6 +206,9 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.109.0
         version: 0.109.0(zod@3.25.76)
+      '@primis/api-contracts':
+        specifier: workspace:*
+        version: link:../../packages/api-contracts
       '@primis/config':
         specifier: workspace:*
         version: link:../../packages/config

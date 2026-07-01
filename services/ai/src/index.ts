@@ -57,6 +57,9 @@ export type {
   SafetyRule,
 } from './intent/index.js';
 
+// Context packet schemas + builder interfaces (CU-078)
+export * from './context/index.js';
+
 // Utilities
 export { hashUserId } from './util/hashUserId.js';
 
