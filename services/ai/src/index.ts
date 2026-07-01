@@ -34,6 +34,29 @@ export {
   AiProviderUnavailableError,
 } from './errors.js';
 
+// Intent classification (CU-077)
+export {
+  IntentClassifier,
+  classifyIntent,
+  defaultIntentClassifier,
+  normalizeText,
+  AI_SAFETY_CATEGORIES,
+  UNSUPPORTED_SAFETY_CATEGORIES,
+  INTENT_RULES,
+  SAFETY_RULES,
+} from './intent/index.js';
+export type {
+  AiSafetyCategory,
+  IntentClassificationResult,
+  IntentClassifyOptions,
+  MissingSlot,
+  TimeRangeLabel,
+  TimeRangeSpec,
+  IntentRule,
+  MatchTerms,
+  SafetyRule,
+} from './intent/index.js';
+
 // Utilities
 export { hashUserId } from './util/hashUserId.js';
 
