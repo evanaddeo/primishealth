@@ -60,6 +60,12 @@ export type {
 // Context packet schemas + builder interfaces (CU-078)
 export * from './context/index.js';
 
+// Safety policy engine (CU-081)
+export * from './safety/index.js';
+
+// Prompt composition + output contracts (CU-081)
+export * from './prompts/index.js';
+
 // Utilities
 export { hashUserId } from './util/hashUserId.js';
 

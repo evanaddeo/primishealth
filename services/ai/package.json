@@ -16,7 +16,8 @@
     "@primis/api-contracts": "workspace:*",
     "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",
-    "openai": "^6.45.0"
+    "openai": "^6.45.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
