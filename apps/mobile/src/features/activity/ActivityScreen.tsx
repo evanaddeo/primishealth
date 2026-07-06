@@ -134,7 +134,7 @@ export function ActivityScreen(): React.JSX.Element {
           </Card>
         )}
 
-        <ActivityAiSummaryCard testID="activity-ai-summary" />
+        <ActivityAiSummaryCard sourceDate={detail.localDate} testID="activity-ai-summary" />
       </Animated.View>
     </Screen>
   );

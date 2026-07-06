@@ -4,7 +4,19 @@
 
 export { CoachScreen } from './CoachScreen';
 export { useCoachChat } from './useCoachChat';
-export type { CoachChatController } from './useCoachChat';
+export type { CoachChatController, CoachSendOptions } from './useCoachChat';
+export {
+  COACH_ROUTE,
+  buildCoachPrefillParams,
+  getAskAiSurfaceConfig,
+  parseCoachPrefill,
+} from './contextualNavigation';
+export type {
+  AskAiSurface,
+  AskAiSurfaceConfig,
+  CoachPrefill,
+  CoachPrefillParams,
+} from './contextualNavigation';
 export {
   SUGGESTED_PROMPTS,
   applyStreamEvent,

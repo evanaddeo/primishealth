@@ -157,7 +157,7 @@ export function RecoveryScreen(): React.JSX.Element {
           </Card>
         )}
 
-        <RecoveryAiSummaryCard testID="recovery-ai-summary" />
+        <RecoveryAiSummaryCard sourceDate={detail.localDate} testID="recovery-ai-summary" />
       </Animated.View>
     </Screen>
   );

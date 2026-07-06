@@ -17,12 +17,33 @@ import { canSend } from '../coachModel';
 export interface ComposerProps {
   onSend: (text: string) => void;
   isStreaming: boolean;
+  /** Text to seed the field with from a contextual entry point (CU-085). */
+  prefillText?: string;
+  /** Changes whenever a new prefill should be adopted; re-seeds the field. */
+  prefillNonce?: string;
   testID?: string;
 }
 
-export function Composer({ onSend, isStreaming, testID }: ComposerProps): React.JSX.Element {
+export function Composer({
+  onSend,
+  isStreaming,
+  prefillText,
+  prefillNonce,
+  testID,
+}: ComposerProps): React.JSX.Element {
   const { colors, radius, spacing, typography } = useTheme();
   const [draft, setDraft] = useState('');
+  const [seededNonce, setSeededNonce] = useState<string | undefined>(undefined);
+
+  // Adopt a contextual prefill during render (React's "adjust state on prop
+  // change" pattern) — fires once per entry-point tap (keyed by nonce) and never
+  // overwrites the user's own edits afterward.
+  if (prefillNonce !== seededNonce) {
+    setSeededNonce(prefillNonce);
+    if (prefillText !== undefined && prefillText.length > 0) {
+      setDraft(prefillText);
+    }
+  }
 
   const sendEnabled = canSend(draft, isStreaming);
 

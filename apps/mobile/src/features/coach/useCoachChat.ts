@@ -19,7 +19,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { AiChatRequest } from '@primis/api-contracts';
+import type { AiChatClientContext, AiChatRequest } from '@primis/api-contracts';
 import { loadPublicEnv } from '@primis/config';
 
 import { streamCoachMessage, type CoachStreamHandle } from '../../api/streamCoachMessage';
@@ -33,13 +33,27 @@ import {
 const MOCK_MODE = loadPublicEnv().EXPO_PUBLIC_MOCK_MODE === 'true';
 const SOURCE_SURFACE = 'coach_tab';
 
+/**
+ * Non-sensitive routing metadata a caller may attach to a turn. Sourced from a
+ * suggested prompt or a contextual "Ask AI about this" entry point (CU-085) —
+ * never health context, which the backend assembles server-side (AI spec §22.1).
+ */
+export interface CoachSendOptions {
+  /** Advisory intent hint (backend classifier stays authoritative). */
+  readonly intentHint?: string;
+  /** Originating surface (e.g. `sleep_detail`); defaults to the Coach tab. */
+  readonly sourceSurface?: string;
+  /** Local date the source surface was showing (YYYY-MM-DD). */
+  readonly sourceDate?: string;
+}
+
 export interface CoachChatController {
   readonly messages: readonly CoachMessage[];
   /** True while an assistant turn is streaming (composer send is disabled). */
   readonly isStreaming: boolean;
   readonly mockMode: boolean;
-  /** Send a user message and stream the coach reply. Optional intent hint. */
-  readonly send: (text: string, intentHint?: string) => void;
+  /** Send a user message and stream the coach reply. Optional routing metadata. */
+  readonly send: (text: string, options?: CoachSendOptions) => void;
   /** Re-send the most recent user message (after an error). */
   readonly retry: () => void;
 }
@@ -51,7 +65,7 @@ export function useCoachChat(): CoachChatController {
   const handleRef = useRef<CoachStreamHandle | null>(null);
   const conversationIdRef = useRef<string | undefined>(undefined);
   const lastUserTextRef = useRef<string | null>(null);
-  const lastIntentHintRef = useRef<string | undefined>(undefined);
+  const lastOptionsRef = useRef<CoachSendOptions | undefined>(undefined);
 
   // Cancel any in-flight stream on unmount so callbacks never touch a dead tree.
   useEffect(() => {
@@ -60,21 +74,31 @@ export function useCoachChat(): CoachChatController {
     };
   }, []);
 
-  const runTurn = useCallback((text: string, intentHint: string | undefined): void => {
+  const runTurn = useCallback((text: string, options: CoachSendOptions | undefined): void => {
     handleRef.current?.cancel();
 
     const assistant = createPendingAssistantMessage();
     setMessages((prev) => [...prev, assistant]);
     setIsStreaming(true);
 
+    // Only non-sensitive routing hints are attached — never health context.
+    const clientContext: AiChatClientContext = {};
+    if (options?.intentHint !== undefined) {
+      clientContext.intentHint = options.intentHint;
+    }
+    if (options?.sourceDate !== undefined) {
+      clientContext.sourceDate = options.sourceDate;
+    }
+    const hasClientContext = Object.keys(clientContext).length > 0;
+
     const request: AiChatRequest = {
       message: text,
-      sourceSurface: SOURCE_SURFACE,
+      sourceSurface: options?.sourceSurface ?? SOURCE_SURFACE,
       stream: true,
       ...(conversationIdRef.current !== undefined
         ? { conversationId: conversationIdRef.current }
         : {}),
-      ...(intentHint !== undefined ? { clientContext: { intentHint } } : {}),
+      ...(hasClientContext ? { clientContext } : {}),
     };
 
     handleRef.current = streamCoachMessage(request, {
@@ -95,15 +119,15 @@ export function useCoachChat(): CoachChatController {
   }, []);
 
   const send = useCallback(
-    (text: string, intentHint?: string): void => {
+    (text: string, options?: CoachSendOptions): void => {
       const trimmed = text.trim();
       if (trimmed.length === 0 || isStreaming) {
         return;
       }
       lastUserTextRef.current = trimmed;
-      lastIntentHintRef.current = intentHint;
+      lastOptionsRef.current = options;
       setMessages((prev) => [...prev, createUserMessage(trimmed)]);
-      runTurn(trimmed, intentHint);
+      runTurn(trimmed, options);
     },
     [isStreaming, runTurn],
   );
@@ -120,7 +144,7 @@ export function useCoachChat(): CoachChatController {
         ? prev.filter((m) => m.id !== lastAssistant.id)
         : prev;
     });
-    runTurn(text, lastIntentHintRef.current);
+    runTurn(text, lastOptionsRef.current);
   }, [isStreaming, runTurn]);
 
   return { messages, isStreaming, mockMode: MOCK_MODE, send, retry };

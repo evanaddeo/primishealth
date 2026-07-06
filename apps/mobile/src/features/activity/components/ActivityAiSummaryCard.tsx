@@ -1,22 +1,29 @@
 /**
- * ActivityAiSummaryCard — placeholder slot for the AI activity summary (CU-066).
+ * ActivityAiSummaryCard — AI activity summary slot + contextual entry point (CU-066 / CU-085).
  *
- * Phase G performs NO model calls (Phase-Level Guardrail / AI Context Engine
- * spec). This card reserves the layout slot Phase I will fill with a real
- * generated explanation, so dropping in generation later requires no relayout.
- * The "Ask Coach" CTA is intentionally disabled until then (Open Question Q1).
+ * The generated summary itself is still Phase-J read-wiring, so the body stays a
+ * placeholder. CU-085 enables the contextual "Ask AI about this" action: it opens
+ * the AI Coach with a prefilled activity question and the day's date, and makes NO
+ * model call on render (AI Context Engine spec §22.1).
  */
 
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, Card, Text, useTheme } from '@primis/design-system';
+import { Card, Text, useTheme } from '@primis/design-system';
+
+import { AskAiButton } from '../../../components/AskAiButton';
 
 export interface ActivityAiSummaryCardProps {
+  /** Local date (YYYY-MM-DD) this activity detail represents, forwarded to Coach. */
+  sourceDate?: string;
   testID?: string;
 }
 
-export function ActivityAiSummaryCard({ testID }: ActivityAiSummaryCardProps): React.JSX.Element {
+export function ActivityAiSummaryCard({
+  sourceDate,
+  testID,
+}: ActivityAiSummaryCardProps): React.JSX.Element {
   const { spacing } = useTheme();
 
   return (
@@ -31,16 +38,15 @@ export function ActivityAiSummaryCard({ testID }: ActivityAiSummaryCardProps): R
       </View>
 
       <Text variant="bodyMedium" color="secondary" style={{ marginTop: spacing.sm }}>
-        Your personalized activity summary will appear here once Coach is enabled.
+        Your personalized activity summary will appear here soon. In the meantime, ask the Coach
+        about how your activity is trending.
       </Text>
 
       <View style={{ marginTop: spacing.md }}>
-        <Button
-          variant="secondary"
-          label="Ask Coach"
-          disabled
-          onPress={() => {}}
-          accessibilityHint="Coach is not available yet"
+        <AskAiButton
+          surface="activity_detail"
+          {...(sourceDate !== undefined ? { sourceDate } : {})}
+          testID="activity-ask-ai"
         />
       </View>
     </Card>

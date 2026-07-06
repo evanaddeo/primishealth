@@ -1,22 +1,29 @@
 /**
- * RecoveryAiSummaryCard — placeholder slot for the AI recovery summary (CU-065).
+ * RecoveryAiSummaryCard — AI recovery summary slot + contextual entry point (CU-065 / CU-085).
  *
- * Phase G performs NO model calls (Phase-Level Guardrail / AI Context Engine
- * spec). This card reserves the layout slot Phase I will fill with a real
- * generated explanation, so dropping in generation later requires no relayout.
- * The "Ask Coach" CTA is intentionally disabled until then (Open Question Q1).
+ * The generated summary itself is still Phase-J read-wiring, so the body stays a
+ * placeholder. CU-085 enables the contextual "Ask AI about this" action: it opens
+ * the AI Coach with a prefilled recovery question and the day's date, and makes NO
+ * model call on render (AI Context Engine spec §22.1).
  */
 
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, Card, Text, useTheme } from '@primis/design-system';
+import { Card, Text, useTheme } from '@primis/design-system';
+
+import { AskAiButton } from '../../../components/AskAiButton';
 
 export interface RecoveryAiSummaryCardProps {
+  /** Local date (YYYY-MM-DD) this recovery detail represents, forwarded to Coach. */
+  sourceDate?: string;
   testID?: string;
 }
 
-export function RecoveryAiSummaryCard({ testID }: RecoveryAiSummaryCardProps): React.JSX.Element {
+export function RecoveryAiSummaryCard({
+  sourceDate,
+  testID,
+}: RecoveryAiSummaryCardProps): React.JSX.Element {
   const { spacing } = useTheme();
 
   return (
@@ -31,16 +38,15 @@ export function RecoveryAiSummaryCard({ testID }: RecoveryAiSummaryCardProps): R
       </View>
 
       <Text variant="bodyMedium" color="secondary" style={{ marginTop: spacing.sm }}>
-        Your personalized recovery summary will appear here once Coach is enabled.
+        Your personalized recovery summary will appear here soon. In the meantime, ask the Coach
+        about what&apos;s driving your recovery today.
       </Text>
 
       <View style={{ marginTop: spacing.md }}>
-        <Button
-          variant="secondary"
-          label="Ask Coach"
-          disabled
-          onPress={() => {}}
-          accessibilityHint="Coach is not available yet"
+        <AskAiButton
+          surface="recovery_detail"
+          {...(sourceDate !== undefined ? { sourceDate } : {})}
+          testID="recovery-ask-ai"
         />
       </View>
     </Card>
