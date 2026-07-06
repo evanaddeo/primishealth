@@ -280,6 +280,9 @@ importers:
 
   services/workers:
     dependencies:
+      '@primis/ai':
+        specifier: workspace:*
+        version: link:../ai
       '@primis/api-contracts':
         specifier: workspace:*
         version: link:../../packages/api-contracts
