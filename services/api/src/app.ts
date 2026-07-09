@@ -27,6 +27,24 @@
  *   GET    /api/v1/activity[?date=YYYY-MM-DD]                    — chart-ready activity detail (CU-057)
  *   GET    /api/v1/vitals[?date=YYYY-MM-DD]                      — chart-ready vitals detail (CU-057)
  *   POST   /api/v1/ai/chat                                       — AI Coach chat (+ SSE stream) (CU-082)
+ *   POST   /api/v1/checkins                                     — create a manual check-in (CU-069)
+ *   GET    /api/v1/checkins?from=&to=                           — list check-ins by local date (CU-069)
+ *   PATCH  /api/v1/checkins/:id                                 — correct a manual check-in (CU-069)
+ *   POST   /api/v1/hydration                                    — log fluid intake (CU-070)
+ *   GET    /api/v1/hydration?date=                              — list hydration entries (CU-070)
+ *   POST   /api/v1/caffeine                                     — log caffeine intake (CU-070)
+ *   GET    /api/v1/caffeine?date=                               — list caffeine entries (CU-070)
+ *   POST   /api/v1/alcohol                                      — log alcohol intake (CU-070)
+ *   GET    /api/v1/alcohol?date=                                — list alcohol entries (CU-070)
+ *   GET    /api/v1/lifestyle?date=                              — daily lifestyle summary + entries (CU-070)
+ *   POST   /api/v1/digestion                                   — log a digestion entry (CU-071)
+ *   GET    /api/v1/digestion?from=&to=                          — list digestion entries by date (CU-071)
+ *   POST   /api/v1/nutrition/entries                            — log a manual macro entry (CU-072)
+ *   GET    /api/v1/nutrition?date=                              — daily macro summary + entries (CU-072)
+ *   POST   /api/v1/tags                                        — create-or-upsert a custom tag (CU-073)
+ *   GET    /api/v1/tags                                        — list active custom tags (CU-073)
+ *   POST   /api/v1/tags/events                                 — log a tag event (CU-073)
+ *   GET    /api/v1/tags/events?from=&to=                       — list tag events by local date (CU-073)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -46,13 +64,18 @@ import { requestIdMiddleware } from './middleware/requestId.js';
 import { activityRouter } from './routes/activity.js';
 import { aiChatRouter } from './routes/aiChat.js';
 import { dashboardRouter } from './routes/dashboard.js';
+import { digestionRouter } from './routes/digestion.js';
 import { healthRouter } from './routes/health.js';
+import { lifestyleLogRouter } from './routes/lifestyleLogs.js';
+import { manualInputRouter } from './routes/manualInputs.js';
 import { meRouter } from './routes/me.js';
+import { nutritionRouter } from './routes/nutrition.js';
 import { onboardingRouter } from './routes/onboarding.js';
 import { meProvidersRouter, providerConnectionsRouter } from './routes/providerConnections.js';
 import { recoveryRouter } from './routes/recovery.js';
 import { sleepRouter } from './routes/sleep.js';
 import { syncRouter } from './routes/sync.js';
+import { tagRouter } from './routes/tags.js';
 import { vitalsRouter } from './routes/vitals.js';
 
 // ---------------------------------------------------------------------------
@@ -146,6 +169,40 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   // gateway → answer (+ optional SSE token stream). Backend-only; mobile never calls
   // a model provider. Persists metadata only (no raw prompts/health in logs — §19.3).
   app.route('/api/v1/ai', aiChatRouter);
+
+  // Manual check-in routes (CU-069): the first health-data write path.
+  //   POST  /api/v1/checkins            — create a check-in
+  //   GET   /api/v1/checkins?from=&to=  — list check-ins for a local-date range
+  //   PATCH /api/v1/checkins/:id        — correct an existing check-in
+  app.route('/api/v1/checkins', manualInputRouter);
+
+  // Lifestyle log routes (CU-070): hydration / caffeine / alcohol write-paths +
+  // the ADR-008 daily roll-up that feeds the Nutrition tab.
+  //   POST /api/v1/hydration | GET /api/v1/hydration?date=
+  //   POST /api/v1/caffeine  | GET /api/v1/caffeine?date=
+  //   POST /api/v1/alcohol   | GET /api/v1/alcohol?date=
+  //   GET  /api/v1/lifestyle?date= — precomputed summary + the day's entries
+  app.route('/api/v1', lifestyleLogRouter);
+
+  // Digestion tracking routes (CU-071): optional, discreet structured gut tracking
+  // for future trends/correlations only — no diagnosis, no daily summary.
+  //   POST /api/v1/digestion           — log a digestion entry
+  //   GET  /api/v1/digestion?from=&to= — list entries for a local-date range
+  app.route('/api/v1/digestion', digestionRouter);
+
+  // Manual macro nutrition routes (CU-072): basic calorie/macro logging before any
+  // food database, plus the ADR-008 daily macro roll-up that feeds the Nutrition tab.
+  //   POST /api/v1/nutrition/entries — log a manual macro entry
+  //   GET  /api/v1/nutrition?date=   — precomputed daily macro summary + entries
+  app.route('/api/v1/nutrition', nutritionRouter);
+
+  // Custom tag routes (CU-073): user-owned behavior/event markers for future
+  // correlations and AI context (Phase I) — no correlations are made here.
+  //   POST /api/v1/tags                 — create-or-upsert a tag definition
+  //   GET  /api/v1/tags                 — list the user's active tags
+  //   POST /api/v1/tags/events          — log a tag event (optionally linked)
+  //   GET  /api/v1/tags/events?from=&to= — list tag events for a local-date range
+  app.route('/api/v1/tags', tagRouter);
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);
