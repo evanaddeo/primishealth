@@ -74,6 +74,22 @@
  *   - VitalsDetailResponseDto, VitalsDetailResponseDtoSchema, VITALS_DETAIL_FIXTURE,
  *     VitalsMetricsDto, VitalsBaselineDeviationsDto
  *
+ * CU-078 exports (versioned AI context packet + evidence schemas):
+ *   - AiContextPacketDto shape: AiContextPacket, AiContextPacketSchema, AI_CONTEXT_PACKET_VERSION,
+ *     AI_CONTEXT_PACKET_FIXTURE
+ *   - TimeRangeSpec/TimeRangeLabel (+ schemas); AiUserProfileContext (+ RankedGoal, AiGoalCode,
+ *     NutritionPhilosophyContext, AiCoachStyle, AiSummaryStyle, PreferredUnits, training/tracking prefs)
+ *   - AiSafetyContext; AiDataAvailabilityContext (+ AiMetricAvailability/State, ProviderConnectionSummary)
+ *   - AiEvidence/AiEvidenceType/AiEvidenceSource; AiConfidence; ContextDomainSchema; AiContextProvider
+ *   - AiOutputContract (+ AiOutputResponseType, AiOutputSection); SleepAnalysisContext (V1.1 §25.1)
+ *   - findRawContentViolation (raw-content guard) — all in aiContext.ts
+ *
+ * CU-082 exports (AI Coach chat request + streaming contract):
+ *   - AiChatRequest, AiChatRequestSchema, AiChatClientContext(+Schema)
+ *   - AiChatResponseDto, AiChatResponseDtoSchema, AI_CHAT_RESPONSE_FIXTURE
+ *   - AiChatEvidenceChip, AiChatFollowUp, AiChatUiCard, AiChatModelInfo (+ schemas)
+ *   - AiChatStreamEvent(+Schema): start | token | metadata | error; AI_CHAT_STREAM_EVENTS
+ *
  * CU-069 exports (manual check-in DTOs):
  *   - ManualCheckinDto, ManualCheckinDtoSchema, MANUAL_CHECKIN_FIXTURE
  *   - CheckinType, CheckinTypeSchema, CHECKIN_TYPE_VALUES
@@ -100,6 +116,8 @@
  */
 
 export * from './activity.js';
+export * from './aiChat.js';
+export * from './aiContext.js';
 export * from './chart.js';
 export * from './dashboard.js';
 export * from './dataQuality.js';

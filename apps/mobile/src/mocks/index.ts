@@ -85,6 +85,9 @@ export {
 } from './ai';
 export type { MockAiSummary } from './ai';
 
+// AI Coach chat responses (CU-084) — simulated streaming source
+export { buildMockCoachResponse, classifyMockIntent } from './coach';
+
 // Provider connections + sync status (CU-060)
 export {
   DEFAULT_MOCK_CONNECTION_STATE,

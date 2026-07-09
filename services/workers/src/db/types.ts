@@ -791,6 +791,56 @@ export type NewInsightCandidate = Insertable<InsightCandidatesTable>;
 export type InsightCandidateUpdate = Updateable<InsightCandidatesTable>;
 
 // ---------------------------------------------------------------------------
+// ai_summaries (000008_ai_summaries.sql — ADR-007)
+// ---------------------------------------------------------------------------
+
+/**
+ * Durable cache of asynchronously generated, context-engine-grounded AI summaries
+ * (CU-083). Written by the workers AI summary jobs — NEVER during ingestion. One
+ * canonical row per `(user_id, summary_type, local_date, context_packet_version)`;
+ * the unique constraint enables idempotent upserts on regeneration and a stable
+ * "latest valid summary" lookup.
+ *
+ * summary_type CHECK:   'sleep' | 'recovery' | 'daily' | 'weekly' | 'workout' | 'nutrition'
+ * summary_status CHECK: 'fresh' | 'stale' | 'regenerating' | 'failed'
+ *
+ * PRIVACY: `structured_json` / `evidence_refs` store structured summaries + cited
+ * evidence facts only — never raw provider payloads or model prompts (§19.3). Do
+ * NOT log these columns. See ADR-007 for the shape rationale.
+ */
+export interface AiSummariesTable {
+  id: UuidPk;
+  user_id: string;
+  /** Constrained by DB CHECK; see values above. */
+  summary_type: string;
+  /** User-local calendar date the summary describes (ISO YYYY-MM-DD). */
+  local_date: string;
+  /** Packet contract version the summary was grounded on. */
+  context_packet_version: string;
+  summary_status: Generated<string>;
+  title: NullableCol<string>;
+  short_summary: NullableCol<string>;
+  /** Structured output-contract object. Do NOT log. */
+  structured_json: Generated<Record<string, unknown>>;
+  /** Compact cited-evidence chips. Do NOT log. */
+  evidence_refs: Generated<unknown[]>;
+  /** Optional FK → `score_snapshots.id`. */
+  source_score_snapshot_id: NullableCol<string>;
+  model_provider: NullableCol<string>;
+  model_name: NullableCol<string>;
+  /** Set explicitly by the job on each (re)generation. */
+  generated_at: Generated<Date>;
+  expires_at: NullableCol<Date>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+  deleted_at: NullableCol<Date>;
+}
+
+export type AiSummary = Selectable<AiSummariesTable>;
+export type NewAiSummary = Insertable<AiSummariesTable>;
+export type AiSummaryUpdate = Updateable<AiSummariesTable>;
+
+// ---------------------------------------------------------------------------
 // Database — Kysely table registry
 // ---------------------------------------------------------------------------
 
@@ -819,4 +869,5 @@ export interface Database {
   score_component_values: ScoreComponentValuesTable;
   algorithm_runs: AlgorithmRunsTable;
   insight_candidates: InsightCandidatesTable;
+  ai_summaries: AiSummariesTable;
 }

@@ -12,6 +12,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@primis/ai": "workspace:*",
     "@primis/api-contracts": "workspace:*",
     "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",

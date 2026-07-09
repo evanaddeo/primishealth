@@ -117,7 +117,7 @@ export function SleepScreen(): React.JSX.Element {
           </Card>
         )}
 
-        <SleepAiSummaryCard testID="sleep-ai-summary" />
+        <SleepAiSummaryCard sourceDate={detail.localDate} testID="sleep-ai-summary" />
 
         <BedtimePlannerCard
           onPress={() => router.navigate(BEDTIME_PLANNER_ROUTE)}

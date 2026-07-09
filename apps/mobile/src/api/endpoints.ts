@@ -167,6 +167,16 @@ export const API_ENDPOINTS = {
    */
   SYNC_REFRESH: '/v1/me/sync/refresh',
 
+  /**
+   * AI Coach chat turn.
+   * POST — body is AiChatRequest (message + surface + local values only; NEVER health
+   * context). Returns AiChatResponseDto in the standard envelope, or an SSE token
+   * stream (`start` → `token`* → `metadata`) when `stream:true`.
+   * Phase I backend provides this route (CU-082); the mobile AI Coach screen (CU-084)
+   * consumes it. Mobile never calls a model provider directly — all AI is backend-only.
+   */
+  AI_CHAT: '/v1/ai/chat',
+
   // ── Manual inputs & nutrition write-paths (Phase H, CU-069 → CU-073) ───────────
 
   /**
