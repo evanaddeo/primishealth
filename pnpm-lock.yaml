@@ -252,6 +252,9 @@ importers:
       '@primis/health-metrics':
         specifier: workspace:*
         version: link:../../packages/health-metrics
+      '@primis/workers':
+        specifier: workspace:*
+        version: link:../workers
       aws-jwt-verify:
         specifier: ^5.2.1
         version: 5.2.1

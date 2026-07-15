@@ -45,6 +45,7 @@
  *   GET    /api/v1/tags                                        — list active custom tags (CU-073)
  *   POST   /api/v1/tags/events                                 — log a tag event (CU-073)
  *   GET    /api/v1/tags/events?from=&to=                       — list tag events by local date (CU-073)
+ *   POST   /api/v1/data/delete-all                             — local/dev dry-run plan only (CU-087)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
@@ -72,6 +73,7 @@ import { meRouter } from './routes/me.js';
 import { nutritionRouter } from './routes/nutrition.js';
 import { onboardingRouter } from './routes/onboarding.js';
 import { meProvidersRouter, providerConnectionsRouter } from './routes/providerConnections.js';
+import { createPrivacyRouter } from './routes/privacy.js';
 import { recoveryRouter } from './routes/recovery.js';
 import { sleepRouter } from './routes/sleep.js';
 import { syncRouter } from './routes/sync.js';
@@ -203,6 +205,10 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   //   POST /api/v1/tags/events          — log a tag event (optionally linked)
   //   GET  /api/v1/tags/events?from=&to= — list tag events for a local-date range
   app.route('/api/v1/tags', tagRouter);
+
+  // Privacy deletion planning (CU-087): route factory returns an empty router
+  // outside local/dev mock-auth environments. It cannot schedule or execute work.
+  app.route('/api/v1/data', createPrivacyRouter());
 
   // ── Error handling ───────────────────────────────────────────────────────────
   app.onError(errorHandler);

@@ -134,12 +134,10 @@ describe('createAuthMiddleware — production guard', () => {
     );
   });
 
-  it('throws at startup when ALLOW_MOCK_AUTH=true and APP_ENV=dev', () => {
+  it('does NOT throw when ALLOW_MOCK_AUTH=true and APP_ENV=dev', () => {
     mocks.loadBackendEnv.mockReturnValue(mockEnv({ ALLOW_MOCK_AUTH: true, APP_ENV: 'dev' }));
 
-    expect(() => createAuthMiddleware()).toThrow(
-      /ALLOW_MOCK_AUTH=true is not permitted in APP_ENV="dev"/,
-    );
+    expect(() => createAuthMiddleware()).not.toThrow();
   });
 
   it('does NOT throw when ALLOW_MOCK_AUTH=true and APP_ENV=local', () => {
@@ -148,12 +146,14 @@ describe('createAuthMiddleware — production guard', () => {
     expect(() => createAuthMiddleware()).not.toThrow();
   });
 
-  it('does NOT throw when ALLOW_MOCK_AUTH=true and APP_ENV=development', () => {
+  it('throws when a drifted APP_ENV=development value bypasses config typing in a mock', () => {
     mocks.loadBackendEnv.mockReturnValue(
       mockEnv({ ALLOW_MOCK_AUTH: true, APP_ENV: 'development' }),
     );
 
-    expect(() => createAuthMiddleware()).not.toThrow();
+    expect(() => createAuthMiddleware()).toThrow(
+      /ALLOW_MOCK_AUTH=true is not permitted in APP_ENV="development"/,
+    );
   });
 
   it('does NOT throw when ALLOW_MOCK_AUTH=false regardless of APP_ENV', () => {

@@ -74,7 +74,7 @@ const backendEnvSchema = publicEnvSchema.extend({
   // Local development auth override
   /**
    * When `'true'`, the auth middleware accepts the synthetic `Bearer mock-dev-token` header
-   * without verifying a real Cognito JWT. MUST only be enabled in `local` or `development`
+   * without verifying a real Cognito JWT. MUST only be enabled in `local` or `dev`
    * APP_ENV — the middleware panics at startup if this is `true` in any other environment.
    *
    * Defaults to `'false'` so accidental enablement in staging/production is impossible
