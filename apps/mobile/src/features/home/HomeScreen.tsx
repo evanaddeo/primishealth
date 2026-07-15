@@ -85,6 +85,7 @@ export function HomeScreen(): React.JSX.Element {
         <HomeHeader
           localDate={snapshot.dashboard.localDate}
           freshness={freshness}
+          onPressSettings={() => router.navigate('/settings')}
           onPressEdit={() => router.navigate('/settings/home-widgets')}
         />
 

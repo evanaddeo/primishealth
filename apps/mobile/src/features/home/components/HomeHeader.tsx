@@ -18,6 +18,8 @@ export interface HomeHeaderProps {
   /** Dashboard local date, YYYY-MM-DD. */
   localDate: string;
   freshness: FreshnessVm;
+  /** Open the grouped Settings index (CU-086). */
+  onPressSettings?: () => void;
   /** Open the Home widget customization screen (CU-062). */
   onPressEdit?: () => void;
   testID?: string;
@@ -56,6 +58,7 @@ function formatLocalDate(localDate: string): string {
 export function HomeHeader({
   localDate,
   freshness,
+  onPressSettings,
   onPressEdit,
   testID,
 }: HomeHeaderProps): React.JSX.Element {
@@ -74,20 +77,37 @@ export function HomeHeader({
         </View>
         <View style={[styles.actions, { gap: spacing.xs }]}>
           <FreshnessChip freshness={freshness} testID="home-freshness" />
-          {onPressEdit !== undefined && (
-            <Pressable
-              onPress={onPressEdit}
-              accessibilityRole="button"
-              accessibilityLabel="Edit Home widgets"
-              hitSlop={8}
-              style={styles.editButton}
-              testID="home-edit-widgets"
-            >
-              <Text variant="bodyMedium" color="accent" weight="semibold">
-                Edit
-              </Text>
-            </Pressable>
-          )}
+          <View style={[styles.actionRow, { gap: spacing.md }]}>
+            {onPressSettings !== undefined && (
+              <Pressable
+                onPress={onPressSettings}
+                accessibilityRole="button"
+                accessibilityLabel="Open Settings"
+                accessibilityHint="Opens account, connections, and privacy settings"
+                hitSlop={spacing.sm}
+                style={styles.headerButton}
+                testID="home-settings"
+              >
+                <Text variant="bodyMedium" color="accent" weight="semibold">
+                  Settings
+                </Text>
+              </Pressable>
+            )}
+            {onPressEdit !== undefined && (
+              <Pressable
+                onPress={onPressEdit}
+                accessibilityRole="button"
+                accessibilityLabel="Edit Home widgets"
+                hitSlop={spacing.sm}
+                style={styles.headerButton}
+                testID="home-edit-widgets"
+              >
+                <Text variant="bodyMedium" color="accent" weight="semibold">
+                  Edit
+                </Text>
+              </Pressable>
+            )}
+          </View>
         </View>
       </View>
     </View>
@@ -109,7 +129,10 @@ const styles = StyleSheet.create({
   actions: {
     alignItems: 'flex-end',
   },
-  editButton: {
+  actionRow: {
+    flexDirection: 'row',
+  },
+  headerButton: {
     minHeight: 44,
     justifyContent: 'center',
   },
