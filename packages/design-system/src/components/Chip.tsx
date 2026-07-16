@@ -80,7 +80,6 @@ export function Chip({
         variant="bodyMedium"
         weight={isOn ? 'semibold' : 'medium'}
         style={{ color: isOn ? colors.accent : colors.textPrimary }}
-        numberOfLines={1}
       >
         {label}
       </Text>

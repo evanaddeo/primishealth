@@ -75,7 +75,7 @@ export function CheckInScreen(): React.JSX.Element {
       <Screen testID="screen-checkin" contentStyle={{ paddingTop: spacing.xl }}>
         <Card testID="checkin-success">
           <View style={{ gap: spacing.sm }}>
-            <Text variant="titleSmall" weight="bold">
+            <Text variant="titleSmall" weight="bold" accessibilityRole="header">
               Logged ✓
             </Text>
             <Text variant="bodyMedium" color="secondary">
@@ -92,7 +92,7 @@ export function CheckInScreen(): React.JSX.Element {
     <Screen testID="screen-checkin" contentStyle={{ paddingTop: spacing.xl }}>
       <View style={{ gap: spacing.xl }}>
         <View style={{ gap: spacing.xs }}>
-          <Text variant="titleLarge" weight="bold">
+          <Text variant="titleLarge" weight="bold" accessibilityRole="header">
             Daily check-in
           </Text>
           <Text variant="bodyMedium" color="secondary">
@@ -167,6 +167,10 @@ export function CheckInScreen(): React.JSX.Element {
           label={submitting ? 'Saving…' : 'Save check-in'}
           onPress={() => void onSubmit()}
           disabled={empty || submitting}
+          busy={submitting}
+          {...(empty
+            ? { accessibilityHint: 'Choose at least one check-in value before saving' }
+            : {})}
           testID="checkin-submit"
         />
       </View>

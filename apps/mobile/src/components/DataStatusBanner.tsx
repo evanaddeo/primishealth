@@ -35,12 +35,6 @@ export function DataStatusBanner({
   return (
     <View
       testID={testID}
-      accessible
-      accessibilityRole={busy ? 'progressbar' : copy.accessibilityRole}
-      accessibilityLabel={`${resolvedTitle}. ${resolvedBody}`}
-      accessibilityLiveRegion={
-        busy ? 'polite' : copy.accessibilityRole === 'alert' ? 'assertive' : 'none'
-      }
       style={[
         styles.banner,
         {
@@ -53,7 +47,16 @@ export function DataStatusBanner({
       ]}
     >
       {busy && <ActivityIndicator size="small" color={colors.accent} />}
-      <View style={[styles.copy, { gap: spacing.xxs }]}>
+      <View
+        accessible
+        accessibilityRole={busy ? 'progressbar' : copy.accessibilityRole}
+        accessibilityLabel={`${resolvedTitle}. ${resolvedBody}`}
+        accessibilityState={{ busy }}
+        accessibilityLiveRegion={
+          busy ? 'polite' : copy.accessibilityRole === 'alert' ? 'assertive' : 'none'
+        }
+        style={[styles.copy, { gap: spacing.xxs }]}
+      >
         <Text variant="bodySmall" weight="semibold">
           {resolvedTitle}
         </Text>

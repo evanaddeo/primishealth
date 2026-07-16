@@ -85,6 +85,7 @@ export function AuthTextField({
         returnKeyType={returnKeyType}
         onSubmitEditing={onSubmitEditing}
         accessibilityLabel={label}
+        accessibilityHint={hasError ? `Error: ${error}` : undefined}
         accessibilityState={{ disabled: false }}
         style={[
           styles.input,

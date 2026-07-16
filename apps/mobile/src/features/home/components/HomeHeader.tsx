@@ -68,7 +68,7 @@ export function HomeHeader({
     <View testID={testID} style={[styles.container, { gap: spacing.sm }]}>
       <View style={styles.row}>
         <View style={styles.titleBlock}>
-          <Text variant="titleLarge" weight="bold">
+          <Text variant="titleLarge" weight="bold" accessibilityRole="header">
             Today
           </Text>
           <Text variant="bodyMedium" color="secondary">

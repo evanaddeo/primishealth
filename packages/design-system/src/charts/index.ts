@@ -48,7 +48,10 @@ export {
   resolveStageLaneIndex,
   resolveStageColor,
   resolveBarHeightFraction,
+  resolveChartAccessibilitySummary,
+  resolveStageTimelineAccessibilitySummary,
 } from './chartResolvers.js';
+export type { ChartAccessibilitySummaryInput } from './chartResolvers.js';
 
 // ── LineChart ─────────────────────────────────────────────────────────────────
 

@@ -48,7 +48,7 @@ export function ConnectionsScreen(): React.JSX.Element {
             </Text>
           </Pressable>
         )}
-        <Text variant="titleLarge" weight="bold">
+        <Text variant="titleLarge" weight="bold" accessibilityRole="header">
           Connections
         </Text>
         <Text variant="bodyMedium" color="secondary">
@@ -158,9 +158,6 @@ function Banner({
 }: BannerProps): React.JSX.Element {
   return (
     <View
-      accessibilityRole={tone === 'warning' ? 'alert' : 'text'}
-      accessible
-      accessibilityLabel={message}
       style={[
         styles.banner,
         {
@@ -172,7 +169,14 @@ function Banner({
         },
       ]}
     >
-      <Text variant="bodyMedium" color="secondary" style={styles.bannerText}>
+      <Text
+        variant="bodyMedium"
+        color="secondary"
+        style={styles.bannerText}
+        accessibilityRole={tone === 'warning' ? 'alert' : 'text'}
+        accessibilityLabel={message}
+        accessibilityLiveRegion={tone === 'warning' ? 'assertive' : 'polite'}
+      >
         {message}
       </Text>
       {onDismiss !== undefined && (
@@ -181,6 +185,7 @@ function Banner({
           accessibilityRole="button"
           accessibilityLabel="Dismiss"
           hitSlop={8}
+          style={styles.dismissButton}
         >
           <Text variant="bodyMedium" color="accent" weight="semibold">
             Dismiss
@@ -220,5 +225,9 @@ const styles = StyleSheet.create({
   },
   bannerText: {
     flex: 1,
+  },
+  dismissButton: {
+    minHeight: 44,
+    justifyContent: 'center',
   },
 });

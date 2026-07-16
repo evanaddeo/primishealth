@@ -79,7 +79,15 @@ export function DigestionForm({
         testID="digestion-notes"
       />
 
-      <Button label="Log" onPress={() => void log()} disabled={isEmpty || controller.pending} />
+      <Button
+        label={controller.pending ? 'Saving digestion entry…' : 'Log digestion entry'}
+        onPress={() => void log()}
+        disabled={isEmpty || controller.pending}
+        busy={controller.pending}
+        {...(isEmpty
+          ? { accessibilityHint: 'Choose or enter at least one value before saving' }
+          : {})}
+      />
     </View>
   );
 }

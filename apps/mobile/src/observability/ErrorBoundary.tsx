@@ -103,6 +103,7 @@ function CrashFallback({ retry, goHome }: ErrorFallbackProps): React.JSX.Element
             state="api_error"
             title={ERROR_BOUNDARY_FALLBACK.title}
             body={ERROR_BOUNDARY_FALLBACK.body}
+            focusOnMount
             testID="error-boundary-state"
           />
           <View style={{ gap: spacing.sm, marginTop: spacing.sm }}>

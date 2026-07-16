@@ -69,7 +69,12 @@ export function CaffeineForm({
         testID="caffeine-amount"
       />
 
-      <Button label="Log caffeine" onPress={() => void logCustom()} disabled={controller.pending} />
+      <Button
+        label={controller.pending ? 'Saving caffeine…' : 'Log caffeine'}
+        onPress={() => void logCustom()}
+        disabled={controller.pending}
+        busy={controller.pending}
+      />
     </View>
   );
 }

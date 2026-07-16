@@ -60,6 +60,7 @@ export function ActivityLoadCard({
         <View style={{ marginTop: spacing.md }}>
           <BarChart
             data={[...loadTrend.points]}
+            metricLabel="Training load"
             unit={loadTrend.unit ?? 'load'}
             timeRange="7 days"
             state={hasTrend ? 'data' : 'empty'}

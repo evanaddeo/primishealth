@@ -33,6 +33,8 @@ import {
   resolveStageLaneIndex,
   resolveStageColor,
   resolveBarHeightFraction,
+  resolveChartAccessibilitySummary,
+  resolveStageTimelineAccessibilitySummary,
 } from '../src/charts/chartResolvers.js';
 import type { ChartPoint, SleepStage, SleepStageSegment, ChartState } from '../src/charts/types.js';
 
@@ -231,6 +233,52 @@ describe('resolveChartEmptyHint()', () => {
 
   it('returns null for data state', () => {
     expect(resolveChartEmptyHint('data')).toBeNull();
+  });
+});
+
+describe('accessible chart alternatives', () => {
+  it('summarizes current, missing, and baseline values without relying on color', () => {
+    expect(
+      resolveChartAccessibilitySummary({
+        chartType: 'line',
+        metricLabel: 'HRV trend',
+        data: [
+          { x: '2026-07-13', y: 68 },
+          { x: '2026-07-14', y: null },
+          { x: '2026-07-15', y: 61 },
+        ],
+        unit: 'milliseconds',
+        timeRange: 'last 3 days',
+        state: 'data',
+        baseline: { min: 65, max: 72 },
+      }),
+    ).toBe(
+      'HRV trend, last 3 days, in milliseconds. 2 values. Latest 61 milliseconds. 1 missing value. Baseline range 65 to 72 milliseconds.',
+    );
+  });
+
+  it('announces a chart error instead of fabricating a data summary', () => {
+    expect(
+      resolveChartAccessibilitySummary({
+        chartType: 'bar',
+        metricLabel: 'Training load',
+        data: [],
+        unit: 'load',
+        timeRange: '7 days',
+        state: 'error',
+      }),
+    ).toBe('Training load, 7 days, in load. Unable to load chart data.');
+  });
+
+  it('summarizes sleep stages with their text legend', () => {
+    expect(
+      resolveStageTimelineAccessibilitySummary('data', '10:30 PM', '6:30 AM', [
+        { stage: 'awake', durationMs: 1_800_000, label: '30 minutes' },
+        { stage: 'deep', durationMs: 5_400_000, label: '1 hour 30 minutes' },
+      ]),
+    ).toBe(
+      'Sleep stage timeline from 10:30 PM to 6:30 AM. Awake 30 minutes. Deep 1 hour 30 minutes.',
+    );
   });
 });
 

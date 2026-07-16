@@ -1,5 +1,5 @@
-import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { AccessibilityInfo, ActivityIndicator, findNodeHandle, View } from 'react-native';
 
 import { Button, Card, Text, useTheme } from '@primis/design-system';
 
@@ -11,6 +11,8 @@ export interface DataStatePanelProps {
   readonly body?: string;
   readonly actionLabel?: string;
   readonly onAction?: () => void;
+  /** Moves screen-reader focus to a newly mounted blocking state. */
+  readonly focusOnMount?: boolean;
   readonly testID?: string;
 }
 
@@ -21,6 +23,7 @@ export function DataStatePanel({
   body,
   actionLabel,
   onAction,
+  focusOnMount = false,
   testID,
 }: DataStatePanelProps): React.JSX.Element {
   const { colors, spacing } = useTheme();
@@ -28,13 +31,22 @@ export function DataStatePanel({
   const loading = state === 'initial_loading';
   const label = `${title ?? copy.title}. ${body ?? copy.body}`;
   const resolvedActionLabel = actionLabel ?? copy.actionLabel;
+  const stateRef = useRef<View>(null);
+
+  useEffect(() => {
+    if (!focusOnMount) return;
+    const target = findNodeHandle(stateRef.current);
+    if (target !== null) AccessibilityInfo.setAccessibilityFocus(target);
+  }, [focusOnMount]);
 
   return (
     <Card {...(testID === undefined ? {} : { testID })}>
       <View
+        ref={stateRef}
         accessible
         accessibilityRole={loading ? 'progressbar' : copy.accessibilityRole}
         accessibilityLabel={label}
+        accessibilityState={{ busy: loading }}
         accessibilityLiveRegion={
           loading ? 'polite' : copy.accessibilityRole === 'alert' ? 'assertive' : 'none'
         }

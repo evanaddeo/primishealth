@@ -1,6 +1,6 @@
 /** Privacy & Data Controls informational shell (CU-086). */
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import {
@@ -39,6 +39,8 @@ export function PrivacyScreen(): React.JSX.Element {
   const authStatus = useAuthStore((state) => state.status);
   const connections = useConnections();
   const [openSheet, setOpenSheet] = useState<OpenSheet>(null);
+  const deletionActionRef = useRef<View>(null);
+  const aiActionRef = useRef<View>(null);
 
   const authentication = buildAppAuthenticationViewModel(authStatus);
   const source = buildConnectedSourceViewModel({
@@ -157,6 +159,7 @@ export function PrivacyScreen(): React.JSX.Element {
             actionLabel="View deletion status"
             actionHint="Opens an informational explanation; no deletion request will be sent"
             onPress={() => setOpenSheet('deletion')}
+            actionRef={deletionActionRef}
             testID="privacy-deletion"
           />
         </View>
@@ -170,6 +173,7 @@ export function PrivacyScreen(): React.JSX.Element {
             actionLabel="Read AI processing note"
             actionHint="Opens the draft informational AI processing disclosure"
             onPress={() => setOpenSheet('ai')}
+            actionRef={aiActionRef}
             testID="privacy-ai"
           />
         </View>
@@ -180,6 +184,7 @@ export function PrivacyScreen(): React.JSX.Element {
         visible={openSheet === 'deletion'}
         onClose={() => setOpenSheet(null)}
         reducedMotion={reducedMotion}
+        returnFocusRef={deletionActionRef}
         testID="privacy-deletion-sheet"
       />
       <DisclosureSheet
@@ -187,6 +192,7 @@ export function PrivacyScreen(): React.JSX.Element {
         visible={openSheet === 'ai'}
         onClose={() => setOpenSheet(null)}
         reducedMotion={reducedMotion}
+        returnFocusRef={aiActionRef}
         testID="privacy-ai-sheet"
       />
     </>
@@ -232,6 +238,7 @@ interface ControlCardProps {
   actionLabel?: string;
   actionHint?: string;
   onPress?: () => void;
+  actionRef?: React.RefObject<View | null>;
   testID: string;
 }
 
@@ -240,6 +247,7 @@ function ControlCard({
   actionLabel,
   actionHint,
   onPress,
+  actionRef,
   testID,
 }: ControlCardProps): React.JSX.Element {
   const { spacing } = useTheme();
@@ -257,6 +265,7 @@ function ControlCard({
       </Text>
       {onPress !== undefined && actionLabel !== undefined && (
         <Button
+          ref={actionRef}
           variant="secondary"
           label={actionLabel}
           onPress={onPress}
@@ -274,12 +283,14 @@ function DisclosureSheet({
   visible,
   onClose,
   reducedMotion,
+  returnFocusRef,
   testID,
 }: {
   disclosure: DeletionDisclosureDescriptor | AiDisclosureDescriptor;
   visible: boolean;
   onClose: () => void;
   reducedMotion: boolean;
+  returnFocusRef: React.RefObject<View | null>;
   testID: string;
 }): React.JSX.Element {
   const { spacing } = useTheme();
@@ -290,6 +301,7 @@ function DisclosureSheet({
       onClose={onClose}
       title={disclosure.sheetTitle}
       reducedMotion={reducedMotion}
+      returnFocusRef={returnFocusRef}
       testID={testID}
     >
       <View style={{ gap: spacing.md }}>
@@ -299,7 +311,6 @@ function DisclosureSheet({
             {paragraph}
           </Text>
         ))}
-        <Button variant="ghost" label="Close" onPress={onClose} />
       </View>
     </BottomSheet>
   );

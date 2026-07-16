@@ -121,6 +121,8 @@ export function OnboardingScaffold({
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        automaticallyAdjustKeyboardInsets
       >
         <Animated.View style={[{ gap: spacing.sm }, animatedStyle]}>
           {eyebrow !== undefined && (
@@ -128,7 +130,7 @@ export function OnboardingScaffold({
               {eyebrow.toUpperCase()}
             </Text>
           )}
-          <Text variant="displayMedium" weight="bold">
+          <Text variant="displayMedium" weight="bold" accessibilityRole="header">
             {title}
           </Text>
           {subtitle !== undefined && (

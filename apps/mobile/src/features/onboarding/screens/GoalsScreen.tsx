@@ -11,10 +11,10 @@
  */
 
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { type GoalCode } from '@primis/api-contracts';
-import { Card, Text, useTheme } from '@primis/design-system';
+import { Card, IconButton, Text, useTheme } from '@primis/design-system';
 
 import { useSettingsStore } from '../../../state/settingsStore';
 import { OnboardingScaffold, SelectableRow } from '../components';
@@ -77,7 +77,7 @@ export function GoalsScreen(): React.JSX.Element {
                   {GOAL_LABELS[code]}
                 </Text>
                 <RankButton
-                  label="Move up"
+                  label={`Move ${GOAL_LABELS[code]} up`}
                   glyph="↑"
                   disabled={index === 0}
                   color={colors.textPrimary}
@@ -85,7 +85,7 @@ export function GoalsScreen(): React.JSX.Element {
                   onPress={() => setGoals(moveGoalUp(goals, index))}
                 />
                 <RankButton
-                  label="Move down"
+                  label={`Move ${GOAL_LABELS[code]} down`}
                   glyph="↓"
                   disabled={index === goals.length - 1}
                   color={colors.textPrimary}
@@ -93,7 +93,7 @@ export function GoalsScreen(): React.JSX.Element {
                   onPress={() => setGoals(moveGoalDown(goals, index))}
                 />
                 <RankButton
-                  label="Remove"
+                  label={`Remove ${GOAL_LABELS[code]}`}
                   glyph="✕"
                   disabled={false}
                   color={colors.textSecondary}
@@ -144,19 +144,22 @@ function RankButton({
   onPress: () => void;
 }): React.JSX.Element {
   return (
-    <Pressable
-      onPress={disabled ? undefined : onPress}
+    <IconButton
+      icon={
+        <Text
+          variant="bodyLarge"
+          weight="bold"
+          allowFontScaling={false}
+          style={{ color: disabled ? mutedColor : color }}
+        >
+          {glyph}
+        </Text>
+      }
+      onPress={onPress}
       disabled={disabled}
-      hitSlop={8}
-      accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ disabled }}
       style={styles.rankButton}
-    >
-      <Text variant="bodyLarge" weight="bold" style={{ color: disabled ? mutedColor : color }}>
-        {glyph}
-      </Text>
-    </Pressable>
+    />
   );
 }
 
@@ -172,9 +175,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rankButton: {
-    minWidth: 44,
-    minHeight: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    borderWidth: 0,
   },
 });

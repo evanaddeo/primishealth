@@ -92,11 +92,11 @@ export function SleepTrendCard({
           </Text>
           <LineChart
             data={trend.points}
+            metricLabel={trend.label}
             unit={trend.unit ?? ''}
             timeRange="7 nights"
             state={hasTrend ? 'data' : 'empty'}
             reducedMotion={reducedMotion}
-            accessibilityLabel={`${trend.label} over the last 7 nights, in hours.`}
           />
         </View>
       )}

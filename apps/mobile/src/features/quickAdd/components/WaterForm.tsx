@@ -88,7 +88,12 @@ export function WaterForm({
         testID="water-amount"
       />
 
-      <Button label="Log water" onPress={() => void log(amount)} disabled={controller.pending} />
+      <Button
+        label={controller.pending ? 'Saving water…' : 'Log water'}
+        onPress={() => void log(amount)}
+        disabled={controller.pending}
+        busy={controller.pending}
+      />
     </View>
   );
 }

@@ -15,6 +15,8 @@ import {
   type TextStyle,
   type StyleProp,
   type AccessibilityRole,
+  type AccessibilityState,
+  type AccessibilityProps,
 } from 'react-native';
 
 import type { TypeScaleKey } from '../tokens/typography.js';
@@ -39,6 +41,10 @@ export interface TextProps {
   /** Respect system font scaling. Defaults to true (UX-TYPE-004/005). */
   allowFontScaling?: boolean;
   accessibilityRole?: AccessibilityRole;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  accessibilityState?: AccessibilityState;
+  accessibilityLiveRegion?: AccessibilityProps['accessibilityLiveRegion'];
   numberOfLines?: number;
 }
 
@@ -51,6 +57,10 @@ export function Text({
   testID,
   allowFontScaling = true,
   accessibilityRole,
+  accessibilityLabel,
+  accessibilityHint,
+  accessibilityState,
+  accessibilityLiveRegion,
   numberOfLines,
 }: TextProps): React.JSX.Element {
   const { typography, colors } = useTheme();
@@ -72,6 +82,10 @@ export function Text({
       testID={testID}
       allowFontScaling={allowFontScaling}
       accessibilityRole={accessibilityRole}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={accessibilityState}
+      accessibilityLiveRegion={accessibilityLiveRegion}
       numberOfLines={numberOfLines}
     >
       {children}

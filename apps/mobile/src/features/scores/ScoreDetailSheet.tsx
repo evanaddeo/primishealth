@@ -18,10 +18,10 @@
  */
 
 import React from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import type { ScoreSnapshotDto } from '@primis/api-contracts';
-import { Button, StatusBadge, Text, useTheme } from '@primis/design-system';
+import { BottomSheet, StatusBadge, Text, useTheme } from '@primis/design-system';
 
 import { EvidenceChip } from './EvidenceChip';
 import { ScoreContributorRows } from './ScoreContributorList';
@@ -32,6 +32,7 @@ export interface ScoreDetailSheetProps {
   score: ScoreSnapshotDto;
   visible: boolean;
   onClose: () => void;
+  returnFocusRef?: React.RefObject<View | null>;
   testID?: string;
 }
 
@@ -39,179 +40,121 @@ export function ScoreDetailSheet({
   score,
   visible,
   onClose,
+  returnFocusRef,
   testID,
 }: ScoreDetailSheetProps): React.JSX.Element {
-  const { colors, spacing, radius } = useTheme();
+  const { spacing } = useTheme();
   const { isReducedMotion } = useReducedMotion();
 
   const vm = buildScoreExplanation(score);
 
   return (
-    <Modal
+    <BottomSheet
       visible={visible}
-      transparent
-      animationType={isReducedMotion ? 'none' : 'slide'}
-      onRequestClose={onClose}
-      accessibilityViewIsModal
+      onClose={onClose}
+      title={`${vm.title} score details`}
+      closeAccessibilityLabel={`Close ${vm.title} score details`}
+      reducedMotion={isReducedMotion}
+      {...(returnFocusRef === undefined ? {} : { returnFocusRef })}
       {...(testID !== undefined ? { testID } : {})}
     >
-      <View style={styles.fill}>
-        <Pressable
-          style={[styles.backdrop, { backgroundColor: colors.overlay }]}
-          accessibilityRole="button"
-          accessibilityLabel="Close score details"
-          onPress={onClose}
-        />
+      <View style={{ gap: spacing.lg, paddingBottom: spacing.lg }}>
+        {/* Header */}
+        <View style={{ gap: spacing.sm }} accessible accessibilityLabel={vm.accessibilityLabel}>
+          <View style={[styles.headerRow, { gap: spacing.sm }]}>
+            <Text variant="bodyMedium" color="secondary" style={styles.headerTitle}>
+              Current score status
+            </Text>
+            <StatusBadge status={vm.status} />
+          </View>
+          <View style={[styles.valueRow, { gap: spacing.xs }]}>
+            <Text variant="displayMedium" weight="bold">
+              {vm.valueText}
+            </Text>
+            {vm.hasValue && (
+              <Text variant="bodyMedium" color="muted">
+                / 100
+              </Text>
+            )}
+          </View>
+          <Text variant="bodySmall" color="secondary">
+            {vm.confidenceLabel}
+          </Text>
+          <Text variant="bodyMedium" color="secondary">
+            {vm.stateExplanation}
+          </Text>
+        </View>
 
-        <View
-          style={[
-            styles.sheet,
-            {
-              backgroundColor: colors.surfaceElevated,
-              borderTopLeftRadius: radius.xl,
-              borderTopRightRadius: radius.xl,
-              paddingHorizontal: spacing.lg,
-              paddingTop: spacing.md,
-              paddingBottom: spacing.xl,
-            },
-          ]}
-        >
-          <View style={[styles.grabber, { backgroundColor: colors.borderSubtle }]} />
+        {/* Evidence chips */}
+        {vm.evidence.length > 0 && (
+          <View style={{ gap: spacing.sm }}>
+            <Text variant="caption" color="secondary" weight="semibold" style={styles.eyebrow}>
+              WHY YOU CAN TRUST THIS
+            </Text>
+            <View style={[styles.chipWrap, { gap: spacing.sm }]}>
+              {vm.evidence.map((chip) => (
+                <EvidenceChip
+                  key={chip.key}
+                  chip={chip}
+                  {...(testID !== undefined ? { testID: `${testID}-chip-${chip.key}` } : {})}
+                />
+              ))}
+            </View>
+          </View>
+        )}
 
-          <ScrollView
-            style={styles.scroll}
-            contentContainerStyle={{ gap: spacing.lg, paddingBottom: spacing.lg }}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Header */}
-            <View style={{ gap: spacing.sm }} accessible accessibilityLabel={vm.accessibilityLabel}>
-              <View style={[styles.headerRow, { gap: spacing.sm }]}>
-                <Text variant="titleMedium" style={styles.headerTitle}>
-                  {vm.title} Score
-                </Text>
-                <StatusBadge status={vm.status} />
-              </View>
-              <View style={[styles.valueRow, { gap: spacing.xs }]}>
-                <Text variant="displayMedium" weight="bold">
-                  {vm.valueText}
-                </Text>
-                {vm.hasValue && (
-                  <Text variant="bodyMedium" color="muted">
-                    / 100
+        {/* Component breakdown */}
+        {vm.contributors.length > 0 && (
+          <View style={{ gap: spacing.xs }}>
+            <Text variant="caption" color="secondary" weight="semibold" style={styles.eyebrow}>
+              COMPONENT BREAKDOWN
+            </Text>
+            <ScoreContributorRows rows={vm.contributors} scoreNoun={vm.scoreNoun} />
+          </View>
+        )}
+
+        {/* Missing data */}
+        {vm.missingData.length > 0 && (
+          <View style={{ gap: spacing.sm }}>
+            <Text variant="caption" color="secondary" weight="semibold" style={styles.eyebrow}>
+              MISSING INPUTS
+            </Text>
+            {vm.missingData.map((row) => (
+              <View
+                key={row.key}
+                style={[styles.missingRow, { gap: spacing.xxs }]}
+                accessible
+                accessibilityLabel={`${row.label}, ${
+                  row.isRequired ? 'required' : 'optional'
+                }${row.reasonLabel !== null ? `, ${row.reasonLabel}` : ''}`}
+              >
+                <View style={[styles.missingHeader, { gap: spacing.sm }]}>
+                  <Text variant="bodyMedium" weight="medium" style={styles.rowLabel}>
+                    {row.label}
+                  </Text>
+                  <Text variant="caption" color={row.isRequired ? 'secondary' : 'muted'}>
+                    {row.isRequired ? 'Required' : 'Optional'}
+                  </Text>
+                </View>
+                {row.reasonLabel !== null && (
+                  <Text variant="caption" color="muted">
+                    {row.reasonLabel}
                   </Text>
                 )}
               </View>
-              <Text variant="bodySmall" color="secondary">
-                {vm.confidenceLabel}
-              </Text>
-              <Text variant="bodyMedium" color="secondary">
-                {vm.stateExplanation}
-              </Text>
-            </View>
+            ))}
+          </View>
+        )}
 
-            {/* Evidence chips */}
-            {vm.evidence.length > 0 && (
-              <View style={{ gap: spacing.sm }}>
-                <Text variant="caption" color="secondary" weight="semibold" style={styles.eyebrow}>
-                  WHY YOU CAN TRUST THIS
-                </Text>
-                <View style={[styles.chipWrap, { gap: spacing.sm }]}>
-                  {vm.evidence.map((chip) => (
-                    <EvidenceChip
-                      key={chip.key}
-                      chip={chip}
-                      {...(testID !== undefined ? { testID: `${testID}-chip-${chip.key}` } : {})}
-                    />
-                  ))}
-                </View>
-              </View>
-            )}
-
-            {/* Component breakdown */}
-            {vm.contributors.length > 0 && (
-              <View style={{ gap: spacing.xs }}>
-                <Text variant="caption" color="secondary" weight="semibold" style={styles.eyebrow}>
-                  COMPONENT BREAKDOWN
-                </Text>
-                <ScoreContributorRows rows={vm.contributors} scoreNoun={vm.scoreNoun} />
-              </View>
-            )}
-
-            {/* Missing data */}
-            {vm.missingData.length > 0 && (
-              <View style={{ gap: spacing.sm }}>
-                <Text variant="caption" color="secondary" weight="semibold" style={styles.eyebrow}>
-                  MISSING INPUTS
-                </Text>
-                {vm.missingData.map((row) => (
-                  <View
-                    key={row.key}
-                    style={[styles.missingRow, { gap: spacing.xxs }]}
-                    accessible
-                    accessibilityLabel={`${row.label}, ${
-                      row.isRequired ? 'required' : 'optional'
-                    }${row.reasonLabel !== null ? `, ${row.reasonLabel}` : ''}`}
-                  >
-                    <View style={[styles.missingHeader, { gap: spacing.sm }]}>
-                      <Text variant="bodyMedium" weight="medium" style={styles.rowLabel}>
-                        {row.label}
-                      </Text>
-                      <Text variant="caption" color={row.isRequired ? 'secondary' : 'muted'}>
-                        {row.isRequired ? 'Required' : 'Optional'}
-                      </Text>
-                    </View>
-                    {row.reasonLabel !== null && (
-                      <Text variant="caption" color="muted">
-                        {row.reasonLabel}
-                      </Text>
-                    )}
-                  </View>
-                ))}
-              </View>
-            )}
-
-            <Text variant="caption" color="muted">
-              Explained from your synced data — no AI needed.
-            </Text>
-          </ScrollView>
-
-          <Button
-            variant="secondary"
-            label="Close"
-            onPress={onClose}
-            {...(testID !== undefined ? { testID: `${testID}-close` } : {})}
-          />
-        </View>
+        <Text variant="caption" color="muted">
+          Explained from your synced data — no AI needed.
+        </Text>
       </View>
-    </Modal>
+    </BottomSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  fill: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  sheet: {
-    maxHeight: '88%',
-  },
-  grabber: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 12,
-  },
-  scroll: {
-    flexGrow: 0,
-  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',

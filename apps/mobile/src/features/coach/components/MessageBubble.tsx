@@ -97,7 +97,13 @@ export function MessageBubble({
           testID="coach-thinking"
         />
       ) : (
-        <Text variant="bodyMedium">
+        <Text
+          variant="bodyMedium"
+          accessibilityLabel={`Coach response${message.text.length > 0 ? `: ${message.text}` : ''}${
+            message.status === 'streaming' ? '. Response in progress' : ''
+          }`}
+          accessibilityState={{ busy: message.status === 'streaming' }}
+        >
           {message.text}
           {message.status === 'streaming' ? (
             <Text variant="bodyMedium" color="muted">

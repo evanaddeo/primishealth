@@ -1,9 +1,12 @@
 import React from 'react';
 import { renderWithAct } from '@testing-library/react-native/build/render-act';
 import { describe, expect, it, vi } from 'vitest';
+import { AccessibilityInfo } from 'react-native';
 
 vi.mock('react-native', () => ({
+  AccessibilityInfo: { setAccessibilityFocus: vi.fn() },
   ActivityIndicator: 'ActivityIndicator',
+  findNodeHandle: vi.fn(() => 1),
   StyleSheet: { create: <T>(styles: T): T => styles, hairlineWidth: 1 },
   View: 'View',
 }));
@@ -39,6 +42,7 @@ describe('common data-state components', () => {
     const progress = view.root.findByProps({ accessibilityRole: 'progressbar' });
     expect(progress.props.accessibilityLabel).toContain('Loading your data');
     expect(progress.props.accessibilityLiveRegion).toBe('polite');
+    expect(progress.props.accessibilityState).toEqual({ busy: true });
   });
 
   it('announces errors and invokes a safe retry callback once', () => {
@@ -53,6 +57,17 @@ describe('common data-state components', () => {
     expect(view.root.findByProps({ accessibilityRole: 'alert' })).toBeTruthy();
     React.act(() => view.root.findByProps({ testID: 'error-action' }).props.onPress());
     expect(retry).toHaveBeenCalledOnce();
+  });
+
+  it('moves accessibility focus to a newly mounted blocking state when requested', () => {
+    renderWithAct(
+      React.createElement(DataStatePanel, {
+        state: 'api_error',
+        focusOnMount: true,
+        testID: 'focused-error',
+      }),
+    );
+    expect(AccessibilityInfo.setAccessibilityFocus).toHaveBeenCalledWith(1);
   });
 
   it('labels required and optional missing metrics differently', () => {

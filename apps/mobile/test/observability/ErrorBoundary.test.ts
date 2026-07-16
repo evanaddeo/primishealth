@@ -1,10 +1,13 @@
 import React from 'react';
 import { renderWithAct } from '@testing-library/react-native/build/render-act';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { AccessibilityInfo } from 'react-native';
 
 import type { MobileTelemetry } from '../../src/observability/telemetry';
 
 vi.mock('react-native', () => ({
+  AccessibilityInfo: { setAccessibilityFocus: vi.fn() },
+  findNodeHandle: vi.fn(() => 1),
   StyleSheet: {
     create: <T>(styles: T): T => styles,
     flatten: (style: unknown): unknown =>
@@ -54,6 +57,7 @@ describe('ErrorBoundary', () => {
     expect(JSON.stringify(view.toJSON())).not.toContain(rawMessage);
     expect(JSON.stringify(view.toJSON())).not.toContain('private-token');
     expect(reportError).toHaveBeenCalledWith({ classification: 'TypeError' });
+    expect(AccessibilityInfo.setAccessibilityFocus).toHaveBeenCalledWith(1);
 
     shouldThrow = false;
     React.act(() => {

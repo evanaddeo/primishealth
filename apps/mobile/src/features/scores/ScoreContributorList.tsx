@@ -17,7 +17,7 @@
  * @see ./ScoreDetailSheet.tsx — the full detail surface this card opens
  */
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { ScoreSnapshotDto } from '@primis/api-contracts';
@@ -44,6 +44,7 @@ export function ScoreContributorList({
 }: ScoreContributorListProps): React.JSX.Element | null {
   const { colors, spacing } = useTheme();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const detailButtonRef = useRef<View>(null);
 
   const rows = buildScoreContributorRows(score);
   const scoreNoun = resolveScoreTypeNoun(score.scoreType);
@@ -64,6 +65,7 @@ export function ScoreContributorList({
       )}
 
       <Pressable
+        ref={detailButtonRef}
         onPress={() => setSheetOpen(true)}
         accessibilityRole="button"
         accessibilityLabel={`See full ${scoreNoun} breakdown`}
@@ -91,6 +93,7 @@ export function ScoreContributorList({
         score={score}
         visible={sheetOpen}
         onClose={() => setSheetOpen(false)}
+        returnFocusRef={detailButtonRef}
         {...(testID !== undefined ? { testID: `${testID}-sheet` } : {})}
       />
     </Card>

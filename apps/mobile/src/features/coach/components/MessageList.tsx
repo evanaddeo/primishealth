@@ -14,6 +14,7 @@ import type { AiChatFollowUp } from '@primis/api-contracts';
 import { useTheme } from '@primis/design-system';
 
 import { DataStatePanel } from '../../../components/DataStatePanel';
+import { useReducedMotion } from '../../../hooks/useReducedMotion';
 import type { CoachMessage, SuggestedPrompt } from '../coachModel';
 import { MessageBubble } from './MessageBubble';
 import { SuggestedPrompts } from './SuggestedPrompts';
@@ -36,11 +37,12 @@ export function MessageList({
   testID,
 }: MessageListProps): React.JSX.Element {
   const { spacing } = useTheme();
+  const { isReducedMotion } = useReducedMotion();
   const scrollRef = useRef<ScrollView>(null);
 
   const scrollToEnd = useCallback((): void => {
-    scrollRef.current?.scrollToEnd({ animated: true });
-  }, []);
+    scrollRef.current?.scrollToEnd({ animated: !isReducedMotion });
+  }, [isReducedMotion]);
 
   if (messages.length === 0) {
     return (

@@ -35,6 +35,7 @@ import type { QuickAddFormProps } from './components/types';
 export interface QuickAddSheetProps {
   visible: boolean;
   onClose: () => void;
+  returnFocusRef?: React.RefObject<View | null>;
 }
 
 const TITLES: Record<QuickAddCategory, string> = {
@@ -55,7 +56,11 @@ const FORMS: Record<QuickAddCategory, (props: QuickAddFormProps) => React.JSX.El
   digestion: DigestionForm,
 };
 
-export function QuickAddSheet({ visible, onClose }: QuickAddSheetProps): React.JSX.Element {
+export function QuickAddSheet({
+  visible,
+  onClose,
+  returnFocusRef,
+}: QuickAddSheetProps): React.JSX.Element {
   const { spacing } = useTheme();
   const { isReducedMotion } = useReducedMotion();
   const controller = useQuickAdd();
@@ -86,6 +91,7 @@ export function QuickAddSheet({ visible, onClose }: QuickAddSheetProps): React.J
       onClose={handleClose}
       title={title}
       reducedMotion={isReducedMotion}
+      {...(returnFocusRef === undefined ? {} : { returnFocusRef })}
       testID="quick-add-sheet"
     >
       <View style={{ gap: spacing.lg }}>

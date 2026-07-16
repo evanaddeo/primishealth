@@ -43,11 +43,11 @@ export function VitalsTrendCard({
           </Text>
           <LineChart
             data={trend.points}
+            metricLabel={trend.label}
             unit={trend.unit ?? ''}
             timeRange="7 days"
             state={trendHasData(trend.points) ? 'data' : 'empty'}
             reducedMotion={reducedMotion}
-            accessibilityLabel={`${trend.label} over the last 7 days, in ${trend.unit ?? 'units'}.`}
           />
         </View>
       ))}

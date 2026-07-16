@@ -25,6 +25,7 @@ export { ThemeContext, useTheme, useThemeSafe } from './ThemeContext.js';
 
 // UI primitives
 export * from './components/index.js';
+export * from './utils/accessibility.js';
 
 // Chart primitives — chart-ready data components (CU-020)
 export * from './charts/index.js';
