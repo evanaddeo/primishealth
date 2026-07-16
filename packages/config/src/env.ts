@@ -31,6 +31,11 @@ const publicEnvSchema = z.object({
    * Must be set to `'false'` in staging and production build pipelines.
    */
   EXPO_PUBLIC_MOCK_MODE: z.string().optional().default('true'),
+  /**
+   * Enables the iOS-only HealthKit spike surface. Defaults to false in every
+   * environment; setting true still requires an explicit user permission action.
+   */
+  EXPO_PUBLIC_HEALTHKIT_ENABLED: z.enum(['true', 'false']).optional().default('false'),
 });
 
 // ---------------------------------------------------------------------------

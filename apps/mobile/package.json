@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@kingstinct/react-native-healthkit": "14.0.2",
     "@primis/api-contracts": "workspace:*",
     "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",
@@ -27,6 +28,7 @@
     "react-native": "0.86.0",
     "react-native-gesture-handler": "^3.0.1",
     "react-native-mmkv": "^4.3.1",
+    "react-native-nitro-modules": "0.36.1",
     "react-native-reanimated": "^4.4.1",
     "react-native-safe-area-context": "^5.8.0",
     "react-native-screens": "^4.25.2",

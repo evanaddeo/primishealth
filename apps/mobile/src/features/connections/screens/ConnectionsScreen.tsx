@@ -18,6 +18,7 @@ import { useRouter } from 'expo-router';
 import { HEALTH_PERMISSION_NOTES } from '../connectionState';
 import { DataStatePanel } from '../../../components/DataStatePanel';
 import { DataStatusBanner } from '../../../components/DataStatusBanner';
+import { HealthKitConnectionCard } from '../../../providers/healthkit';
 import { useConnections } from '../useConnections';
 import { CapabilityList } from '../components/CapabilityList';
 import { ConnectionCard } from '../components/ConnectionCard';
@@ -113,6 +114,8 @@ export function ConnectionsScreen(): React.JSX.Element {
             onDisconnect={() => void c.disconnect()}
             onRefresh={() => void c.refresh()}
           />
+
+          <HealthKitConnectionCard />
 
           <Card testID="connections-permissions">
             <Text variant="titleMedium" weight="semibold">

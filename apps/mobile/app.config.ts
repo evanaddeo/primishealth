@@ -57,7 +57,19 @@ const config: ExpoConfig = {
     },
   },
 
-  plugins: ['expo-dev-client', 'expo-router'],
+  plugins: [
+    'expo-dev-client',
+    'expo-router',
+    [
+      '@kingstinct/react-native-healthkit',
+      {
+        NSHealthShareUsageDescription:
+          'Primis reads the Apple Health categories you choose to show wellness and performance trends.',
+        NSHealthUpdateUsageDescription: false,
+        background: false,
+      },
+    ],
+  ],
 
   experiments: {
     typedRoutes: true,
