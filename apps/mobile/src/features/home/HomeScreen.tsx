@@ -26,6 +26,8 @@ import { DataStatePanel } from '../../components/DataStatePanel';
 import { DataStatusBanner } from '../../components/DataStatusBanner';
 import { StaleDataBanner } from '../../components/StaleDataBanner';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
+import { DevRenderProfiler } from '../../performance/DevRenderProfiler';
+import { PERFORMANCE_EVENT_CODES } from '../../performance/performanceMarks';
 import { useWidgetStore } from '../../state/widgetStore';
 import { QuickAddLauncher } from '../quickAdd';
 import { HOME_WIDGET_META, resolveFreshness, resolveVisibleWidgets } from './homeModel';
@@ -74,63 +76,65 @@ export function HomeScreen(): React.JSX.Element {
   const visibleWidgets = resolveVisibleWidgets(widgetOrder, hiddenWidgets);
 
   return (
-    <Screen testID="screen-home" contentStyle={{ paddingTop: spacing.xl }}>
-      <Animated.View style={{ opacity: fade, gap: spacing.lg }}>
-        <HomeHeader
-          localDate={snapshot.dashboard.localDate}
-          freshness={freshness}
-          onPressSettings={() => router.navigate('/settings')}
-          onPressEdit={() => router.navigate('/settings/home-widgets')}
-        />
-
-        {isRefreshing && <DataStatusBanner state="refreshing" testID="home-refreshing" />}
-        {hasRefreshError && (
-          <DataStatusBanner
-            state="api_error"
-            title="Couldn’t update Home"
-            body="Showing your latest saved dashboard."
-            onAction={() => void refetch()}
-            testID="home-refresh-error"
+    <DevRenderProfiler eventCode={PERFORMANCE_EVENT_CODES.HOME_CACHED_WARM_RENDER}>
+      <Screen testID="screen-home" contentStyle={{ paddingTop: spacing.xl }}>
+        <Animated.View style={{ opacity: fade, gap: spacing.lg }}>
+          <HomeHeader
+            localDate={snapshot.dashboard.localDate}
+            freshness={freshness}
+            onPressSettings={() => router.navigate('/settings')}
+            onPressEdit={() => router.navigate('/settings/home-widgets')}
           />
-        )}
-        {snapshot.dashboard.providerSyncStatus.length === 0 ? (
-          <DataStatusBanner
-            state="provider_disconnected"
-            onAction={() => router.navigate('/settings/connections')}
-            testID="home-provider-disconnected"
-          />
-        ) : freshness.isStale ? (
-          <StaleDataBanner onAction={() => void refetch()} testID="home-stale" />
-        ) : null}
 
-        <View style={{ flexDirection: 'row', gap: spacing.sm }} testID="home-quick-actions">
-          <View style={{ flex: 1 }}>
-            <QuickAddLauncher label="Quick add" testID="home-quick-add" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Button
-              variant="secondary"
-              label="Check in"
-              onPress={() => router.navigate('/check-in')}
-              accessibilityHint="Opens the daily check-in"
-              testID="home-check-in"
+          {isRefreshing && <DataStatusBanner state="refreshing" testID="home-refreshing" />}
+          {hasRefreshError && (
+            <DataStatusBanner
+              state="api_error"
+              title="Couldn’t update Home"
+              body="Showing your latest saved dashboard."
+              onAction={() => void refetch()}
+              testID="home-refresh-error"
             />
-          </View>
-        </View>
+          )}
+          {snapshot.dashboard.providerSyncStatus.length === 0 ? (
+            <DataStatusBanner
+              state="provider_disconnected"
+              onAction={() => router.navigate('/settings/connections')}
+              testID="home-provider-disconnected"
+            />
+          ) : freshness.isStale ? (
+            <StaleDataBanner onAction={() => void refetch()} testID="home-stale" />
+          ) : null}
 
-        {visibleWidgets.map((id) => {
-          const Widget = HOME_WIDGET_REGISTRY[id];
-          const meta = HOME_WIDGET_META[id];
-          return (
-            <Widget
-              key={id}
-              snapshot={snapshot}
-              onPress={() => router.navigate(meta.route)}
-              testID={`home-widget-${id}`}
-            />
-          );
-        })}
-      </Animated.View>
-    </Screen>
+          <View style={{ flexDirection: 'row', gap: spacing.sm }} testID="home-quick-actions">
+            <View style={{ flex: 1 }}>
+              <QuickAddLauncher label="Quick add" testID="home-quick-add" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Button
+                variant="secondary"
+                label="Check in"
+                onPress={() => router.navigate('/check-in')}
+                accessibilityHint="Opens the daily check-in"
+                testID="home-check-in"
+              />
+            </View>
+          </View>
+
+          {visibleWidgets.map((id) => {
+            const Widget = HOME_WIDGET_REGISTRY[id];
+            const meta = HOME_WIDGET_META[id];
+            return (
+              <Widget
+                key={id}
+                snapshot={snapshot}
+                onPress={() => router.navigate(meta.route)}
+                testID={`home-widget-${id}`}
+              />
+            );
+          })}
+        </Animated.View>
+      </Screen>
+    </DevRenderProfiler>
   );
 }

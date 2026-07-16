@@ -7,10 +7,10 @@
  * `MockModeError`, which we catch and satisfy from `src/mocks/*` by echoing a
  * schema-valid DTO. A later phase swaps to the live routes with no screen change.
  *
- * Local-first (ADR-008 client side): each successful log optimistically folds the
- * new entry into the cached `lifestyle-day` / `nutrition-day` query via the pure
- * `quickAddModel` folders, so a just-logged value shows instantly. The durable
- * server projection reconciles on the next read.
+ * Local-first (ADR-008 client side): after server acknowledgement, each successful
+ * log folds the new entry into the cached `lifestyle-day` / `nutrition-day` query
+ * via the pure `quickAddModel` folders. The durable server projection reconciles
+ * on the next read; CU-092 measures this existing post-ack cache-commit boundary.
  *
  * @see apps/mobile/src/features/quickAdd/quickAddModel.ts — request builders + folders
  * @see docs/decisions/ADR-008-manual-input-daily-aggregation-and-freshness.md
@@ -59,6 +59,11 @@ import {
   appendNutritionEntry,
   resolveLocalDate,
 } from '../../features/quickAdd/quickAddModel';
+import {
+  PERFORMANCE_EVENT_CODES,
+  performanceMarks,
+  type PerformanceSpan,
+} from '../../performance/performanceMarks';
 
 const MOCK_MODE = loadPublicEnv().EXPO_PUBLIC_MOCK_MODE === 'true';
 
@@ -187,41 +192,69 @@ export function useQuickAdd(): QuickAddController {
 
   // ── Mutations ──────────────────────────────────────────────────────────────────
 
-  const hydrationM = useMutation<HydrationEntryDto, Error, CreateHydrationRequestDto>({
+  const hydrationM = useMutation<
+    HydrationEntryDto,
+    Error,
+    CreateHydrationRequestDto,
+    PerformanceSpan
+  >({
     mutationFn: (req) => postOrMock(API_ENDPOINTS.HYDRATION, req, mockCreatedHydration),
-    onSuccess: (entry, req) => {
+    onMutate: () =>
+      performanceMarks.start(PERFORMANCE_EVENT_CODES.NUTRITION_MANUAL_LOG_CACHE_COMMIT),
+    onSuccess: (entry, req, span) => {
       const key = lifestyleKey(req.localDate);
       const prev = qc.getQueryData<LifestyleDayResponseDto>(key);
       if (prev) qc.setQueryData(key, appendHydration(prev, entry));
+      span?.finish(prev ? 'completed' : 'not_visible');
     },
+    onError: (_error, _req, span) => span?.finish('failed'),
   });
 
-  const caffeineM = useMutation<CaffeineEntryDto, Error, CreateCaffeineRequestDto>({
-    mutationFn: (req) => postOrMock(API_ENDPOINTS.CAFFEINE, req, mockCreatedCaffeine),
-    onSuccess: (entry, req) => {
-      const key = lifestyleKey(req.localDate);
-      const prev = qc.getQueryData<LifestyleDayResponseDto>(key);
-      if (prev) qc.setQueryData(key, appendCaffeine(prev, entry));
+  const caffeineM = useMutation<CaffeineEntryDto, Error, CreateCaffeineRequestDto, PerformanceSpan>(
+    {
+      mutationFn: (req) => postOrMock(API_ENDPOINTS.CAFFEINE, req, mockCreatedCaffeine),
+      onMutate: () =>
+        performanceMarks.start(PERFORMANCE_EVENT_CODES.NUTRITION_MANUAL_LOG_CACHE_COMMIT),
+      onSuccess: (entry, req, span) => {
+        const key = lifestyleKey(req.localDate);
+        const prev = qc.getQueryData<LifestyleDayResponseDto>(key);
+        if (prev) qc.setQueryData(key, appendCaffeine(prev, entry));
+        span?.finish(prev ? 'completed' : 'not_visible');
+      },
+      onError: (_error, _req, span) => span?.finish('failed'),
     },
-  });
+  );
 
-  const alcoholM = useMutation<AlcoholEntryDto, Error, CreateAlcoholRequestDto>({
+  const alcoholM = useMutation<AlcoholEntryDto, Error, CreateAlcoholRequestDto, PerformanceSpan>({
     mutationFn: (req) => postOrMock(API_ENDPOINTS.ALCOHOL, req, mockCreatedAlcohol),
-    onSuccess: (entry, req) => {
+    onMutate: () =>
+      performanceMarks.start(PERFORMANCE_EVENT_CODES.NUTRITION_MANUAL_LOG_CACHE_COMMIT),
+    onSuccess: (entry, req, span) => {
       const key = lifestyleKey(req.localDate);
       const prev = qc.getQueryData<LifestyleDayResponseDto>(key);
       if (prev) qc.setQueryData(key, appendAlcohol(prev, entry));
+      span?.finish(prev ? 'completed' : 'not_visible');
     },
+    onError: (_error, _req, span) => span?.finish('failed'),
   });
 
-  const macrosM = useMutation<NutritionEntryDto, Error, CreateNutritionEntryRequestDto>({
+  const macrosM = useMutation<
+    NutritionEntryDto,
+    Error,
+    CreateNutritionEntryRequestDto,
+    PerformanceSpan
+  >({
     mutationFn: (req) =>
       postOrMock(API_ENDPOINTS.NUTRITION_ENTRIES, req, mockCreatedNutritionEntry),
-    onSuccess: (entry, req) => {
+    onMutate: () =>
+      performanceMarks.start(PERFORMANCE_EVENT_CODES.NUTRITION_MANUAL_LOG_CACHE_COMMIT),
+    onSuccess: (entry, req, span) => {
       const key = nutritionKey(req.localDate);
       const prev = qc.getQueryData<NutritionDayResponseDto>(key);
       if (prev) qc.setQueryData(key, appendNutritionEntry(prev, entry));
+      span?.finish(prev ? 'completed' : 'not_visible');
     },
+    onError: (_error, _req, span) => span?.finish('failed'),
   });
 
   const digestionM = useMutation<BowelEntryDto, Error, CreateDigestionRequestDto>({

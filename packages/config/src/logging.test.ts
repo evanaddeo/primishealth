@@ -238,6 +238,31 @@ describe('structured runtime logging policy', () => {
     expect(metadata).toEqual(before);
   });
 
+  it('allowlists only bounded mobile performance fields', () => {
+    const { entries, logger } = capture();
+    logger.emit('mobile.performance.measurement', {
+      eventCode: 'coach.first_token',
+      durationMs: 42,
+      outcome: 'completed',
+      renderCount: 0,
+      environment: 'dev',
+      prompt: 'private prompt',
+      userId: 'private-user',
+      provider: 'private-provider',
+      metricValue: 98,
+      payload: { note: 'private note' },
+    } as never);
+
+    expect(entries[0]?.metadata).toEqual({
+      eventCode: 'coach.first_token',
+      durationMs: 42,
+      outcome: 'completed',
+      renderCount: 0,
+      environment: 'dev',
+    });
+    expect(JSON.stringify(entries[0])).not.toContain('private');
+  });
+
   it('isolates injected sink failures', () => {
     const logger = createStructuredLogger({
       service: 'primis-api',

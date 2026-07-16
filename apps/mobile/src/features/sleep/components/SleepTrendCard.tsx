@@ -13,6 +13,8 @@ import { StyleSheet, View } from 'react-native';
 import type { SleepDetailResponseDto } from '@primis/api-contracts';
 import { Card, LineChart, Text, useTheme } from '@primis/design-system';
 
+import { DevRenderProfiler } from '../../../performance/DevRenderProfiler';
+import { PERFORMANCE_EVENT_CODES } from '../../../performance/performanceMarks';
 import { formatConsistency, formatSleepDebt } from '../sleepModel';
 
 export interface SleepTrendCardProps {
@@ -86,19 +88,21 @@ export function SleepTrendCard({
       </View>
 
       {trend !== null && (
-        <View style={{ marginTop: spacing.lg }}>
-          <Text variant="bodySmall" color="secondary" style={{ marginBottom: spacing.xs }}>
-            {trend.label} · last 7 nights
-          </Text>
-          <LineChart
-            data={trend.points}
-            metricLabel={trend.label}
-            unit={trend.unit ?? ''}
-            timeRange="7 nights"
-            state={hasTrend ? 'data' : 'empty'}
-            reducedMotion={reducedMotion}
-          />
-        </View>
+        <DevRenderProfiler eventCode={PERFORMANCE_EVENT_CODES.CHART_REPRESENTATIVE_RENDER}>
+          <View style={{ marginTop: spacing.lg }}>
+            <Text variant="bodySmall" color="secondary" style={{ marginBottom: spacing.xs }}>
+              {trend.label} · last 7 nights
+            </Text>
+            <LineChart
+              data={trend.points}
+              metricLabel={trend.label}
+              unit={trend.unit ?? ''}
+              timeRange="7 nights"
+              state={hasTrend ? 'data' : 'empty'}
+              reducedMotion={reducedMotion}
+            />
+          </View>
+        </DevRenderProfiler>
       )}
     </Card>
   );

@@ -8,9 +8,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { queryClient } from '../src/api/queryClient';
 import { isMockAuthEnabled } from '../src/features/auth';
 import { ErrorBoundary } from '../src/observability/ErrorBoundary';
+import { PERFORMANCE_EVENT_CODES, performanceMarks } from '../src/performance/performanceMarks';
 import { ThemeProvider } from '../src/providers/ThemeProvider';
 import { useAuthStore } from '../src/state/authStore';
 import { useSettingsStore } from '../src/state/settingsStore';
+
+// Starts at root-module evaluation, before the first routed React commit.
+const coldRootSpan = performanceMarks.start(PERFORMANCE_EVENT_CODES.APP_COLD_ROOT_INITIALIZATION);
 
 /**
  * First-run navigation gate: onboarding → (mock) auth → tabs (CU-058 + CU-059).
@@ -70,6 +74,13 @@ function useFirstRunGate(): void {
 export default function RootLayout() {
   useFirstRunGate();
   const router = useRouter();
+
+  useEffect(() => {
+    coldRootSpan.finish('completed', 1);
+    return () => {
+      coldRootSpan.finish('cancelled', 0);
+    };
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

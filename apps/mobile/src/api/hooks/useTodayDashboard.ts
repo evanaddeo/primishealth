@@ -34,6 +34,7 @@ import {
   type MockDashboardState,
   type MockHomeSnapshot,
 } from '../../mocks/dashboard';
+import { PERFORMANCE_EVENT_CODES, performanceMarks } from '../../performance/performanceMarks';
 
 const CACHE_KEY = 'dashboard:today';
 const QUERY_KEY = ['today-dashboard'] as const;
@@ -119,7 +120,14 @@ export function useTodayDashboard(): TodayDashboardController {
   }, [query.data]);
 
   const refetch = useCallback(async (): Promise<void> => {
-    await query.refetch();
+    const span = performanceMarks.start(PERFORMANCE_EVENT_CODES.HOME_REFRESH_COMPLETION);
+    try {
+      const result = await query.refetch();
+      span.finish(result.isError ? 'failed' : 'completed');
+    } catch (error) {
+      span.finish('failed');
+      throw error;
+    }
   }, [query]);
 
   const snapshot = query.data ?? cached;

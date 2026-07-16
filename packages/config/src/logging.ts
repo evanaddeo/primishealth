@@ -100,6 +100,16 @@ type AiTaskType =
   | 'weekly_review_generation'
   | 'workout_summary_generation';
 type AiStatus = 'completed' | 'failed' | 'invalid_schema' | 'refused' | 'streaming' | 'timeout';
+type MobilePerformanceEventCode =
+  | 'app.cold_root_initialization'
+  | 'chart.representative_render'
+  | 'coach.first_token'
+  | 'home.cached_warm_render'
+  | 'home.refresh_completion'
+  | 'navigation.tab_transition'
+  | 'nutrition.manual_log_cache_commit'
+  | 'sync.provider_refresh';
+type MobilePerformanceOutcome = 'cancelled' | 'completed' | 'failed' | 'not_visible';
 
 export interface RuntimeEventMetadataMap {
   'api.request.completed': {
@@ -191,6 +201,13 @@ export interface RuntimeEventMetadataMap {
     errorClassification: SafeErrorClassification;
     errorCode?: SafeErrorCode;
   };
+  'mobile.performance.measurement': {
+    eventCode: MobilePerformanceEventCode;
+    durationMs: number;
+    outcome: MobilePerformanceOutcome;
+    renderCount: number;
+    environment: LogEnvironment;
+  };
   'cli.db_migrate.started': Record<string, never>;
   'cli.db_migrate.completed': { appliedCount: number; skippedCount: number };
   'cli.db_migrate.failed': {
@@ -229,6 +246,7 @@ export type CliRuntimeEventName =
   | 'cli.db_seed.completed'
   | 'cli.db_seed.failed'
   | 'cli.db_seed.started';
+export type MobileRuntimeEventName = 'mobile.performance.measurement';
 
 export interface LogCorrelation {
   readonly requestId?: string;
@@ -367,6 +385,22 @@ const AI_STATUSES: readonly AiStatus[] = [
   'streaming',
   'timeout',
 ];
+const MOBILE_PERFORMANCE_EVENT_CODES: readonly MobilePerformanceEventCode[] = [
+  'app.cold_root_initialization',
+  'chart.representative_render',
+  'coach.first_token',
+  'home.cached_warm_render',
+  'home.refresh_completion',
+  'navigation.tab_transition',
+  'nutrition.manual_log_cache_commit',
+  'sync.provider_refresh',
+];
+const MOBILE_PERFORMANCE_OUTCOMES: readonly MobilePerformanceOutcome[] = [
+  'cancelled',
+  'completed',
+  'failed',
+  'not_visible',
+];
 
 const deletionCategoryPolicy: FieldPolicy = {
   kind: 'object',
@@ -486,6 +520,16 @@ const EVENT_POLICIES: Readonly<Record<RuntimeEventName, EventPolicy>> = {
   'ai.chat.failed': {
     level: 'error',
     fields: { streamed: { kind: 'boolean' }, ...safeErrorFields },
+  },
+  'mobile.performance.measurement': {
+    level: 'debug',
+    fields: {
+      eventCode: stringEnum(MOBILE_PERFORMANCE_EVENT_CODES),
+      durationMs: duration,
+      outcome: stringEnum(MOBILE_PERFORMANCE_OUTCOMES),
+      renderCount: count(100_000),
+      environment: stringEnum(LOG_ENVIRONMENTS),
+    },
   },
   'cli.db_migrate.started': { level: 'info', fields: {} },
   'cli.db_migrate.completed': {
