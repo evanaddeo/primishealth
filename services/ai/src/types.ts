@@ -111,17 +111,13 @@ export interface AiUsageMetadata {
 /**
  * Non-sensitive request metadata safe for redacted observability (§19.3, TAD §22.3).
  *
- * MUST NOT contain raw user ids, names, emails, prompts, or health values —
- * only a stable hash and coarse routing tags.
+ * MUST NOT contain raw/hashed user ids, names, emails, prompts, conversation
+ * identifiers, or health values — only coarse routing tags.
  */
 export interface AiRequestMetadata {
-  /** Stable, non-reversible hash of the user id — never the raw id (§14, API bar). */
-  userIdHash: string;
   environment: 'dev' | 'staging' | 'prod';
   /** Where the request originated (screen/job), for routing + analytics only. */
   sourceSurface?: string;
-  /** Optional conversation grouping id (opaque, non-PII). */
-  conversationId?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -198,7 +194,7 @@ export type AiStreamChunk =
  * messages, prompts, output text, and any health-derived content.
  */
 export interface AiInvocationTelemetry {
-  requestId: string;
+  correlationId: string;
   provider: AiProviderCode;
   model: string;
   taskType: AiTaskType;
@@ -206,6 +202,15 @@ export interface AiInvocationTelemetry {
   status: AiResponseStatus;
   latencyMs: number;
   usage?: AiUsageMetadata;
-  userIdHash: string;
   environment: 'dev' | 'staging' | 'prod';
+}
+
+/** Message-free terminal failure metadata for the gateway logging adapter. */
+export interface AiInvocationFailureTelemetry {
+  correlationId: string;
+  provider: AiProviderCode;
+  taskType: AiTaskType;
+  modelTier: AiModelTier;
+  environment: 'dev' | 'staging' | 'prod';
+  error: import('@primis/config').SafeError;
 }

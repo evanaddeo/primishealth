@@ -1,8 +1,8 @@
 /**
- * Stable, non-reversible user-id hashing for AI request metadata.
+ * Stable, non-reversible user-id hashing for restricted AI context packets.
  *
- * The gateway and its telemetry only ever carry `userIdHash`, never a raw user
- * id (§14 API bar, §19.3). Callers should hash once at the request boundary.
+ * Runtime logs and gateway telemetry carry neither raw nor hashed user IDs
+ * (CU-088). Callers hash only for context assembly and restricted persistence.
  */
 
 import { createHash } from 'node:crypto';

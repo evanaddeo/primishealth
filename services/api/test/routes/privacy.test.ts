@@ -150,6 +150,7 @@ describe('POST /api/v1/data/delete-all authentication and scoping', () => {
     expect(dependencies.buildDryRun).toHaveBeenCalledWith({
       userId: USER_ID,
       idempotencyKey: IDEMPOTENCY_KEY,
+      correlationId: 'privacy-request-id',
     });
 
     vi.mocked(dependencies.buildDryRun).mockClear();

@@ -20,6 +20,7 @@ import {
   USER_DATA_DELETION_MANIFEST,
   type DeletionManifestTarget,
 } from './deletionInventory.js';
+import { createDeletionDryRunAuditSink, workerLogger } from '../observability/logger.js';
 
 /** Sensitive internal archive metadata. Never log, serialize, or return this type. */
 export interface RawArchiveLocator {
@@ -60,6 +61,8 @@ export interface BuildDeletionDryRunInput {
   /** Supplied only by authenticated server context; never accepted from the request body. */
   readonly userId: string;
   readonly idempotencyKey: string;
+  /** Safe API/worker operation correlation; never included in the dry-run reference. */
+  readonly correlationId?: string;
 }
 
 const ARCHIVE_KEY_RE =
@@ -204,10 +207,15 @@ const EMPTY_MOCK_ARCHIVE_INVENTORY: RawArchiveInventoryPort = {
  */
 export function buildMockDeletionDryRun(
   input: BuildDeletionDryRunInput,
+  audit: (event: DeletionDryRunAuditEvent) => void = createDeletionDryRunAuditSink(
+    workerLogger,
+    input.correlationId,
+  ),
 ): Promise<DeletionDryRunResponse> {
   return buildDeletionDryRun(input, {
     inventory: SCHEMA_ONLY_MOCK_INVENTORY,
     rawArchive: EMPTY_MOCK_ARCHIVE_INVENTORY,
+    audit,
   });
 }
 

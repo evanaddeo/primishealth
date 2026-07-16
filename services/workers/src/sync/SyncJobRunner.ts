@@ -35,6 +35,7 @@
 
 import type { Kysely } from 'kysely';
 import type { SyncJobType, SyncWindow } from '@primis/core-types';
+import { classifyError } from '@primis/config';
 
 import type { Database } from '../db/types.js';
 import type { HealthProviderConnector } from '../providers/HealthProviderConnector.js';
@@ -50,6 +51,7 @@ import {
   markJobPartialSuccess,
 } from './syncJobRepository.js';
 import { upsertCursor } from './syncCursorRepository.js';
+import { workerLogger, type WorkerLogger } from '../observability/logger.js';
 
 // ---------------------------------------------------------------------------
 // SyncJobParams
@@ -71,6 +73,13 @@ export interface SyncJobParams {
   readonly jobType: SyncJobType;
   /** Time range and strategy for this sync pass. */
   readonly window: SyncWindow;
+  /** Safe operation correlation supplied by the worker entry point; never derived from user ID. */
+  readonly correlationId?: string;
+}
+
+export interface SyncJobRunnerObservability {
+  readonly logger?: WorkerLogger;
+  readonly now?: () => number;
 }
 
 // ---------------------------------------------------------------------------
@@ -93,7 +102,7 @@ export interface SyncJobParams {
  *   jobType: 'manual_refresh',
  *   window: { strategy: 'manual_refresh', startUtc: start, endUtc: end },
  * });
- * console.log(result.status); // 'succeeded' | 'partial_success' | 'failed'
+ * result.status; // 'succeeded' | 'partial_success' | 'failed'
  * ```
  */
 export class SyncJobRunner {
@@ -107,17 +116,22 @@ export class SyncJobRunner {
    */
   private readonly archive: RawPayloadArchive;
   private readonly scoringPort: ScoringEnqueuePort;
+  private readonly logger: WorkerLogger;
+  private readonly now: () => number;
 
   constructor(
     db: Kysely<Database>,
     connector: HealthProviderConnector,
     archive: RawPayloadArchive,
     scoringPort: ScoringEnqueuePort,
+    observability: SyncJobRunnerObservability = {},
   ) {
     this.db = db;
     this.connector = connector;
     this.archive = archive;
     this.scoringPort = scoringPort;
+    this.logger = observability.logger ?? workerLogger;
+    this.now = observability.now ?? (() => Date.now());
   }
 
   /**
@@ -135,6 +149,48 @@ export class SyncJobRunner {
    * @throws Re-throws unexpected errors after marking the job `failed`.
    */
   async runJob(params: SyncJobParams): Promise<ProviderSyncResult> {
+    const startedAt = safeNow(this.now);
+    const correlation = params.correlationId ? { correlationId: params.correlationId } : {};
+    this.logger.emit('worker.sync.started', { jobType: params.jobType }, correlation);
+
+    try {
+      const result = await this.executeJob(params);
+      this.logger.emit(
+        'worker.sync.completed',
+        {
+          jobType: params.jobType,
+          status:
+            result.status === 'succeeded' ||
+            result.status === 'partial_success' ||
+            result.status === 'cancelled'
+              ? result.status
+              : 'failed',
+          durationMs: Math.max(0, safeNow(this.now) - startedAt),
+          recordsFetched: result.recordsFetched,
+          recordsNormalized: result.recordsNormalized,
+          payloadsArchived: result.payloadsArchived,
+          errorCount: result.errors.length,
+        },
+        correlation,
+      );
+      return result;
+    } catch (error) {
+      const safeError = classifyError(error);
+      this.logger.emit(
+        'worker.sync.failed',
+        {
+          jobType: params.jobType,
+          durationMs: Math.max(0, safeNow(this.now) - startedAt),
+          errorClassification: safeError.classification,
+          ...(safeError.code ? { errorCode: safeError.code } : {}),
+        },
+        correlation,
+      );
+      throw error;
+    }
+  }
+
+  private async executeJob(params: SyncJobParams): Promise<ProviderSyncResult> {
     const { userId, connectionId, jobType, window } = params;
 
     // Step 1: Insert a new job row in 'queued' state and capture the DB-assigned ID.
@@ -224,6 +280,15 @@ export class SyncJobRunner {
   /** @internal Used by Phase Z subclasses that orchestrate per-payload archiving. */
   protected getArchive(): RawPayloadArchive {
     return this.archive;
+  }
+}
+
+function safeNow(now: () => number): number {
+  try {
+    const value = now();
+    return Number.isFinite(value) ? value : 0;
+  } catch {
+    return 0;
   }
 }
 

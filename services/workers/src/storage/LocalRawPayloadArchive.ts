@@ -52,7 +52,7 @@ export const LOCAL_ARCHIVE_BUCKET = 'local-dev' as const;
  * ```typescript
  * const archive = new LocalRawPayloadArchive('/repo-root/database/fixtures/.local-dev-archive');
  * const result = await archive.store(payload, 'user-001', null);
- * console.log(result.s3Key); // provider=google_health/user_id=user-001/...
+ * result.s3Key; // restricted locator for persistence only; never log this value
  * ```
  */
 export class LocalRawPayloadArchive implements RawPayloadArchive {

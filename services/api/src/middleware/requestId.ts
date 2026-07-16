@@ -11,6 +11,7 @@
  */
 
 import { createMiddleware } from 'hono/factory';
+import { sanitizeCorrelationId } from '@primis/config';
 
 /** Subset of Hono Variables required by this middleware. */
 interface RequestIdVariables {
@@ -24,14 +25,17 @@ interface RequestIdVariables {
  * 1. `x-request-id` request header (pass-through from API Gateway or caller)
  * 2. Fresh `crypto.randomUUID()` generated for this request
  */
-export const requestIdMiddleware = createMiddleware<{ Variables: RequestIdVariables }>(
-  async (c, next) => {
+export function createRequestIdMiddleware(idFactory: () => string = () => crypto.randomUUID()) {
+  return createMiddleware<{ Variables: RequestIdVariables }>(async (c, next) => {
     const forwarded = c.req.header('x-request-id');
-    const requestId = forwarded != null && forwarded.length > 0 ? forwarded : crypto.randomUUID();
+    const requestId = sanitizeCorrelationId(forwarded) ?? idFactory();
 
     c.set('requestId', requestId);
     c.header('x-request-id', requestId);
 
     await next();
-  },
-);
+  });
+}
+
+/** The existing API request-ID generator, now guarded by the shared validation policy. */
+export const requestIdMiddleware = createRequestIdMiddleware();

@@ -24,6 +24,7 @@ import type { AuthVariables } from '../auth/authMiddleware.js';
 interface DeletionDryRunBuilderInput {
   readonly userId: string;
   readonly idempotencyKey: string;
+  readonly correlationId?: string;
 }
 
 export interface PrivacyRouteDependencies {
@@ -110,6 +111,7 @@ export function createPrivacyRouter(
     const result = await dependencies.buildDryRun({
       userId: c.var.user.internalUserId,
       idempotencyKey: parsedKey.data,
+      ...(requestId ? { correlationId: requestId } : {}),
     });
     const safeResult = DeletionDryRunResponseSchema.parse(result);
     return c.json(makeSuccessResponse(safeResult, undefined, requestId), 200);

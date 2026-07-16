@@ -14,6 +14,11 @@ import {
   buildMockDeletionDryRun,
   type DeletionDryRunDependencies,
 } from '../../src/privacy/deleteUserData.js';
+import type { StructuredLogEntry } from '@primis/config';
+import {
+  createDeletionDryRunAuditSink,
+  createWorkerLogger,
+} from '../../src/observability/logger.js';
 
 const USER_ID = '00000000-0000-0000-0000-000000000087';
 const OTHER_USER_ID = '00000000-0000-0000-0000-000000000088';
@@ -117,6 +122,39 @@ describe('USER_DATA_DELETION_MANIFEST', () => {
 });
 
 describe('buildDeletionDryRun', () => {
+  it('emits a sanitized aggregate deletion event through an injected logger sink', async () => {
+    const entries: StructuredLogEntry[] = [];
+    const logger = createWorkerLogger({
+      environment: 'test',
+      sink: (entry) => entries.push(entry),
+      now: () => new Date('2026-07-15T12:00:00.000Z'),
+    });
+
+    await buildDeletionDryRun(
+      { userId: USER_ID, idempotencyKey: IDEMPOTENCY_KEY },
+      dependencies({
+        audit: createDeletionDryRunAuditSink(logger, 'deletion-correlation-123'),
+      }),
+    );
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({
+      event: 'privacy.deletion_dry_run.planned',
+      service: 'primis-workers',
+      correlationId: 'deletion-correlation-123',
+      metadata: {
+        categoryCount: DELETION_CATEGORY_VALUES.length,
+        targetCount: USER_DATA_DELETION_MANIFEST.length,
+        archiveObjectCount: 0,
+        archivePrefixCount: 0,
+      },
+    });
+    const serialized = JSON.stringify(entries);
+    expect(serialized).not.toContain(USER_ID);
+    expect(serialized).not.toContain(IDEMPOTENCY_KEY);
+    expect(serialized).not.toContain('dryRunReference');
+  });
+
   it('returns aggregate-only dry-run output for all manifest categories', async () => {
     const result = await buildDeletionDryRun(
       { userId: USER_ID, idempotencyKey: IDEMPOTENCY_KEY },

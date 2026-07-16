@@ -20,6 +20,7 @@
 
 import { describe, it, expect } from 'vitest';
 import type { Kysely } from 'kysely';
+import type { StructuredLogEntry } from '@primis/config';
 
 import {
   AiGateway,
@@ -52,6 +53,7 @@ import {
   type AiSummaryRepositoryPort,
   type UpsertAiSummaryInput,
 } from '../../src/ai/aiSummaryRepository.js';
+import { createWorkerLogger } from '../../src/observability/logger.js';
 
 const USER = '00000000-0000-0000-0000-000000000001';
 const TZ = 'America/New_York';
@@ -323,6 +325,48 @@ describe('generateAiSummary fallback', () => {
     expect(outcome.fellBackToCache).toBe(true);
     // No redundant status write for an already-stale row.
     expect(fake.statusUpdates).toHaveLength(0);
+  });
+
+  it('emits classified failure output with a safe injected correlation ID', async () => {
+    const entries: StructuredLogEntry[] = [];
+    const fake = fakeRepository();
+    const logger = createWorkerLogger({
+      environment: 'test',
+      sink: (entry) => entries.push(entry),
+      now: () => NOW,
+    });
+    const source: ContextPacketSource = {
+      assemble: async () => {
+        throw new Error(`user=${USER} prompt=private health context person@example.invalid`);
+      },
+    };
+
+    await generateAiSummary(
+      {
+        ...baseDeps(source, fake.repo),
+        logger,
+        requestIdFactory: () => 'summary-correlation-123',
+      },
+      'daily',
+      PARAMS,
+    );
+
+    expect(entries.map((entry) => entry.event)).toEqual([
+      'worker.ai_summary.started',
+      'worker.ai_summary.failed',
+    ]);
+    expect(entries[1]).toMatchObject({
+      correlationId: 'summary-correlation-123',
+      metadata: {
+        summaryType: 'daily',
+        fellBackToCache: false,
+        errorClassification: 'UnknownError',
+      },
+    });
+    const serialized = JSON.stringify(entries);
+    expect(serialized).not.toContain(USER);
+    expect(serialized).not.toContain('private health context');
+    expect(serialized).not.toContain('example.invalid');
   });
 });
 

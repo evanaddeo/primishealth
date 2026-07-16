@@ -40,9 +40,13 @@ vi.mock('../../src/repositories/userRepository.js', () => ({
   findUserById: vi.fn(),
 }));
 
-vi.mock('@primis/config', () => ({
-  loadBackendEnv: mocks.loadBackendEnv,
-}));
+vi.mock('@primis/config', async () => {
+  const actual = await vi.importActual<typeof import('@primis/config')>('@primis/config');
+  return {
+    ...actual,
+    loadBackendEnv: mocks.loadBackendEnv,
+  };
+});
 
 // Import after mocks are registered.
 import { createAuthMiddleware, type AuthenticatedUser } from '../../src/auth/authMiddleware.js';

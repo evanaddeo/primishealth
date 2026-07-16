@@ -15,13 +15,16 @@ import {
   type AiGatewayConfig,
   type AiTaskRoutingConfig,
 } from './config/aiConfig.js';
+import { classifyError } from '@primis/config';
 import { AiProviderUnavailableError } from './errors.js';
+import { aiGatewayLogger } from './observability/logger.js';
 import { AnthropicProvider } from './providers/AnthropicProvider.js';
 import { MockAiProvider } from './providers/MockAiProvider.js';
 import { OpenAiProvider } from './providers/OpenAiProvider.js';
 import type { AiProvider } from './providers/AiProvider.js';
 import type {
   AiInvocationTelemetry,
+  AiInvocationFailureTelemetry,
   AiProviderCode,
   AiProviderRequest,
   AiProviderResponse,
@@ -35,13 +38,8 @@ import type {
  */
 export interface AiGatewayLogger {
   logInvocation(telemetry: AiInvocationTelemetry): void;
+  logFailure?(telemetry: AiInvocationFailureTelemetry): void;
 }
-
-const NOOP_LOGGER: AiGatewayLogger = {
-  logInvocation: () => {
-    /* intentionally silent: default is no observability side effects */
-  },
-};
 
 export interface AiGatewayOptions {
   config: AiGatewayConfig;
@@ -62,7 +60,7 @@ export class AiGateway {
   constructor(options: AiGatewayOptions) {
     this.config = options.config;
     this.providers = new Map(options.providers.map((p) => [p.code, p]));
-    this.logger = options.logger ?? NOOP_LOGGER;
+    this.logger = options.logger ?? aiGatewayLogger;
   }
 
   /**
@@ -127,18 +125,28 @@ export class AiGateway {
 
   private emitTelemetry(request: AiProviderRequest, response: AiProviderResponse): void {
     const telemetry: AiInvocationTelemetry = {
-      requestId: request.requestId,
+      correlationId: request.requestId,
       provider: response.provider,
       model: response.model,
       taskType: request.taskType,
       modelTier: request.modelTier,
       status: response.status,
       latencyMs: response.latencyMs,
-      userIdHash: request.metadata.userIdHash,
       environment: request.metadata.environment,
       ...(response.usage ? { usage: response.usage } : {}),
     };
     this.logger.logInvocation(telemetry);
+  }
+
+  private emitFailure(request: AiProviderRequest, provider: AiProviderCode, error: unknown): void {
+    this.logger.logFailure?.({
+      correlationId: request.requestId,
+      provider,
+      taskType: request.taskType,
+      modelTier: request.modelTier,
+      environment: request.metadata.environment,
+      error: classifyError(error),
+    });
   }
 
   /** Non-streaming generation through the selected provider. */
@@ -147,9 +155,14 @@ export class AiGateway {
     options: AiGatewayCallOptions = {},
   ): Promise<AiProviderResponse> {
     const provider = this.selectProvider(options);
-    const response = await provider.generateText(request);
-    this.emitTelemetry(request, response);
-    return response;
+    try {
+      const response = await provider.generateText(request);
+      this.emitTelemetry(request, response);
+      return response;
+    } catch (error) {
+      this.emitFailure(request, provider.code, error);
+      throw error;
+    }
   }
 
   /** Structured (JSON) generation; falls back to text generation when unsupported. */
@@ -158,11 +171,16 @@ export class AiGateway {
     options: AiGatewayCallOptions = {},
   ): Promise<AiProviderResponse> {
     const provider = this.selectProvider(options);
-    const response = provider.generateStructured
-      ? await provider.generateStructured(request)
-      : await provider.generateText(request);
-    this.emitTelemetry(request, response);
-    return response;
+    try {
+      const response = provider.generateStructured
+        ? await provider.generateStructured(request)
+        : await provider.generateText(request);
+      this.emitTelemetry(request, response);
+      return response;
+    } catch (error) {
+      this.emitFailure(request, provider.code, error);
+      throw error;
+    }
   }
 
   /**
@@ -175,38 +193,44 @@ export class AiGateway {
   ): AsyncIterable<AiStreamChunk> {
     const provider = this.selectProvider(options);
 
-    if (!provider.streamText) {
-      const response = await provider.generateText(request);
-      this.emitTelemetry(request, response);
-      if (response.outputText) {
-        yield { type: 'delta', requestId: request.requestId, textDelta: response.outputText };
+    try {
+      if (!provider.streamText) {
+        const response = await provider.generateText(request);
+        this.emitTelemetry(request, response);
+        if (response.outputText) {
+          yield { type: 'delta', requestId: request.requestId, textDelta: response.outputText };
+        }
+        yield {
+          type: 'done',
+          requestId: request.requestId,
+          status: response.status,
+          ...(response.finishReason ? { finishReason: response.finishReason } : {}),
+          ...(response.usage ? { usage: response.usage } : {}),
+        };
+        return;
       }
-      yield {
-        type: 'done',
+
+      let lastChunk: AiStreamChunk | undefined;
+      for await (const chunk of provider.streamText(request)) {
+        lastChunk = chunk;
+        yield chunk;
+      }
+
+      // Emit redacted telemetry from the terminal chunk (no content).
+      const status = lastChunk?.type === 'done' ? lastChunk.status : 'completed';
+      const usage = lastChunk?.type === 'done' ? lastChunk.usage : undefined;
+      this.emitTelemetry(request, {
         requestId: request.requestId,
-        status: response.status,
-        ...(response.finishReason ? { finishReason: response.finishReason } : {}),
-        ...(response.usage ? { usage: response.usage } : {}),
-      };
-      return;
+        provider: provider.code,
+        model:
+          this.config.providers[provider.code]?.modelByTier[request.modelTier] ?? provider.code,
+        status,
+        latencyMs: 0,
+        ...(usage ? { usage } : {}),
+      });
+    } catch (error) {
+      this.emitFailure(request, provider.code, error);
+      throw error;
     }
-
-    let lastChunk: AiStreamChunk | undefined;
-    for await (const chunk of provider.streamText(request)) {
-      lastChunk = chunk;
-      yield chunk;
-    }
-
-    // Emit redacted telemetry from the terminal chunk (no content).
-    const status = lastChunk?.type === 'done' ? lastChunk.status : 'completed';
-    const usage = lastChunk?.type === 'done' ? lastChunk.usage : undefined;
-    this.emitTelemetry(request, {
-      requestId: request.requestId,
-      provider: provider.code,
-      model: this.config.providers[provider.code]?.modelByTier[request.modelTier] ?? provider.code,
-      status,
-      latencyMs: 0,
-      ...(usage ? { usage } : {}),
-    });
   }
 }

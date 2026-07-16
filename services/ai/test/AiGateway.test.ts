@@ -24,7 +24,6 @@ function makeRequest(overrides: Partial<AiProviderRequest> = {}): AiProviderRequ
     stream: false,
     timeoutMs: 30_000,
     metadata: {
-      userIdHash: 'hash-abc',
       environment: 'dev',
     },
     ...overrides,
@@ -98,15 +97,16 @@ describe('AiGateway telemetry safety (§19.3)', () => {
 
     expect(entries).toHaveLength(1);
     const telemetry = entries[0]!;
-    expect(telemetry.userIdHash).toBe('hash-abc');
     expect(telemetry.provider).toBe('mock');
     expect(telemetry.taskType).toBe('chat_health_query');
+    expect(telemetry.correlationId).toBe('req-1');
 
     // No message content, prompt, or output leaks into telemetry.
     const serialized = JSON.stringify(telemetry);
     expect(serialized).not.toContain('RHR');
     expect(serialized).not.toContain('private health context');
     expect(serialized).not.toContain('deterministic response');
+    expect(serialized).not.toContain('userId');
   });
 
   it('emits telemetry for streamed responses too', async () => {

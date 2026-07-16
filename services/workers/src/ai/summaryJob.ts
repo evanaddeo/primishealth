@@ -25,7 +25,10 @@
  * @see services/ai/src/AiRequestController.ts (the chat-side sibling)
  */
 
+import { randomUUID } from 'node:crypto';
+
 import type { AiIntent, ContextDomain } from '@primis/core-types';
+import { classifyError } from '@primis/config';
 import {
   aggregateConfidence,
   defaultPromptComposer,
@@ -46,6 +49,7 @@ import {
 import type { AiGateway } from '@primis/ai';
 import type { AiSummary } from '../db/types.js';
 import type { AiSummaryRepositoryPort, UpsertAiSummaryInput } from './aiSummaryRepository.js';
+import { workerLogger, type WorkerLogger } from '../observability/logger.js';
 
 // ---------------------------------------------------------------------------
 // Tuning constants
@@ -153,8 +157,10 @@ export interface AiSummaryJobDeps {
   composer?: PromptComposer;
   /** Computation clock; defaults to `() => new Date()`. Injected for determinism. */
   now?: () => Date;
-  /** Stable request-id factory (telemetry only); defaults to a deterministic stamp. */
+  /** Stable correlation factory for tests/entry points; defaults to a random operation ID. */
   requestIdFactory?: (type: GeneratedSummaryType, params: GenerateSummaryParams) => string;
+  /** Runtime event sink; defaults to the worker service adapter. */
+  logger?: WorkerLogger;
 }
 
 /** Identity of the summary to (re)generate. */
@@ -194,10 +200,14 @@ export async function generateAiSummary(
   const config = SUMMARY_TYPE_CONFIG[type];
   const now = deps.now ?? (() => new Date());
   const composer = deps.composer ?? defaultPromptComposer;
+  const logger = deps.logger ?? workerLogger;
   const userIdHash = hashUserId(params.userId);
   const requestId = deps.requestIdFactory
     ? deps.requestIdFactory(type, params)
-    : `sum_${type}_${params.userId}_${params.localDate}`;
+    : `sum_${type}_${randomUUID()}`;
+  const correlation = { correlationId: requestId };
+  const startedAt = safeTime(now);
+  logger.emit('worker.ai_summary.started', { summaryType: type }, correlation);
 
   try {
     const classification = buildClassification(config, params);
@@ -231,7 +241,6 @@ export async function generateAiSummary(
     } else {
       const request = buildGatewayRequest(deps, config, composed.messages, {
         requestId,
-        userIdHash,
         responseFormat: composed.responseFormat,
       });
       const response = await deps.gateway.generateText(request);
@@ -271,17 +280,44 @@ export async function generateAiSummary(
     };
     const summary = await deps.repository.upsert(upsert);
 
+    logger.emit(
+      'worker.ai_summary.completed',
+      { summaryType: type, durationMs: Math.max(0, safeTime(now) - startedAt) },
+      correlation,
+    );
+
     return { status: 'generated', summaryType: type, summary };
   } catch (error) {
     // Graceful fallback: keep the last good cached row so a screen can still serve
     // it, downgrading a `fresh` row to `stale` to signal it may be out of date.
     const fellBackToCache = await downgradeCachedSummary(deps, type, params);
+    const safeError = classifyError(error);
+    logger.emit(
+      'worker.ai_summary.failed',
+      {
+        summaryType: type,
+        durationMs: Math.max(0, safeTime(now) - startedAt),
+        fellBackToCache,
+        errorClassification: safeError.classification,
+        ...(safeError.code ? { errorCode: safeError.code } : {}),
+      },
+      correlation,
+    );
     return {
       status: 'failed',
       summaryType: type,
       error: error instanceof Error ? error.message : String(error),
       fellBackToCache,
     };
+  }
+}
+
+function safeTime(now: () => Date): number {
+  try {
+    const value = now().getTime();
+    return Number.isFinite(value) ? value : 0;
+  } catch {
+    return 0;
   }
 }
 
@@ -314,7 +350,6 @@ function buildClassification(
 
 interface GatewayRequestContext {
   requestId: string;
-  userIdHash: string;
   responseFormat: AiProviderRequest['responseFormat'];
 }
 
@@ -337,7 +372,6 @@ function buildGatewayRequest(
     stream: false,
     timeoutMs: routing?.timeoutMs ?? DEFAULT_TIMEOUT_MS,
     metadata: {
-      userIdHash: ctx.userIdHash,
       environment: deps.environment,
     },
   };

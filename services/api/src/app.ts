@@ -49,9 +49,10 @@
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
- *   2. authMiddleware      — registered on /api/v1/* routes only
- *   3. Route handlers
- *   4. onError / notFound  — always last
+ *   2. requestLoggingMiddleware — emits body-free events after route completion
+ *   3. authMiddleware      — registered on /api/v1/* routes only
+ *   4. Route handlers
+ *   5. onError / notFound  — always last
  *
  * TODO(future): Add rate limiting and CORS headers before auth middleware.
  */
@@ -60,8 +61,10 @@ import { Hono } from 'hono';
 
 import { makeErrorResponse } from '@primis/api-contracts';
 import { createAuthMiddleware, type AuthVariables } from './auth/authMiddleware.js';
-import { errorHandler } from './middleware/errorHandler.js';
+import { createErrorHandler, errorHandler } from './middleware/errorHandler.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
+import { createRequestLoggingMiddleware } from './middleware/requestLogging.js';
+import { apiLogger, type ApiLogger } from './observability/logger.js';
 import { activityRouter } from './routes/activity.js';
 import { aiChatRouter } from './routes/aiChat.js';
 import { dashboardRouter } from './routes/dashboard.js';
@@ -105,16 +108,22 @@ export interface AppVariables extends AuthVariables {
  *
  * @returns Configured Hono app ready to handle requests.
  */
-export function createApp(): Hono<{ Variables: AppVariables }> {
+export interface CreateAppOptions {
+  readonly logger?: ApiLogger;
+}
+
+export function createApp(options: CreateAppOptions = {}): Hono<{ Variables: AppVariables }> {
   // createAuthMiddleware() enforces the production guard synchronously.
   // If ALLOW_MOCK_AUTH=true in staging/production, this throws here — not
   // on the first request — so the deployment fails fast at startup.
   const authMiddleware = createAuthMiddleware();
 
   const app = new Hono<{ Variables: AppVariables }>();
+  const logger = options.logger ?? apiLogger;
 
   // ── Global middleware ────────────────────────────────────────────────────────
   app.use('*', requestIdMiddleware);
+  app.use('*', createRequestLoggingMiddleware({ logger }));
 
   // ── Unauthenticated routes ───────────────────────────────────────────────────
   // Health probe must precede the auth middleware so load balancers can reach it
@@ -211,7 +220,7 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   app.route('/api/v1/data', createPrivacyRouter());
 
   // ── Error handling ───────────────────────────────────────────────────────────
-  app.onError(errorHandler);
+  app.onError(options.logger ? createErrorHandler(logger) : errorHandler);
 
   app.notFound((c) => {
     const requestId = c.get('requestId') as string | undefined;

@@ -36,15 +36,19 @@ vi.mock('../../src/repositories/userRepository.js', () => ({
   softDeleteUser: vi.fn(),
 }));
 
-vi.mock('@primis/config', () => ({
-  loadBackendEnv: mocks.loadBackendEnv,
-  loadPublicEnv: vi.fn().mockReturnValue({
-    NODE_ENV: 'development',
-    APP_ENV: 'local',
-    EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
-    EXPO_PUBLIC_MOCK_MODE: 'true',
-  }),
-}));
+vi.mock('@primis/config', async () => {
+  const actual = await vi.importActual<typeof import('@primis/config')>('@primis/config');
+  return {
+    ...actual,
+    loadBackendEnv: mocks.loadBackendEnv,
+    loadPublicEnv: vi.fn().mockReturnValue({
+      NODE_ENV: 'development',
+      APP_ENV: 'local',
+      EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
+      EXPO_PUBLIC_MOCK_MODE: 'true',
+    }),
+  };
+});
 
 vi.mock('../../src/auth/cognitoJwtVerifier.js', () => ({
   verifyCognitoToken: vi.fn(),
