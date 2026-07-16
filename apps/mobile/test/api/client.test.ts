@@ -56,6 +56,32 @@ describe('parseApiError', () => {
     expect(err.status).toBe(401);
   });
 
+  it('retains a safe backend request ID for correlation', () => {
+    const err = parseApiError(503, {
+      success: false,
+      error: { code: 'SERVICE_UNAVAILABLE', message: 'Temporarily unavailable' },
+      requestId: 'req_mobile-safe-123',
+    });
+
+    expect(err.requestId).toBe('req_mobile-safe-123');
+  });
+
+  it('drops malformed or sensitive request IDs from backend envelopes', () => {
+    const sensitive = parseApiError(500, {
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Unexpected' },
+      requestId: 'person@example.invalid',
+    });
+    const oversized = parseApiError(500, {
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Unexpected' },
+      requestId: 'x'.repeat(129),
+    });
+
+    expect(sensitive.requestId).toBeUndefined();
+    expect(oversized.requestId).toBeUndefined();
+  });
+
   it('maps FORBIDDEN body to ApiClientError with code FORBIDDEN', () => {
     const body = {
       success: false,

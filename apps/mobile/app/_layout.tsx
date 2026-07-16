@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { queryClient } from '../src/api/queryClient';
 import { isMockAuthEnabled } from '../src/features/auth';
+import { ErrorBoundary } from '../src/observability/ErrorBoundary';
 import { ThemeProvider } from '../src/providers/ThemeProvider';
 import { useAuthStore } from '../src/state/authStore';
 import { useSettingsStore } from '../src/state/settingsStore';
@@ -63,17 +64,21 @@ function useFirstRunGate(): void {
  * 2. SafeAreaProvider       — safe area insets for all screens
  * 3. ThemeProvider          — Primis design-system theme context (reads settings)
  * 4. QueryClientProvider    — TanStack Query server-state cache (CU-021)
- * 5. Stack                  — expo-router navigation stack (tabs + onboarding)
+ * 5. ErrorBoundary          — routed-tree recovery with all fallback dependencies available
+ * 6. Stack                  — expo-router navigation stack (tabs + onboarding)
  */
 export default function RootLayout() {
   useFirstRunGate();
+  const router = useRouter();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider>
           <QueryClientProvider client={queryClient}>
-            <Stack screenOptions={{ headerShown: false }} />
+            <ErrorBoundary onGoHome={() => router.replace('/(tabs)')}>
+              <Stack screenOptions={{ headerShown: false }} />
+            </ErrorBoundary>
           </QueryClientProvider>
         </ThemeProvider>
       </SafeAreaProvider>
