@@ -39,6 +39,7 @@ export interface BedtimePlanController {
   readonly status: BedtimePlanStatus;
   /** True while a background recompute is in flight (prior result stays shown). */
   readonly isRefreshing: boolean;
+  readonly hasRefreshError: boolean;
   readonly refetch: () => Promise<void>;
 }
 
@@ -85,6 +86,7 @@ export function useBedtimePlan(request: BedtimePlanRequest | null): BedtimePlanC
     plan,
     status,
     isRefreshing: query.isFetching && plan !== null,
+    hasRefreshError: query.isError && plan !== null,
     refetch,
   };
 }

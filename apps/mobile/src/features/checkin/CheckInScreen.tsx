@@ -22,6 +22,7 @@ import { useRouter } from 'expo-router';
 
 import { useCheckin } from '../../api/hooks/useCheckin';
 import { getDeviceTimezone } from '../../api/hooks/useQuickAdd';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
 import { resolveTimeAnchors } from '../quickAdd/quickAddModel';
 import { ScaleSelector } from './components/ScaleSelector';
 import {
@@ -35,7 +36,7 @@ import {
 } from './checkinModel';
 
 export function CheckInScreen(): React.JSX.Element {
-  const { spacing, colors } = useTheme();
+  const { spacing } = useTheme();
   const router = useRouter();
   const { submit, status } = useCheckin();
 
@@ -145,13 +146,21 @@ export function CheckInScreen(): React.JSX.Element {
         />
 
         {status === 'error' && (
-          <Text
-            variant="bodySmall"
-            accessibilityRole="alert"
-            style={{ color: colors.status.attention }}
-          >
-            Couldn’t save just now. Your entries are still here — try again.
-          </Text>
+          <DataStatusBanner
+            state="api_error"
+            title="Couldn’t save just now"
+            body="Your entries are still here. Use Save check-in to try again."
+            testID="checkin-error"
+          />
+        )}
+
+        {submitting && (
+          <DataStatusBanner
+            state="refreshing"
+            title="Saving check-in"
+            body="Your entries stay on screen until saving finishes."
+            testID="checkin-saving"
+          />
         )}
 
         <Button

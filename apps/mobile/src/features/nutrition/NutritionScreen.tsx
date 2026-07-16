@@ -21,11 +21,13 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Animated, StyleSheet, View } from 'react-native';
+import { Animated, View } from 'react-native';
 
-import { Button, Card, Screen, Text, useTheme } from '@primis/design-system';
+import { Screen, Text, useTheme } from '@primis/design-system';
 
 import { useNutritionDetail } from '../../api/hooks/useNutritionDetail';
+import { DataStatePanel } from '../../components/DataStatePanel';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import {
   hasLifestyleData,
@@ -45,9 +47,19 @@ import {
 } from './components';
 
 export function NutritionScreen(): React.JSX.Element {
-  const { colors, spacing } = useTheme();
+  const { spacing } = useTheme();
   const { getTimingConfig } = useReducedMotion();
-  const { nutrition, lifestyle, tags, localDate, timezone, status, refetch } = useNutritionDetail();
+  const {
+    nutrition,
+    lifestyle,
+    tags,
+    localDate,
+    timezone,
+    status,
+    isRefreshing,
+    hasRefreshError,
+    refetch,
+  } = useNutritionDetail();
 
   // Subtle mount fade — token-driven duration, instant under reduced motion.
   const [fade] = useState(() => new Animated.Value(0));
@@ -63,26 +75,12 @@ export function NutritionScreen(): React.JSX.Element {
   if (nutrition === null || lifestyle === null) {
     return (
       <Screen testID="screen-nutrition" contentStyle={{ paddingTop: spacing.xl }}>
-        {status === 'error' ? (
-          <Card testID="nutrition-error">
-            <View style={{ gap: spacing.sm }}>
-              <Text variant="bodyLarge" weight="semibold">
-                Couldn’t load your nutrition
-              </Text>
-              <Text variant="bodyMedium" color="secondary">
-                Pull the latest once you’re back online.
-              </Text>
-              <Button variant="secondary" label="Try again" onPress={() => void refetch()} />
-            </View>
-          </Card>
-        ) : (
-          <View style={[styles.center, { gap: spacing.sm }]} testID="nutrition-loading">
-            <ActivityIndicator color={colors.accent} />
-            <Text variant="bodyMedium" color="secondary">
-              Loading today’s nutrition…
-            </Text>
-          </View>
-        )}
+        <DataStatePanel
+          state={status === 'error' ? 'api_error' : 'initial_loading'}
+          title={status === 'error' ? 'Couldn’t load your nutrition' : 'Loading today’s nutrition'}
+          {...(status === 'error' ? { onAction: () => void refetch() } : {})}
+          testID={status === 'error' ? 'nutrition-error' : 'nutrition-loading'}
+        />
       </Screen>
     );
   }
@@ -101,7 +99,24 @@ export function NutritionScreen(): React.JSX.Element {
           </Text>
         </View>
 
-        {banner !== null && <NutritionBanner banner={banner} testID="nutrition-banner" />}
+        {isRefreshing && <DataStatusBanner state="refreshing" testID="nutrition-refreshing" />}
+        {hasRefreshError && (
+          <DataStatusBanner
+            state="api_error"
+            title="Couldn’t update nutrition"
+            body="Showing your latest saved entries and totals."
+            onAction={() => void refetch()}
+            testID="nutrition-refresh-error"
+          />
+        )}
+
+        {banner !== null && (
+          <NutritionBanner
+            banner={banner}
+            onAction={() => void refetch()}
+            testID="nutrition-banner"
+          />
+        )}
 
         <NutritionHero
           macro={nutrition.summary}
@@ -139,11 +154,3 @@ export function NutritionScreen(): React.JSX.Element {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 48,
-  },
-});

@@ -65,6 +65,8 @@ export type ConnectionsPendingAction = 'authorize' | 'disconnect' | 'refresh' | 
 
 export interface ConnectionsController {
   readonly loadStatus: ConnectionsLoadStatus;
+  /** Cached connection data remains visible while a reload is in flight. */
+  readonly isRefreshing: boolean;
   readonly uiState: ConnectionUiState;
   readonly connection: ProviderConnectionDto | null;
   readonly syncStatus: SyncStatusDto | null;
@@ -247,11 +249,9 @@ export function useConnections(): ConnectionsController {
 
   const dismissNotice = useCallback((): void => setNotice(null), []);
 
-  const loadStatus: ConnectionsLoadStatus = query.isError
-    ? 'error'
-    : query.isSuccess
-      ? 'ready'
-      : 'loading';
+  const hasData = query.data !== undefined;
+  const loadStatus: ConnectionsLoadStatus =
+    query.isError && !hasData ? 'error' : hasData ? 'ready' : 'loading';
 
   const now = new Date();
   const connection = query.data?.connection ?? null;
@@ -265,10 +265,11 @@ export function useConnections(): ConnectionsController {
     now,
   });
 
-  const errorMessage = loadStatus === 'error' ? connectionErrorMessage(query.error) : actionError;
+  const errorMessage = query.isError ? connectionErrorMessage(query.error) : actionError;
 
   return {
     loadStatus,
+    isRefreshing: query.isFetching && hasData,
     uiState,
     connection,
     syncStatus,

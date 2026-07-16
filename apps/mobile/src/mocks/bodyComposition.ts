@@ -61,7 +61,7 @@ function buildTrend(
 
 const DETAIL_NORMAL: BodyCompositionDetail = {
   localDate: LOCAL_DATE,
-  state: 'available',
+  state: 'provider_unverified',
   source: SOURCE_LABEL,
   generatedAt: `${LOCAL_DATE}T07:10:00Z`,
   metrics: {
@@ -82,7 +82,7 @@ const DETAIL_NORMAL: BodyCompositionDetail = {
 
 const DETAIL_PARTIAL: BodyCompositionDetail = {
   localDate: LOCAL_DATE,
-  state: 'available',
+  state: 'provider_unverified',
   source: 'Connected scale',
   generatedAt: `${LOCAL_DATE}T06:30:00Z`,
   metrics: {
@@ -99,7 +99,7 @@ const DETAIL_PARTIAL: BodyCompositionDetail = {
 
 const DETAIL_NOT_AVAILABLE: BodyCompositionDetail = {
   localDate: LOCAL_DATE,
-  state: 'not_available',
+  state: 'provider_disconnected',
   source: null,
   generatedAt: null,
   metrics: {

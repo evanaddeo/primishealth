@@ -1,7 +1,7 @@
 /** Privacy & Data Controls informational shell (CU-086). */
 
 import React, { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import {
   BottomSheet,
@@ -17,6 +17,7 @@ import { useRouter } from 'expo-router';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useAuthStore } from '../../state/authStore';
 import { useConnections } from '../connections';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
 import {
   AI_DISCLOSURE,
   DELETION_DISCLOSURE,
@@ -32,7 +33,7 @@ import {
 type OpenSheet = 'deletion' | 'ai' | null;
 
 export function PrivacyScreen(): React.JSX.Element {
-  const { colors, spacing } = useTheme();
+  const { spacing } = useTheme();
   const router = useRouter();
   const reducedMotion = useReducedMotion().isReducedMotion;
   const authStatus = useAuthStore((state) => state.status);
@@ -100,7 +101,17 @@ export function PrivacyScreen(): React.JSX.Element {
 
             <View style={{ marginTop: spacing.md, gap: spacing.xs }}>
               {connections.loadStatus === 'loading' && (
-                <ActivityIndicator color={colors.accent} accessibilityLabel="Checking connection" />
+                <DataStatusBanner state="initial_loading" title="Checking connection" />
+              )}
+              {connections.isRefreshing && (
+                <DataStatusBanner state="refreshing" title="Refreshing connection" />
+              )}
+              {connections.loadStatus === 'error' && (
+                <DataStatusBanner
+                  state="api_error"
+                  title="Couldn’t check the connection"
+                  {...(connections.errorMessage === null ? {} : { body: connections.errorMessage })}
+                />
               )}
               <Text variant="bodyLarge" weight="semibold">
                 {source.headline}

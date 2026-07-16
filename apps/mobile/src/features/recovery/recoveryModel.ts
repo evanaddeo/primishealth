@@ -56,7 +56,11 @@ export function resolveScoreStatus(score: ScoreSnapshotDto): StatusBadgeStatus {
 
 // ── Top-level banner ───────────────────────────────────────────────────────────
 
-export type RecoveryBannerTone = 'provisional' | 'stale' | 'none';
+export type RecoveryBannerTone =
+  | 'provisional'
+  | 'stale'
+  | 'provider_unavailable'
+  | 'calculation_failure';
 
 export interface RecoveryBannerVm {
   readonly tone: RecoveryBannerTone;
@@ -78,6 +82,17 @@ export function resolveRecoveryBanner(detail: RecoveryDetailResponseDto): Recove
       return {
         tone: 'stale',
         message: 'Waiting on a fresh sync to update today’s recovery.',
+      };
+    case 'provider_unavailable':
+      return {
+        tone: 'provider_unavailable',
+        message: 'Showing saved recovery data while your source is unavailable.',
+      };
+    case 'calculation_error':
+      return {
+        tone: 'calculation_failure',
+        message:
+          'The latest saved recovery detail remains visible while Primis retries this result.',
       };
     default:
       return null;

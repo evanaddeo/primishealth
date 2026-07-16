@@ -118,6 +118,7 @@
 export * from './activity.js';
 export * from './aiChat.js';
 export * from './aiContext.js';
+export * from './aiSummaries.js';
 export * from './chart.js';
 export * from './dashboard.js';
 export * from './dataQuality.js';

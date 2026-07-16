@@ -10,12 +10,14 @@
  */
 
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Button, Card, Screen, Text, useTheme } from '@primis/design-system';
+import { Card, Screen, Text, useTheme } from '@primis/design-system';
 import { useRouter } from 'expo-router';
 
 import { HEALTH_PERMISSION_NOTES } from '../connectionState';
+import { DataStatePanel } from '../../../components/DataStatePanel';
+import { DataStatusBanner } from '../../../components/DataStatusBanner';
 import { useConnections } from '../useConnections';
 import { CapabilityList } from '../components/CapabilityList';
 import { ConnectionCard } from '../components/ConnectionCard';
@@ -68,40 +70,34 @@ export function ConnectionsScreen(): React.JSX.Element {
       )}
 
       {c.loadStatus === 'loading' && (
-        <Card testID="connections-loading">
-          <View style={[styles.center, { gap: spacing.sm }]}>
-            <ActivityIndicator color={colors.accent} />
-            <Text variant="bodyMedium" color="secondary">
-              Checking your connection…
-            </Text>
-          </View>
-        </Card>
+        <DataStatePanel
+          state="initial_loading"
+          title="Checking your connection"
+          testID="connections-loading"
+        />
       )}
 
       {c.loadStatus === 'error' && (
-        <Card testID="connections-error">
-          <View style={{ gap: spacing.sm }}>
-            <Text variant="bodyLarge" weight="semibold">
-              Couldn’t load your connection
-            </Text>
-            <Text variant="bodyMedium" color="secondary">
-              {c.errorMessage ?? 'Something went wrong. Try again.'}
-            </Text>
-            <Button variant="secondary" label="Try again" onPress={() => void c.reload()} />
-          </View>
-        </Card>
+        <DataStatePanel
+          state="api_error"
+          title="Couldn’t load your connection"
+          body={c.errorMessage ?? 'Something went wrong. Try again.'}
+          onAction={() => void c.reload()}
+          testID="connections-error"
+        />
       )}
 
       {c.loadStatus === 'ready' && (
         <>
+          {c.isRefreshing && (
+            <DataStatusBanner state="refreshing" testID="connections-refreshing" />
+          )}
           {c.errorMessage !== null && (
-            <Banner
-              tone="warning"
-              message={c.errorMessage}
-              accentColor={colors.status.low}
-              surfaceColor={colors.surfaceElevated}
-              borderColor={colors.borderSubtle}
-              spacing={spacing}
+            <DataStatusBanner
+              state="api_error"
+              title="Connection update didn’t finish"
+              body={c.errorMessage}
+              testID="connections-action-error"
             />
           )}
 
@@ -200,11 +196,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     minHeight: 44,
     justifyContent: 'center',
-  },
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
   },
   noteRow: {
     flexDirection: 'row',

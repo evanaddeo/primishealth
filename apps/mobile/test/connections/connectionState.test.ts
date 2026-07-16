@@ -13,6 +13,7 @@ import type { ProviderConnectionDto, SyncStatusDto } from '@primis/api-contracts
 
 import {
   STALE_AFTER_HOURS,
+  dataStateFromConnectionState,
   deriveConnectionUiState,
   formatSyncFreshness,
   getConnectionStateCopy,
@@ -165,6 +166,16 @@ describe('getConnectionStateCopy', () => {
         expect(text).not.toContain(word);
       }
     }
+  });
+});
+
+describe('dataStateFromConnectionState', () => {
+  it('keeps disconnected, unavailable, stale, and connecting semantics distinct', () => {
+    expect(dataStateFromConnectionState('disconnected')).toBe('provider_disconnected');
+    expect(dataStateFromConnectionState('unavailable')).toBe('provider_unavailable');
+    expect(dataStateFromConnectionState('stale')).toBe('stale_data');
+    expect(dataStateFromConnectionState('connecting')).toBe('refreshing');
+    expect(dataStateFromConnectionState('active')).toBeNull();
   });
 });
 

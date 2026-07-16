@@ -16,7 +16,7 @@
  * @see docs/decisions/ADR-008-manual-input-daily-aggregation-and-freshness.md
  */
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import type {
   AlcoholEntryDto,
@@ -148,6 +148,9 @@ export interface QuickAddController {
   readonly tags: readonly CustomTagDto[];
   /** True while any quick-add write is in flight. */
   readonly pending: boolean;
+  /** Calm user-facing failure copy; forms retain their local input. */
+  readonly errorMessage: string | null;
+  readonly clearError: () => void;
 
   readonly logWater: (req: CreateHydrationRequestDto) => Promise<boolean>;
   readonly logCaffeine: (req: CreateCaffeineRequestDto) => Promise<boolean>;
@@ -162,6 +165,7 @@ export function useQuickAdd(): QuickAddController {
   const qc = useQueryClient();
   const timezone = getDeviceTimezone();
   const localDate = resolveLocalDate(new Date(), timezone);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const lifestyleQuery = useQuery<LifestyleDayResponseDto>({
     queryKey: lifestyleKey(localDate),
@@ -244,23 +248,28 @@ export function useQuickAdd(): QuickAddController {
     async <TReq, TRes>(mutateAsync: (req: TReq) => Promise<TRes>, req: TReq): Promise<boolean> => {
       try {
         await mutateAsync(req);
+        setErrorMessage(null);
         return true;
       } catch {
+        setErrorMessage('Couldn’t save this entry just now. Your input is still here.');
         return false;
       }
     },
-    [],
+    [setErrorMessage],
   );
 
   const createTag = useCallback(
     async (req: CreateTagRequestDto): Promise<CustomTagDto | null> => {
       try {
-        return await createTagM.mutateAsync(req);
+        const tag = await createTagM.mutateAsync(req);
+        setErrorMessage(null);
+        return tag;
       } catch {
+        setErrorMessage('Couldn’t save this tag just now. Your input is still here.');
         return null;
       }
     },
-    [createTagM],
+    [createTagM, setErrorMessage],
   );
 
   const pending =
@@ -279,6 +288,8 @@ export function useQuickAdd(): QuickAddController {
     nutrition: nutritionQuery.data ?? null,
     tags: tagsQuery.data ?? [],
     pending,
+    errorMessage,
+    clearError: () => setErrorMessage(null),
     logWater: (req) => runBool(hydrationM.mutateAsync, req),
     logCaffeine: (req) => runBool(caffeineM.mutateAsync, req),
     logAlcohol: (req) => runBool(alcoholM.mutateAsync, req),

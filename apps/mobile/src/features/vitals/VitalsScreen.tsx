@@ -20,12 +20,15 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Animated, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, View } from 'react-native';
 
-import { Button, Card, Screen, Text, useTheme } from '@primis/design-system';
+import { Screen, Text, useTheme } from '@primis/design-system';
 import { useRouter } from 'expo-router';
 
 import { useVitalsDetail } from '../../api/hooks/useVitalsDetail';
+import { DataStatePanel } from '../../components/DataStatePanel';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
+import { dataStateFromScoreState } from '../../components/dataStateModel';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { BODY_COMPOSITION_ROUTE } from '../bodyComposition/routes';
 import {
@@ -46,10 +49,10 @@ import {
 } from './components';
 
 export function VitalsScreen(): React.JSX.Element {
-  const { colors, spacing } = useTheme();
+  const { spacing } = useTheme();
   const router = useRouter();
   const { getTimingConfig, isReducedMotion } = useReducedMotion();
-  const { detail, status, refetch } = useVitalsDetail();
+  const { detail, status, isRefreshing, hasRefreshError, refetch } = useVitalsDetail();
 
   // Subtle mount fade — token-driven duration, instant under reduced motion.
   const [fade] = useState(() => new Animated.Value(0));
@@ -91,26 +94,12 @@ export function VitalsScreen(): React.JSX.Element {
     return (
       <Screen testID="screen-vitals" contentStyle={{ paddingTop: spacing.xl, gap: spacing.lg }}>
         {header}
-        {status === 'error' ? (
-          <Card testID="vitals-error">
-            <View style={{ gap: spacing.sm }}>
-              <Text variant="bodyLarge" weight="semibold">
-                Couldn’t load your vitals
-              </Text>
-              <Text variant="bodyMedium" color="secondary">
-                Pull the latest once you’re back online.
-              </Text>
-              <Button variant="secondary" label="Try again" onPress={() => void refetch()} />
-            </View>
-          </Card>
-        ) : (
-          <View style={[styles.center, { gap: spacing.sm }]} testID="vitals-loading">
-            <ActivityIndicator color={colors.accent} />
-            <Text variant="bodyMedium" color="secondary">
-              Loading today’s vitals…
-            </Text>
-          </View>
-        )}
+        <DataStatePanel
+          state={status === 'error' ? 'api_error' : 'initial_loading'}
+          title={status === 'error' ? 'Couldn’t load your vitals' : 'Loading today’s vitals'}
+          {...(status === 'error' ? { onAction: () => void refetch() } : {})}
+          testID={status === 'error' ? 'vitals-error' : 'vitals-loading'}
+        />
       </Screen>
     );
   }
@@ -125,15 +114,32 @@ export function VitalsScreen(): React.JSX.Element {
       <Animated.View style={{ opacity: fade, gap: spacing.lg }}>
         {header}
 
-        {banner !== null && <VitalsBanner banner={banner} testID="vitals-banner" />}
+        {isRefreshing && <DataStatusBanner state="refreshing" testID="vitals-refreshing" />}
+        {hasRefreshError && (
+          <DataStatusBanner
+            state="api_error"
+            title="Couldn’t update vitals"
+            body="Showing your latest saved vitals data."
+            onAction={() => void refetch()}
+            testID="vitals-refresh-error"
+          />
+        )}
+
+        {banner !== null && (
+          <VitalsBanner banner={banner} onAction={() => void refetch()} testID="vitals-banner" />
+        )}
 
         {showDetail ? (
           <>
             <VitalsSourceHeader
               source={CONNECTED_SOURCE_LABEL}
               freshness={freshness}
-              note={UNVERIFIED_NOTE}
               testID="vitals-source"
+            />
+            <DataStatusBanner
+              state="provider_unverified"
+              body={UNVERIFIED_NOTE}
+              testID="vitals-provider-unverified"
             />
             <VitalsMetricGrid rows={metricRows} testID="vitals-metrics" />
             <VitalsTrendCard
@@ -143,11 +149,15 @@ export function VitalsScreen(): React.JSX.Element {
             />
           </>
         ) : (
-          <Card testID="vitals-empty">
-            <Text variant="bodyMedium" color="secondary">
-              {resolveEmptyVitalsMessage(detail.state)}
-            </Text>
-          </Card>
+          <DataStatePanel
+            state={dataStateFromScoreState(detail.state) ?? 'empty'}
+            title="Vitals unavailable"
+            body={resolveEmptyVitalsMessage(detail.state)}
+            {...(detail.state === 'provider_unavailable' || detail.state === 'calculation_error'
+              ? { onAction: () => void refetch() }
+              : {})}
+            testID="vitals-empty"
+          />
         )}
 
         <BodyCompositionLinkCard onPress={goToBodyComposition} testID="vitals-body-comp-link" />
@@ -157,11 +167,6 @@ export function VitalsScreen(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 48,
-  },
   backRow: {
     alignSelf: 'flex-start',
   },

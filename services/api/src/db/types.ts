@@ -2459,6 +2459,38 @@ export type AiModelInvocation = Selectable<AiModelInvocationsTable>;
 export type NewAiModelInvocation = Insertable<AiModelInvocationsTable>;
 
 // ---------------------------------------------------------------------------
+// ai_summaries (000008_ai_summaries.sql — ADR-007)
+// ---------------------------------------------------------------------------
+
+/** Durable cache of generated display summaries. Structured content must never be logged. */
+export interface AiSummariesTable {
+  id: UuidPk;
+  user_id: string;
+  /** sleep | recovery | daily | weekly | workout | nutrition */
+  summary_type: string;
+  local_date: string;
+  context_packet_version: string;
+  /** fresh | stale | regenerating | failed */
+  summary_status: Generated<string>;
+  title: NullableCol<string>;
+  short_summary: NullableCol<string>;
+  structured_json: Generated<Record<string, unknown>>;
+  evidence_refs: Generated<unknown[]>;
+  source_score_snapshot_id: NullableCol<string>;
+  model_provider: NullableCol<string>;
+  model_name: NullableCol<string>;
+  generated_at: CreatedAt;
+  expires_at: NullableCol<Date>;
+  created_at: CreatedAt;
+  updated_at: UpdatedAt;
+  deleted_at: NullableCol<Date>;
+}
+
+export type AiSummary = Selectable<AiSummariesTable>;
+export type NewAiSummary = Insertable<AiSummariesTable>;
+export type AiSummaryUpdate = Updateable<AiSummariesTable>;
+
+// ---------------------------------------------------------------------------
 // dashboard_widgets (000006_outputs_and_dashboard.sql — §19.1)
 // ---------------------------------------------------------------------------
 
@@ -2659,6 +2691,7 @@ export interface Database {
   ai_messages: AiMessagesTable;
   ai_context_snapshots: AiContextSnapshotsTable;
   ai_model_invocations: AiModelInvocationsTable;
+  ai_summaries: AiSummariesTable;
   dashboard_widgets: DashboardWidgetsTable;
   theme_settings: ThemeSettingsTable;
   mobile_cache_manifests: MobileCacheManifestsTable;

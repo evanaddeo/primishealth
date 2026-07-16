@@ -8,11 +8,12 @@
  */
 
 import React, { useCallback, useRef } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView } from 'react-native';
 
 import type { AiChatFollowUp } from '@primis/api-contracts';
-import { Text, useTheme } from '@primis/design-system';
+import { useTheme } from '@primis/design-system';
 
+import { DataStatePanel } from '../../../components/DataStatePanel';
 import type { CoachMessage, SuggestedPrompt } from '../coachModel';
 import { MessageBubble } from './MessageBubble';
 import { SuggestedPrompts } from './SuggestedPrompts';
@@ -48,15 +49,12 @@ export function MessageList({
         contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg }}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={{ gap: spacing.xs }}>
-          <Text variant="titleMedium" weight="semibold">
-            Ask your coach
-          </Text>
-          <Text variant="bodyMedium" color="secondary">
-            Ask about your sleep, recovery, training, nutrition, or bedtime. Answers are grounded in
-            your own data and are for performance and wellness — not medical advice.
-          </Text>
-        </View>
+        <DataStatePanel
+          state="empty"
+          title="Ask your coach"
+          body="Ask about your sleep, recovery, training, nutrition, or bedtime. Answers use your available data for performance and wellness context."
+          testID="coach-empty"
+        />
         <SuggestedPrompts
           onSelect={onSelectPrompt}
           disabled={isStreaming}

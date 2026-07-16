@@ -68,6 +68,7 @@ export interface TodayDashboardController {
   readonly status: TodayDashboardStatus;
   /** True while a background refresh is in flight (cached content stays shown). */
   readonly isRefreshing: boolean;
+  readonly hasRefreshError: boolean;
   readonly refetch: () => Promise<void>;
 }
 
@@ -131,6 +132,7 @@ export function useTodayDashboard(): TodayDashboardController {
     supplement: snapshot?.supplement ?? null,
     status,
     isRefreshing: query.isFetching && snapshot !== null,
+    hasRefreshError: query.isError && snapshot !== null,
     refetch,
   };
 }

@@ -16,12 +16,16 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Animated, StyleSheet, View } from 'react-native';
+import { Animated, View } from 'react-native';
 
-import { Button, Card, Screen, Text, useTheme } from '@primis/design-system';
+import { Screen, Text, useTheme } from '@primis/design-system';
 import { useRouter } from 'expo-router';
 
 import { useSleepDetail } from '../../api/hooks/useSleepDetail';
+import { DataStatePanel } from '../../components/DataStatePanel';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
+import { MissingMetricMessage } from '../../components/MissingMetricMessage';
+import { dataStateFromScoreState } from '../../components/dataStateModel';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { hasSleepSummary, resolveEmptySleepMessage, resolveSleepBanner } from './sleepModel';
 import {
@@ -38,10 +42,10 @@ import {
 const BEDTIME_PLANNER_ROUTE = '/sleep/bedtime-planner';
 
 export function SleepScreen(): React.JSX.Element {
-  const { colors, spacing } = useTheme();
+  const { spacing } = useTheme();
   const router = useRouter();
   const { getTimingConfig, isReducedMotion } = useReducedMotion();
-  const { detail, status, refetch } = useSleepDetail();
+  const { detail, status, isRefreshing, hasRefreshError, refetch } = useSleepDetail();
 
   // Subtle mount fade — token-driven duration, instant under reduced motion.
   const [fade] = useState(() => new Animated.Value(0));
@@ -57,26 +61,12 @@ export function SleepScreen(): React.JSX.Element {
   if (detail === null) {
     return (
       <Screen testID="screen-sleep" contentStyle={{ paddingTop: spacing.xl }}>
-        {status === 'error' ? (
-          <Card testID="sleep-error">
-            <View style={{ gap: spacing.sm }}>
-              <Text variant="bodyLarge" weight="semibold">
-                Couldn’t load your sleep
-              </Text>
-              <Text variant="bodyMedium" color="secondary">
-                Pull the latest once you’re back online.
-              </Text>
-              <Button variant="secondary" label="Try again" onPress={() => void refetch()} />
-            </View>
-          </Card>
-        ) : (
-          <View style={[styles.center, { gap: spacing.sm }]} testID="sleep-loading">
-            <ActivityIndicator color={colors.accent} />
-            <Text variant="bodyMedium" color="secondary">
-              Loading last night…
-            </Text>
-          </View>
-        )}
+        <DataStatePanel
+          state={status === 'error' ? 'api_error' : 'initial_loading'}
+          title={status === 'error' ? 'Couldn’t load your sleep' : 'Loading last night'}
+          {...(status === 'error' ? { onAction: () => void refetch() } : {})}
+          testID={status === 'error' ? 'sleep-error' : 'sleep-loading'}
+        />
       </Screen>
     );
   }
@@ -94,10 +84,31 @@ export function SleepScreen(): React.JSX.Element {
           </Text>
         </View>
 
-        {banner !== null && <SleepBanner banner={banner} testID="sleep-banner" />}
+        {isRefreshing && <DataStatusBanner state="refreshing" testID="sleep-refreshing" />}
+        {hasRefreshError && (
+          <DataStatusBanner
+            state="api_error"
+            title="Couldn’t update sleep"
+            body="Showing your latest saved sleep data."
+            onAction={() => void refetch()}
+            testID="sleep-refresh-error"
+          />
+        )}
+
+        {banner !== null && (
+          <SleepBanner banner={banner} onAction={() => void refetch()} testID="sleep-banner" />
+        )}
 
         {detail.score !== null && (
           <SleepScoreHero score={detail.score} confidence={detail.confidence} testID="sleep-hero" />
+        )}
+
+        {detail.score !== null && detail.score.missingMetrics.length > 0 && (
+          <View style={{ gap: spacing.sm }} testID="sleep-missing-metrics">
+            {detail.score.missingMetrics.map((metric) => (
+              <MissingMetricMessage key={metric.metricCode} metric={metric} />
+            ))}
+          </View>
         )}
 
         {showDetail && detail.summary !== null ? (
@@ -110,11 +121,15 @@ export function SleepScreen(): React.JSX.Element {
             )}
           </>
         ) : (
-          <Card testID="sleep-empty">
-            <Text variant="bodyMedium" color="secondary">
-              {resolveEmptySleepMessage(detail.state)}
-            </Text>
-          </Card>
+          <DataStatePanel
+            state={dataStateFromScoreState(detail.state) ?? 'empty'}
+            title="Sleep data unavailable"
+            body={resolveEmptySleepMessage(detail.state)}
+            {...(detail.state === 'provider_unavailable' || detail.state === 'calculation_error'
+              ? { onAction: () => void refetch() }
+              : {})}
+            testID="sleep-empty"
+          />
         )}
 
         <SleepAiSummaryCard sourceDate={detail.localDate} testID="sleep-ai-summary" />
@@ -127,11 +142,3 @@ export function SleepScreen(): React.JSX.Element {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 48,
-  },
-});

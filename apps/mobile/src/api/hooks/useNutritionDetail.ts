@@ -66,6 +66,7 @@ export interface NutritionDetailController {
   readonly status: NutritionDetailStatus;
   /** True while a background refresh is in flight (cached content stays shown). */
   readonly isRefreshing: boolean;
+  readonly hasRefreshError: boolean;
   readonly refetch: () => Promise<void>;
 }
 
@@ -170,6 +171,8 @@ export function useNutritionDetail(): NutritionDetailController {
     tags: tagsQuery.data ?? [],
     status,
     isRefreshing: (nutritionQuery.isFetching || lifestyleQuery.isFetching) && ready,
+    hasRefreshError:
+      ready && (nutritionQuery.isError || lifestyleQuery.isError || tagsQuery.isError),
     refetch,
   };
 }

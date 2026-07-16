@@ -20,11 +20,15 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Animated, StyleSheet, View } from 'react-native';
+import { Animated, View } from 'react-native';
 
-import { Button, Card, Screen, Text, useTheme } from '@primis/design-system';
+import { Screen, Text, useTheme } from '@primis/design-system';
 
 import { useActivityDetail } from '../../api/hooks/useActivityDetail';
+import { DataStatePanel } from '../../components/DataStatePanel';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
+import { MissingMetricMessage } from '../../components/MissingMetricMessage';
+import { dataStateFromScoreState } from '../../components/dataStateModel';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import {
   hasActivityScore,
@@ -43,9 +47,9 @@ import {
 } from './components';
 
 export function ActivityScreen(): React.JSX.Element {
-  const { colors, spacing } = useTheme();
+  const { spacing } = useTheme();
   const { getTimingConfig, isReducedMotion } = useReducedMotion();
-  const { detail, status, refetch } = useActivityDetail();
+  const { detail, status, isRefreshing, hasRefreshError, refetch } = useActivityDetail();
 
   // Subtle mount fade — token-driven duration, instant under reduced motion.
   const [fade] = useState(() => new Animated.Value(0));
@@ -61,26 +65,12 @@ export function ActivityScreen(): React.JSX.Element {
   if (detail === null) {
     return (
       <Screen testID="screen-activity" contentStyle={{ paddingTop: spacing.xl }}>
-        {status === 'error' ? (
-          <Card testID="activity-error">
-            <View style={{ gap: spacing.sm }}>
-              <Text variant="bodyLarge" weight="semibold">
-                Couldn’t load your activity
-              </Text>
-              <Text variant="bodyMedium" color="secondary">
-                Pull the latest once you’re back online.
-              </Text>
-              <Button variant="secondary" label="Try again" onPress={() => void refetch()} />
-            </View>
-          </Card>
-        ) : (
-          <View style={[styles.center, { gap: spacing.sm }]} testID="activity-loading">
-            <ActivityIndicator color={colors.accent} />
-            <Text variant="bodyMedium" color="secondary">
-              Loading today’s activity…
-            </Text>
-          </View>
-        )}
+        <DataStatePanel
+          state={status === 'error' ? 'api_error' : 'initial_loading'}
+          title={status === 'error' ? 'Couldn’t load your activity' : 'Loading today’s activity'}
+          {...(status === 'error' ? { onAction: () => void refetch() } : {})}
+          testID={status === 'error' ? 'activity-error' : 'activity-loading'}
+        />
       </Screen>
     );
   }
@@ -101,7 +91,24 @@ export function ActivityScreen(): React.JSX.Element {
           </Text>
         </View>
 
-        {banner !== null && <ActivityBanner banner={banner} testID="activity-banner" />}
+        {isRefreshing && <DataStatusBanner state="refreshing" testID="activity-refreshing" />}
+        {hasRefreshError && (
+          <DataStatusBanner
+            state="api_error"
+            title="Couldn’t update activity"
+            body="Showing your latest saved activity data."
+            onAction={() => void refetch()}
+            testID="activity-refresh-error"
+          />
+        )}
+
+        {banner !== null && (
+          <ActivityBanner
+            banner={banner}
+            onAction={() => void refetch()}
+            testID="activity-banner"
+          />
+        )}
 
         {detail.score !== null && showScore && (
           <ActivityScoreHero
@@ -109,6 +116,14 @@ export function ActivityScreen(): React.JSX.Element {
             confidence={detail.confidence}
             testID="activity-hero"
           />
+        )}
+
+        {detail.score !== null && detail.score.missingMetrics.length > 0 && (
+          <View style={{ gap: spacing.sm }} testID="activity-missing-metrics">
+            {detail.score.missingMetrics.map((metric) => (
+              <MissingMetricMessage key={metric.metricCode} metric={metric} />
+            ))}
+          </View>
         )}
 
         {showDetail ? (
@@ -127,11 +142,15 @@ export function ActivityScreen(): React.JSX.Element {
             )}
           </>
         ) : (
-          <Card testID="activity-empty">
-            <Text variant="bodyMedium" color="secondary">
-              {resolveEmptyActivityMessage(detail.state)}
-            </Text>
-          </Card>
+          <DataStatePanel
+            state={dataStateFromScoreState(detail.state) ?? 'empty'}
+            title="Activity data unavailable"
+            body={resolveEmptyActivityMessage(detail.state)}
+            {...(detail.state === 'provider_unavailable' || detail.state === 'calculation_error'
+              ? { onAction: () => void refetch() }
+              : {})}
+            testID="activity-empty"
+          />
         )}
 
         <ActivityAiSummaryCard sourceDate={detail.localDate} testID="activity-ai-summary" />
@@ -139,11 +158,3 @@ export function ActivityScreen(): React.JSX.Element {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 48,
-  },
-});

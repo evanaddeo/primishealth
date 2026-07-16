@@ -20,6 +20,7 @@ import { View } from 'react-native';
 import { BottomSheet, Button, Text, useTheme } from '@primis/design-system';
 
 import { useQuickAdd } from '../../api/hooks/useQuickAdd';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { resolveTimeAnchors, type TimeAnchors } from './quickAddModel';
 import { AlcoholForm } from './components/AlcoholForm';
@@ -67,6 +68,7 @@ export function QuickAddSheet({ visible, onClose }: QuickAddSheetProps): React.J
   function handleClose(): void {
     setCategory(null);
     setConfirmation(null);
+    controller.clearError();
     onClose();
   }
 
@@ -98,11 +100,30 @@ export function QuickAddSheet({ visible, onClose }: QuickAddSheetProps): React.J
           </Text>
         )}
 
+        {controller.errorMessage !== null && (
+          <DataStatusBanner
+            state="api_error"
+            title="Entry not saved"
+            body={controller.errorMessage}
+            testID="quickadd-error"
+          />
+        )}
+
+        {controller.pending && (
+          <DataStatusBanner
+            state="refreshing"
+            title="Saving entry"
+            body="Your input stays in place until saving finishes."
+            testID="quickadd-saving"
+          />
+        )}
+
         {ActiveForm === null ? (
           <QuickAddMenu
             controller={controller}
             onSelect={(c) => {
               setConfirmation(null);
+              controller.clearError();
               setCategory(c);
             }}
           />
@@ -113,7 +134,14 @@ export function QuickAddSheet({ visible, onClose }: QuickAddSheetProps): React.J
               buildAnchors={buildAnchors}
               onLogged={handleLogged}
             />
-            <Button variant="ghost" label="Back" onPress={() => setCategory(null)} />
+            <Button
+              variant="ghost"
+              label="Back"
+              onPress={() => {
+                controller.clearError();
+                setCategory(null);
+              }}
+            />
           </View>
         )}
       </View>

@@ -1,7 +1,9 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, Card, Screen, Text, useTheme } from '@primis/design-system';
+import { Button, Screen, Text, useTheme } from '@primis/design-system';
+
+import { DataStatePanel } from '../components/DataStatePanel';
 
 import {
   ERROR_BOUNDARY_FALLBACK,
@@ -93,16 +95,16 @@ function CrashFallback({ retry, goHome }: ErrorFallbackProps): React.JSX.Element
       style={styles.screen}
     >
       <View style={[styles.content, { padding: spacing.lg }]}>
-        <Card variant="elevated" style={{ gap: spacing.md }}>
+        <View style={{ gap: spacing.md }}>
           <Text variant="caption" color="accent" weight="bold">
             {ERROR_BOUNDARY_FALLBACK.brand}
           </Text>
-          <Text variant="titleLarge" weight="bold" accessibilityRole="header">
-            {ERROR_BOUNDARY_FALLBACK.title}
-          </Text>
-          <Text variant="bodyMedium" color="secondary">
-            {ERROR_BOUNDARY_FALLBACK.body}
-          </Text>
+          <DataStatePanel
+            state="api_error"
+            title={ERROR_BOUNDARY_FALLBACK.title}
+            body={ERROR_BOUNDARY_FALLBACK.body}
+            testID="error-boundary-state"
+          />
           <View style={{ gap: spacing.sm, marginTop: spacing.sm }}>
             <Button
               label={ERROR_BOUNDARY_FALLBACK.retryLabel}
@@ -118,7 +120,7 @@ function CrashFallback({ retry, goHome }: ErrorFallbackProps): React.JSX.Element
               testID="error-boundary-home"
             />
           </View>
-        </Card>
+        </View>
       </View>
     </Screen>
   );

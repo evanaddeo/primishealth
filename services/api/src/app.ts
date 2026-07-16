@@ -67,6 +67,7 @@ import { createRequestLoggingMiddleware } from './middleware/requestLogging.js';
 import { apiLogger, type ApiLogger } from './observability/logger.js';
 import { activityRouter } from './routes/activity.js';
 import { aiChatRouter } from './routes/aiChat.js';
+import { aiSummariesRouter } from './routes/aiSummaries.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { digestionRouter } from './routes/digestion.js';
 import { healthRouter } from './routes/health.js';
@@ -180,6 +181,7 @@ export function createApp(options: CreateAppOptions = {}): Hono<{ Variables: App
   // gateway → answer (+ optional SSE token stream). Backend-only; mobile never calls
   // a model provider. Persists metadata only (no raw prompts/health in logs — §19.3).
   app.route('/api/v1/ai', aiChatRouter);
+  app.route('/api/v1/ai', aiSummariesRouter);
 
   // Manual check-in routes (CU-069): the first health-data write path.
   //   POST  /api/v1/checkins            — create a check-in

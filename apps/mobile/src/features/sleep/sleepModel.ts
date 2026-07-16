@@ -100,7 +100,11 @@ export function resolveScoreStatus(score: ScoreSnapshotDto): StatusBadgeStatus {
 
 // ── Top-level phase / banner ──────────────────────────────────────────────────
 
-export type SleepBannerTone = 'provisional' | 'stale' | 'none';
+export type SleepBannerTone =
+  | 'provisional'
+  | 'stale'
+  | 'provider_unavailable'
+  | 'calculation_failure';
 
 export interface SleepBannerVm {
   readonly tone: SleepBannerTone;
@@ -122,6 +126,16 @@ export function resolveSleepBanner(detail: SleepDetailResponseDto): SleepBannerV
       return {
         tone: 'stale',
         message: 'Waiting on a fresh sync to update last night.',
+      };
+    case 'provider_unavailable':
+      return {
+        tone: 'provider_unavailable',
+        message: 'Showing saved sleep data while your source is unavailable.',
+      };
+    case 'calculation_error':
+      return {
+        tone: 'calculation_failure',
+        message: 'The latest saved sleep detail remains visible while Primis retries this result.',
       };
     default:
       return null;
