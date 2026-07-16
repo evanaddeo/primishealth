@@ -11,6 +11,7 @@
     "format:check": "prettier --check .",
     "build": "echo \"not implemented — configure per-package in later phases\"",
     "db:migrate": "tsx --env-file .env scripts/db-migrate.ts",
+    "fdc:import": "tsx --env-file .env scripts/fooddata-central/import.ts",
     "db:seed": "tsx --env-file .env scripts/db-seed.ts",
     "db:reset": "bash scripts/db-reset.sh"
   },
@@ -28,8 +29,11 @@
   },
   "packageManager": "pnpm@9.0.0",
   "devDependencies": {
+    "@primis/config": "workspace:*",
     "@primis/core-types": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "csv-parse": "^5.6.0",
+    "kysely": "^0.29.2",
     "@typescript-eslint/parser": "^8.61.0",
     "eslint": "^8",
     "eslint-plugin-react": "^7.37.5",

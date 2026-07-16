@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@primis/config':
+        specifier: workspace:*
+        version: link:packages/config
       '@primis/core-types':
         specifier: workspace:*
         version: link:packages/core-types
@@ -17,6 +20,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.61.0
         version: 8.61.0(eslint@8.57.1)(typescript@5.9.3)
+      csv-parse:
+        specifier: ^5.6.0
+        version: 5.6.0
       eslint:
         specifier: ^8
         version: 8.57.1
@@ -29,6 +35,9 @@ importers:
       eslint-plugin-react-native:
         specifier: ^5.0.0
         version: 5.0.0(eslint@8.57.1)
+      kysely:
+        specifier: ^0.29.2
+        version: 0.29.2
       prettier:
         specifier: ^3.8.4
         version: 3.8.4
@@ -2236,6 +2245,9 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
+  csv-parse@5.6.0:
+    resolution: {integrity: sha512-l3nz3euub2QMg5ouu5U09Ew9Wf6/wQ8I++ch1loQ0ljmzhmfZYrH9fflS22i/PQEvsPvxCwxgz5q7UB8K1JO4Q==}
 
   data-view-buffer@1.0.2:
     resolution: {integrity: sha512-EmKO5V3OLXh1rtK2wgXRansaK1/mtVdTUEiEI0W8RkvgT05kfxaH29PliLnpLP73yYO6142Q72QNa8Wx/A5CqQ==}
@@ -6809,6 +6821,8 @@ snapshots:
   css.escape@1.5.1: {}
 
   csstype@3.2.3: {}
+
+  csv-parse@5.6.0: {}
 
   data-view-buffer@1.0.2:
     dependencies:
