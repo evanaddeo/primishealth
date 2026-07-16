@@ -17,3 +17,4 @@ export * from './recovery/index.js';
 export * from './activity/index.js';
 export * from './training/index.js';
 export * from './bedtime/index.js';
+export * from './correlation/index.js';

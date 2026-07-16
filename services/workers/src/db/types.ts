@@ -18,6 +18,11 @@
  *   - `sleep_sessions`             — Upsert sleep session summaries (CU-043, CU-044)
  *   - `sleep_stage_intervals`      — Upsert sleep stage segments (CU-043, CU-044)
  *   - `workout_sessions`           — Upsert workout events (CU-043, CU-044)
+ *   - `correlation_results`        — Update-or-insert correlation findings (CU-094)
+ *   - `alcohol_entries`            — Read-only correlation factor source (CU-094)
+ *   - `caffeine_entries`           — Read-only correlation factor source (CU-094)
+ *   - `tag_events`                 — Read-only correlation factor source (CU-094)
+ *   - `daily_nutrition_summaries`  — Read-only hydration factor source (CU-094)
  *
  * Column type conventions (match services/api/src/db/types.ts):
  *   - `Generated<T>`   — column has a DB default; T on SELECT, optional on INSERT, T on UPDATE.
@@ -791,6 +796,189 @@ export type NewInsightCandidate = Insertable<InsightCandidatesTable>;
 export type InsightCandidateUpdate = Updateable<InsightCandidatesTable>;
 
 // ---------------------------------------------------------------------------
+// correlation_results (000006_outputs_and_dashboard.sql — §17.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * User-specific correlation findings written by the CU-094 correlation
+ * orchestrator — NEVER during ingestion.
+ *
+ * Logical identity (Phase K plan §8 "Correlation idempotency"): one result per
+ * `(user_id, factor_code, outcome_metric_code, window_start_date,
+ * window_end_date, lag_days, method, metadata.algorithmVersion)`. There is no
+ * DB unique constraint for this key; the repository performs a select then
+ * update-or-insert and workers execute correlation runs sequentially.
+ *
+ * v1 semantics: `effect_size` stores the exposed-vs-comparison mean difference
+ * in the outcome's native unit; `correlation_value` and `p_value` remain NULL
+ * (no coefficient/significance is computed — plan §8). `confidence_level` is a
+ * data-sufficiency label only. `human_summary` is templated association-only
+ * text and never contains user tag text or causal language.
+ */
+export interface CorrelationResultsTable {
+  id: UuidPk;
+  user_id: string;
+  /** Built-in factor code or `tag:<tag_code>` for custom tags. */
+  factor_code: string;
+  outcome_metric_code: string;
+  /** ISO YYYY-MM-DD user-local dates (inclusive window). */
+  window_start_date: string;
+  window_end_date: string;
+  lag_days: Generated<number>;
+  sample_size: number;
+  /** Native-unit mean difference (numeric(10,5); `pg` returns a string). */
+  effect_size: NumericCol;
+  /** Always NULL in v1 — no correlation coefficient is computed. */
+  correlation_value: NumericCol;
+  /** Always NULL in v1 — no significance testing is performed. */
+  p_value: NumericCol;
+  /** Allowed: 'low' | 'medium' | 'high' — data sufficiency, not certainty. */
+  confidence_level: NullableCol<string>;
+  /** Allowed: 'positive' | 'negative' | 'mixed' | 'unclear' */
+  direction: NullableCol<string>;
+  human_summary: NullableCol<string>;
+  /** Allowed: 'simple_difference' | 'lagged_difference' (v1 subset). */
+  method: string;
+  generated_at: Generated<Date>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type CorrelationResult = Selectable<CorrelationResultsTable>;
+export type NewCorrelationResult = Insertable<CorrelationResultsTable>;
+export type CorrelationResultUpdate = Updateable<CorrelationResultsTable>;
+
+// ---------------------------------------------------------------------------
+// alcohol_entries (000005_domain_tables.sql — §14.6)
+// ---------------------------------------------------------------------------
+
+/**
+ * Manual alcohol intake logs (Phase H write path). Workers READS this table
+ * only as a correlation factor source (CU-094); the API owns all writes.
+ * Entry tables are the immutable source of truth per ADR-008.
+ */
+export interface AlcoholEntriesTable {
+  id: UuidPk;
+  user_id: string;
+  occurred_at_utc: Date;
+  /** ISO YYYY-MM-DD in the user's timezone at logging time. */
+  local_date: string;
+  timezone: string;
+  /** numeric(5,2); `pg` returns a string. */
+  standard_drinks: ColumnType<string, number | string, number | string>;
+  /** Allowed: 'none' | 'one' | 'two' | 'three_four' | 'five_plus' */
+  drink_range: NullableCol<string>;
+  /** Allowed: 'beer' | 'wine' | 'liquor' | 'cocktail' | 'mixed' | 'other' */
+  alcohol_type: NullableCol<string>;
+  last_drink_time_utc: NullableCol<Date>;
+  /** Free text — MUST never be read into correlation output or logs. */
+  notes: NullableCol<string>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+}
+
+export type AlcoholEntry = Selectable<AlcoholEntriesTable>;
+
+// ---------------------------------------------------------------------------
+// caffeine_entries (000005_domain_tables.sql — §14.5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Manual caffeine intake logs (Phase H write path). Workers READS this table
+ * only as a correlation factor source (CU-094); the API owns all writes.
+ */
+export interface CaffeineEntriesTable {
+  id: UuidPk;
+  user_id: string;
+  occurred_at_utc: Date;
+  local_date: string;
+  timezone: string;
+  /** numeric(10,2); `pg` returns a string. */
+  caffeine_mg: NumericCol;
+  /** Allowed: 'coffee' | 'espresso' | 'energy_drink' | 'tea' | 'preworkout' | 'other' */
+  beverage_type: NullableCol<string>;
+  serving_description: NullableCol<string>;
+  estimated: Generated<boolean>;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: CreatedAt;
+}
+
+export type CaffeineEntry = Selectable<CaffeineEntriesTable>;
+
+// ---------------------------------------------------------------------------
+// tag_events (000005_domain_tables.sql — §14.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Applications of a custom tag at a point in time (Phase H write path).
+ * Workers READS this table only as a correlation factor source (CU-094).
+ *
+ * PRIVACY: `tag_code` is user-defined text. It may be persisted as an
+ * identifier (e.g. inside `correlation_results.factor_code`) but MUST never
+ * appear in generated summary text or logs (Phase K plan §13).
+ */
+export interface TagEventsTable {
+  id: UuidPk;
+  user_id: string;
+  custom_tag_id: NullableCol<string>;
+  tag_code: string;
+  occurred_at_utc: Date;
+  local_date: string;
+  timezone: string;
+  /** Optional 1–5 intensity. */
+  intensity: NullableCol<number>;
+  /** numeric(10,3); `pg` returns a string. */
+  quantity: NumericCol;
+  unit: NullableCol<string>;
+  /** Free text — MUST never be read into correlation output or logs. */
+  notes: NullableCol<string>;
+  /** Allowed: 'nutrition_entry' | 'workout_session' | 'sleep_session' | 'manual_checkin' */
+  linked_entity_type: NullableCol<string>;
+  linked_entity_id: NullableCol<string>;
+  created_at: CreatedAt;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type TagEvent = Selectable<TagEventsTable>;
+
+// ---------------------------------------------------------------------------
+// daily_nutrition_summaries (000005_domain_tables.sql — §15.6)
+// ---------------------------------------------------------------------------
+
+/**
+ * Precomputed daily nutrition totals (derived projection; entry tables are the
+ * source of truth per ADR-008). Workers READS this table only for the CU-094
+ * hydration factor — `hydration_ml` (recorded total) and `hydration_target_ml`
+ * (stored target) — because the stored target exists nowhere else.
+ * One row per `(user_id, local_date)`.
+ */
+export interface DailyNutritionSummariesTable {
+  id: UuidPk;
+  user_id: string;
+  local_date: string;
+  timezone: string;
+  calories_in_kcal: NumericCol;
+  calories_out_kcal: NumericCol;
+  calorie_balance_kcal: NumericCol;
+  protein_g: NumericCol;
+  carbs_g: NumericCol;
+  fat_g: NumericCol;
+  fiber_g: NumericCol;
+  hydration_ml: NumericCol;
+  caffeine_mg: NumericCol;
+  latest_caffeine_time_utc: NullableCol<Date>;
+  alcohol_standard_drinks: NumericCol;
+  protein_target_g: NumericCol;
+  calorie_target_kcal: NumericCol;
+  hydration_target_ml: NumericCol;
+  nutrition_score: NumericCol;
+  generated_at: Generated<Date>;
+  data_quality: Generated<string>;
+  metadata: Generated<Record<string, unknown>>;
+}
+
+export type DailyNutritionSummary = Selectable<DailyNutritionSummariesTable>;
+
+// ---------------------------------------------------------------------------
 // ai_summaries (000008_ai_summaries.sql — ADR-007)
 // ---------------------------------------------------------------------------
 
@@ -869,5 +1057,10 @@ export interface Database {
   score_component_values: ScoreComponentValuesTable;
   algorithm_runs: AlgorithmRunsTable;
   insight_candidates: InsightCandidatesTable;
+  correlation_results: CorrelationResultsTable;
+  alcohol_entries: AlcoholEntriesTable;
+  caffeine_entries: CaffeineEntriesTable;
+  tag_events: TagEventsTable;
+  daily_nutrition_summaries: DailyNutritionSummariesTable;
   ai_summaries: AiSummariesTable;
 }

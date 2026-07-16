@@ -16,3 +16,6 @@
 export * from './privacy/deletionInventory.js';
 export * from './privacy/deleteUserData.js';
 export * from './observability/logger.js';
+export * from './correlations/correlationSourceRepository.js';
+export * from './correlations/correlationRepository.js';
+export * from './correlations/runCorrelations.js';
