@@ -177,6 +177,9 @@ export const API_ENDPOINTS = {
    */
   AI_CHAT: '/v1/ai/chat',
 
+  /** Latest servable cached AI summary; append `?type=` with an AiSummaryType. */
+  AI_SUMMARIES_LATEST: '/v1/ai/summaries/latest',
+
   // ── Manual inputs & nutrition write-paths (Phase H, CU-069 → CU-073) ───────────
 
   /**

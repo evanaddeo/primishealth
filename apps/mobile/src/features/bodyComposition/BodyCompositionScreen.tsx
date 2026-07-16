@@ -25,13 +25,17 @@
 import React, { useEffect, useState } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 
-import { Card, Screen, Text, useTheme } from '@primis/design-system';
+import { Screen, Text, useTheme } from '@primis/design-system';
 import { useRouter } from 'expo-router';
 
 import { useBodyComposition } from '../../api/hooks/useBodyComposition';
+import { DataStatePanel } from '../../components/DataStatePanel';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
+import { MissingMetricMessage } from '../../components/MissingMetricMessage';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import {
   buildBodyCompMetricRows,
+  dataStateFromBodyCompositionState,
   hasBodyCompositionData,
   resolveBodyCompFreshness,
   resolveEmptyBodyCompMessage,
@@ -42,7 +46,7 @@ export function BodyCompositionScreen(): React.JSX.Element {
   const { spacing } = useTheme();
   const router = useRouter();
   const { getTimingConfig, isReducedMotion } = useReducedMotion();
-  const { detail } = useBodyComposition();
+  const { detail, status, isRefreshing, hasRefreshError, refetch } = useBodyComposition();
 
   const [fade] = useState(() => new Animated.Value(0));
   const fadeDuration = getTimingConfig('standard').duration;
@@ -87,6 +91,11 @@ export function BodyCompositionScreen(): React.JSX.Element {
         contentStyle={{ paddingTop: spacing.xl, gap: spacing.lg }}
       >
         {header}
+        <DataStatePanel
+          state={status === 'error' ? 'api_error' : 'initial_loading'}
+          {...(status === 'error' ? { onAction: () => void refetch() } : {})}
+          testID={status === 'error' ? 'body-comp-error' : 'body-comp-loading'}
+        />
       </Screen>
     );
   }
@@ -99,6 +108,25 @@ export function BodyCompositionScreen(): React.JSX.Element {
     <Screen testID="screen-body-composition" contentStyle={{ paddingTop: spacing.xl }}>
       <Animated.View style={{ opacity: fade, gap: spacing.lg }}>
         {header}
+
+        {isRefreshing && <DataStatusBanner state="refreshing" testID="body-comp-refreshing" />}
+        {hasRefreshError && (
+          <DataStatusBanner
+            state="api_error"
+            title="Couldn’t update body composition"
+            body="Showing your latest saved measurements."
+            onAction={() => void refetch()}
+            testID="body-comp-refresh-error"
+          />
+        )}
+        {detail.state === 'provider_unverified' && (
+          <DataStatusBanner
+            state="provider_unverified"
+            body="These mock-backed fields reflect documented schemas; live source availability is not confirmed."
+            testID="body-comp-unverified"
+          />
+        )}
+        {detail.state === 'stale_data' && <DataStatusBanner state="stale_data" />}
 
         <BodyCompSourceHeader
           source={detail.source}
@@ -114,13 +142,31 @@ export function BodyCompositionScreen(): React.JSX.Element {
               testID="body-comp-trends"
             />
             <BodyCompCurrentCard rows={metricRows} testID="body-comp-latest" />
+            {metricRows
+              .filter((row) => !row.isAvailable)
+              .map((row) => (
+                <MissingMetricMessage
+                  key={row.key}
+                  metric={{
+                    metricCode: row.key,
+                    reason: 'provider_did_not_supply',
+                    isRequired: false,
+                  }}
+                />
+              ))}
           </>
         ) : (
-          <Card testID="body-comp-empty">
-            <Text variant="bodyMedium" color="secondary">
-              {resolveEmptyBodyCompMessage(detail)}
-            </Text>
-          </Card>
+          <DataStatePanel
+            state={dataStateFromBodyCompositionState(detail.state)}
+            title="Body composition unavailable"
+            body={resolveEmptyBodyCompMessage(detail)}
+            {...(detail.state === 'provider_disconnected'
+              ? { onAction: () => router.navigate('/settings/connections') }
+              : detail.state === 'provider_unavailable' || detail.state === 'api_error'
+                ? { onAction: () => void refetch() }
+                : {})}
+            testID="body-comp-empty"
+          />
         )}
       </Animated.View>
     </Screen>

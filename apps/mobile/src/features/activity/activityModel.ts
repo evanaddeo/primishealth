@@ -78,7 +78,11 @@ export function resolveActivityHeadline(score: ScoreSnapshotDto): string {
 
 // ── Top-level banner ───────────────────────────────────────────────────────────
 
-export type ActivityBannerTone = 'provisional' | 'stale' | 'none';
+export type ActivityBannerTone =
+  | 'provisional'
+  | 'stale'
+  | 'provider_unavailable'
+  | 'calculation_failure';
 
 export interface ActivityBannerVm {
   readonly tone: ActivityBannerTone;
@@ -100,6 +104,17 @@ export function resolveActivityBanner(detail: ActivityDetailResponseDto): Activi
       return {
         tone: 'stale',
         message: 'Waiting on a fresh sync to update today’s activity.',
+      };
+    case 'provider_unavailable':
+      return {
+        tone: 'provider_unavailable',
+        message: 'Showing saved activity data while your source is unavailable.',
+      };
+    case 'calculation_error':
+      return {
+        tone: 'calculation_failure',
+        message:
+          'The latest saved activity detail remains visible while Primis retries this result.',
       };
     default:
       return null;

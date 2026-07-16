@@ -13,7 +13,7 @@ const request: AiProviderRequest = {
   maxOutputTokens: 256,
   stream: false,
   timeoutMs: 10_000,
-  metadata: { userIdHash: 'h', environment: 'dev' },
+  metadata: { environment: 'dev' },
 };
 
 describe('MockAiProvider', () => {

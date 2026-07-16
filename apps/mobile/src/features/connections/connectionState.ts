@@ -25,6 +25,8 @@ import type {
 import type { StatusBadgeStatus } from '@primis/design-system';
 import { getMetric } from '@primis/health-metrics';
 
+import type { DataStateKind } from '../../components/dataStateModel';
+
 // ---------------------------------------------------------------------------
 // UI state
 // ---------------------------------------------------------------------------
@@ -193,6 +195,24 @@ export function getConnectionStateCopy(state: ConnectionUiState): ConnectionStat
 /** Whether a manual "Refresh now" control should be offered for this state. */
 export function canRefresh(state: ConnectionUiState): boolean {
   return state === 'active' || state === 'stale';
+}
+
+/** Common-state adapter that preserves all six provider connection meanings. */
+export function dataStateFromConnectionState(state: ConnectionUiState): DataStateKind | null {
+  switch (state) {
+    case 'disconnected':
+      return 'provider_disconnected';
+    case 'connecting':
+      return 'refreshing';
+    case 'active':
+      return null;
+    case 'stale':
+      return 'stale_data';
+    case 'needs_reauth':
+      return 'provider_disconnected';
+    case 'unavailable':
+      return 'provider_unavailable';
+  }
 }
 
 // ---------------------------------------------------------------------------

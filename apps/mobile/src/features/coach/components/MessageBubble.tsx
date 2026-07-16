@@ -15,8 +15,9 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import type { AiChatFollowUp } from '@primis/api-contracts';
-import { Button, Text, useTheme } from '@primis/design-system';
+import { Text, useTheme } from '@primis/design-system';
 
+import { DataStatusBanner } from '../../../components/DataStatusBanner';
 import {
   isSafeResponse,
   resolveCaveats,
@@ -89,11 +90,20 @@ export function MessageBubble({
       ) : null}
 
       {isThinking ? (
-        <Text variant="bodyMedium" color="muted" testID="coach-thinking">
-          Thinking…
-        </Text>
+        <DataStatusBanner
+          state="ai_generating"
+          title="Coach is thinking"
+          body="Your scores and other Primis features remain available."
+          testID="coach-thinking"
+        />
       ) : (
-        <Text variant="bodyMedium">
+        <Text
+          variant="bodyMedium"
+          accessibilityLabel={`Coach response${message.text.length > 0 ? `: ${message.text}` : ''}${
+            message.status === 'streaming' ? '. Response in progress' : ''
+          }`}
+          accessibilityState={{ busy: message.status === 'streaming' }}
+        >
           {message.text}
           {message.status === 'streaming' ? (
             <Text variant="bodyMedium" color="muted">
@@ -119,17 +129,12 @@ export function MessageBubble({
       />
 
       {message.status === 'error' ? (
-        <View style={{ gap: spacing.xs, marginTop: spacing.xs }}>
-          <Text variant="bodyMedium" color="secondary">
-            {message.error?.message ?? 'The coach could not respond right now.'}
-          </Text>
-          <Button
-            variant="secondary"
-            size="sm"
-            label="Try again"
-            onPress={onRetry}
-            disabled={isStreaming}
-            accessibilityHint="Re-sends your last message to the coach"
+        <View style={{ marginTop: spacing.xs }}>
+          <DataStatusBanner
+            state="ai_generation_unavailable"
+            body={message.error?.message ?? 'The coach could not respond right now.'}
+            onAction={onRetry}
+            testID="coach-generation-error"
           />
         </View>
       ) : null}

@@ -90,6 +90,8 @@ export function AuthScaffold({
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        automaticallyAdjustKeyboardInsets
       >
         <Animated.View style={[{ gap: spacing.sm }, animatedStyle]}>
           {eyebrow !== undefined && (
@@ -97,7 +99,7 @@ export function AuthScaffold({
               {eyebrow.toUpperCase()}
             </Text>
           )}
-          <Text variant="displayMedium" weight="bold">
+          <Text variant="displayMedium" weight="bold" accessibilityRole="header">
             {title}
           </Text>
           {subtitle !== undefined && (
@@ -132,6 +134,8 @@ export function AuthScaffold({
           style={[styles.loaderOverlay, { backgroundColor: colors.overlay }]}
           accessibilityRole="progressbar"
           accessibilityLabel={busyLabel}
+          accessibilityState={{ busy: true }}
+          accessibilityLiveRegion="polite"
           accessible
         >
           <View

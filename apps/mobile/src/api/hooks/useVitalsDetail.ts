@@ -43,6 +43,7 @@ export interface VitalsDetailController {
   readonly status: VitalsDetailStatus;
   /** True while a background refresh is in flight (cached content stays shown). */
   readonly isRefreshing: boolean;
+  readonly hasRefreshError: boolean;
   readonly refetch: () => Promise<void>;
 }
 
@@ -77,6 +78,7 @@ export function useVitalsDetail(): VitalsDetailController {
     detail,
     status,
     isRefreshing: query.isFetching && detail !== null,
+    hasRefreshError: query.isError && detail !== null,
     refetch,
   };
 }

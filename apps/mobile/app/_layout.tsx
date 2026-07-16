@@ -7,9 +7,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { queryClient } from '../src/api/queryClient';
 import { isMockAuthEnabled } from '../src/features/auth';
+import { ErrorBoundary } from '../src/observability/ErrorBoundary';
+import { PERFORMANCE_EVENT_CODES, performanceMarks } from '../src/performance/performanceMarks';
 import { ThemeProvider } from '../src/providers/ThemeProvider';
 import { useAuthStore } from '../src/state/authStore';
 import { useSettingsStore } from '../src/state/settingsStore';
+
+// Starts at root-module evaluation, before the first routed React commit.
+const coldRootSpan = performanceMarks.start(PERFORMANCE_EVENT_CODES.APP_COLD_ROOT_INITIALIZATION);
 
 /**
  * First-run navigation gate: onboarding → (mock) auth → tabs (CU-058 + CU-059).
@@ -63,17 +68,28 @@ function useFirstRunGate(): void {
  * 2. SafeAreaProvider       — safe area insets for all screens
  * 3. ThemeProvider          — Primis design-system theme context (reads settings)
  * 4. QueryClientProvider    — TanStack Query server-state cache (CU-021)
- * 5. Stack                  — expo-router navigation stack (tabs + onboarding)
+ * 5. ErrorBoundary          — routed-tree recovery with all fallback dependencies available
+ * 6. Stack                  — expo-router navigation stack (tabs + onboarding)
  */
 export default function RootLayout() {
   useFirstRunGate();
+  const router = useRouter();
+
+  useEffect(() => {
+    coldRootSpan.finish('completed', 1);
+    return () => {
+      coldRootSpan.finish('cancelled', 0);
+    };
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider>
           <QueryClientProvider client={queryClient}>
-            <Stack screenOptions={{ headerShown: false }} />
+            <ErrorBoundary onGoHome={() => router.replace('/(tabs)')}>
+              <Stack screenOptions={{ headerShown: false }} />
+            </ErrorBoundary>
           </QueryClientProvider>
         </ThemeProvider>
       </SafeAreaProvider>

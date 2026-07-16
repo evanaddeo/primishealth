@@ -45,12 +45,14 @@
  *   GET    /api/v1/tags                                        — list active custom tags (CU-073)
  *   POST   /api/v1/tags/events                                 — log a tag event (CU-073)
  *   GET    /api/v1/tags/events?from=&to=                       — list tag events by local date (CU-073)
+ *   POST   /api/v1/data/delete-all                             — local/dev dry-run plan only (CU-087)
  *
  * Middleware registration order (matters for correctness):
  *   1. requestIdMiddleware — must run first so all handlers have a requestId
- *   2. authMiddleware      — registered on /api/v1/* routes only
- *   3. Route handlers
- *   4. onError / notFound  — always last
+ *   2. requestLoggingMiddleware — emits body-free events after route completion
+ *   3. authMiddleware      — registered on /api/v1/* routes only
+ *   4. Route handlers
+ *   5. onError / notFound  — always last
  *
  * TODO(future): Add rate limiting and CORS headers before auth middleware.
  */
@@ -59,10 +61,13 @@ import { Hono } from 'hono';
 
 import { makeErrorResponse } from '@primis/api-contracts';
 import { createAuthMiddleware, type AuthVariables } from './auth/authMiddleware.js';
-import { errorHandler } from './middleware/errorHandler.js';
+import { createErrorHandler, errorHandler } from './middleware/errorHandler.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
+import { createRequestLoggingMiddleware } from './middleware/requestLogging.js';
+import { apiLogger, type ApiLogger } from './observability/logger.js';
 import { activityRouter } from './routes/activity.js';
 import { aiChatRouter } from './routes/aiChat.js';
+import { aiSummariesRouter } from './routes/aiSummaries.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { digestionRouter } from './routes/digestion.js';
 import { healthRouter } from './routes/health.js';
@@ -72,6 +77,7 @@ import { meRouter } from './routes/me.js';
 import { nutritionRouter } from './routes/nutrition.js';
 import { onboardingRouter } from './routes/onboarding.js';
 import { meProvidersRouter, providerConnectionsRouter } from './routes/providerConnections.js';
+import { createPrivacyRouter } from './routes/privacy.js';
 import { recoveryRouter } from './routes/recovery.js';
 import { sleepRouter } from './routes/sleep.js';
 import { syncRouter } from './routes/sync.js';
@@ -103,16 +109,22 @@ export interface AppVariables extends AuthVariables {
  *
  * @returns Configured Hono app ready to handle requests.
  */
-export function createApp(): Hono<{ Variables: AppVariables }> {
+export interface CreateAppOptions {
+  readonly logger?: ApiLogger;
+}
+
+export function createApp(options: CreateAppOptions = {}): Hono<{ Variables: AppVariables }> {
   // createAuthMiddleware() enforces the production guard synchronously.
   // If ALLOW_MOCK_AUTH=true in staging/production, this throws here — not
   // on the first request — so the deployment fails fast at startup.
   const authMiddleware = createAuthMiddleware();
 
   const app = new Hono<{ Variables: AppVariables }>();
+  const logger = options.logger ?? apiLogger;
 
   // ── Global middleware ────────────────────────────────────────────────────────
   app.use('*', requestIdMiddleware);
+  app.use('*', createRequestLoggingMiddleware({ logger }));
 
   // ── Unauthenticated routes ───────────────────────────────────────────────────
   // Health probe must precede the auth middleware so load balancers can reach it
@@ -169,6 +181,7 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   // gateway → answer (+ optional SSE token stream). Backend-only; mobile never calls
   // a model provider. Persists metadata only (no raw prompts/health in logs — §19.3).
   app.route('/api/v1/ai', aiChatRouter);
+  app.route('/api/v1/ai', aiSummariesRouter);
 
   // Manual check-in routes (CU-069): the first health-data write path.
   //   POST  /api/v1/checkins            — create a check-in
@@ -204,8 +217,12 @@ export function createApp(): Hono<{ Variables: AppVariables }> {
   //   GET  /api/v1/tags/events?from=&to= — list tag events for a local-date range
   app.route('/api/v1/tags', tagRouter);
 
+  // Privacy deletion planning (CU-087): route factory returns an empty router
+  // outside local/dev mock-auth environments. It cannot schedule or execute work.
+  app.route('/api/v1/data', createPrivacyRouter());
+
   // ── Error handling ───────────────────────────────────────────────────────────
-  app.onError(errorHandler);
+  app.onError(options.logger ? createErrorHandler(logger) : errorHandler);
 
   app.notFound((c) => {
     const requestId = c.get('requestId') as string | undefined;

@@ -26,6 +26,7 @@ import { serve } from '@hono/node-server';
 import { handle } from 'hono/aws-lambda';
 
 import { createApp } from './app.js';
+import { apiLogger } from './observability/logger.js';
 
 const app = createApp();
 
@@ -44,7 +45,6 @@ if (process.env['APP_ENV'] === 'local' && process.env['NODE_ENV'] !== 'test') {
   const PORT = 3000;
 
   serve({ fetch: app.fetch, port: PORT }, (info) => {
-    console.error(`[api] Local server running at http://localhost:${info.port}`);
-    console.error('[api] Health: GET http://localhost:' + info.port + '/health');
+    apiLogger.emit('api.server.started', { port: info.port });
   });
 }

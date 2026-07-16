@@ -118,6 +118,7 @@
 export * from './activity.js';
 export * from './aiChat.js';
 export * from './aiContext.js';
+export * from './aiSummaries.js';
 export * from './chart.js';
 export * from './dashboard.js';
 export * from './dataQuality.js';
@@ -132,6 +133,7 @@ export * from './nutrition.js';
 export * from './onboarding.js';
 export * from './pagination.js';
 export * from './providerConnections.js';
+export * from './privacy.js';
 export * from './scores.js';
 export * from './sync.js';
 export * from './tags.js';

@@ -355,9 +355,7 @@ export class AiRequestController {
       stream: input.stream,
       timeoutMs: routing?.timeoutMs ?? DEFAULT_TIMEOUT_MS,
       metadata: {
-        userIdHash: input.userIdHash,
         environment: input.environment,
-        conversationId: input.conversationId,
         ...(input.sourceSurface ? { sourceSurface: input.sourceSurface } : {}),
       },
     };

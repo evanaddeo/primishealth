@@ -15,9 +15,11 @@
  * heading and a 44pt close affordance. UX-A11Y-004 / UX-MOTION-005.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
+  findNodeHandle,
   Modal,
   Pressable,
   ScrollView,
@@ -30,6 +32,7 @@ import {
 import { durations } from '../tokens/motion.js';
 import { useTheme } from '../ThemeContext.js';
 import { Text } from './Text.js';
+import { IconButton } from './IconButton.js';
 
 export interface BottomSheetProps {
   visible: boolean;
@@ -39,6 +42,10 @@ export interface BottomSheetProps {
   children?: React.ReactNode;
   /** When true, the sheet appears instantly with no transform (UX-A11Y-004). */
   reducedMotion?: boolean;
+  /** Label for the visible close control. */
+  closeAccessibilityLabel?: string;
+  /** Optional control to restore screen-reader focus to after dismissal. */
+  returnFocusRef?: React.RefObject<React.ElementRef<typeof View> | null>;
   /** Style applied to the sheet body container. */
   contentStyle?: StyleProp<ViewStyle>;
   testID?: string;
@@ -50,11 +57,15 @@ export function BottomSheet({
   title,
   children,
   reducedMotion = false,
+  closeAccessibilityLabel = 'Close sheet',
+  returnFocusRef,
   contentStyle,
   testID,
 }: BottomSheetProps): React.JSX.Element {
   const { colors, radius, spacing } = useTheme();
   const [progress] = useState(() => new Animated.Value(0));
+  const headingRef = useRef<View>(null);
+  const wasVisible = useRef(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -70,6 +81,27 @@ export function BottomSheet({
     }).start();
   }, [visible, reducedMotion, progress]);
 
+  useEffect(() => {
+    if (visible) {
+      wasVisible.current = true;
+      const timeout = setTimeout(
+        () => {
+          const target = findNodeHandle(headingRef.current);
+          if (target !== null) AccessibilityInfo.setAccessibilityFocus(target);
+        },
+        reducedMotion ? 0 : durations.expressive,
+      );
+      return () => clearTimeout(timeout);
+    }
+
+    if (wasVisible.current) {
+      wasVisible.current = false;
+      const target = findNodeHandle(returnFocusRef?.current ?? null);
+      if (target !== null) AccessibilityInfo.setAccessibilityFocus(target);
+    }
+    return undefined;
+  }, [visible, reducedMotion, returnFocusRef]);
+
   const translateY = progress.interpolate({
     inputRange: [0, 1],
     outputRange: [40, 0],
@@ -79,8 +111,9 @@ export function BottomSheet({
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
+      animationType={reducedMotion ? 'none' : 'fade'}
       onRequestClose={onClose}
+      accessibilityViewIsModal
       testID={testID}
     >
       <View style={styles.fill}>
@@ -112,16 +145,31 @@ export function BottomSheet({
               { backgroundColor: colors.borderSubtle, borderRadius: radius.pill },
             ]}
           />
-          {title !== undefined && (
-            <Text
-              variant="titleSmall"
-              weight="bold"
-              accessibilityRole="header"
-              style={{ marginBottom: spacing.md }}
-            >
-              {title}
-            </Text>
-          )}
+          <View style={[styles.headingRow, { marginBottom: spacing.md }]}>
+            {title !== undefined && (
+              <View
+                ref={headingRef}
+                accessible
+                accessibilityRole="header"
+                accessibilityLabel={title}
+                style={styles.heading}
+              >
+                <Text variant="titleSmall" weight="bold">
+                  {title}
+                </Text>
+              </View>
+            )}
+            <IconButton
+              icon={
+                <Text variant="titleMedium" weight="medium" allowFontScaling={false}>
+                  ×
+                </Text>
+              }
+              accessibilityLabel={closeAccessibilityLabel}
+              onPress={onClose}
+              {...(testID === undefined ? {} : { testID: `${testID}-close` })}
+            />
+          </View>
           <ScrollView
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
@@ -155,5 +203,15 @@ const styles = StyleSheet.create({
     height: 4,
     alignSelf: 'center',
     marginBottom: 12,
+  },
+  headingRow: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  heading: {
+    flex: 1,
   },
 });

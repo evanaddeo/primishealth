@@ -41,6 +41,8 @@ export interface TextFieldProps {
   maxLength?: number;
   returnKeyType?: TextInputProps['returnKeyType'];
   onSubmitEditing?: () => void;
+  accessibilityHint?: string;
+  accessibilityLabel?: string;
   editable?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -59,6 +61,8 @@ export function TextField({
   maxLength,
   returnKeyType,
   onSubmitEditing,
+  accessibilityHint,
+  accessibilityLabel,
   editable = true,
   style,
   testID,
@@ -94,7 +98,8 @@ export function TextField({
         editable={editable}
         returnKeyType={returnKeyType}
         onSubmitEditing={onSubmitEditing}
-        accessibilityLabel={label}
+        accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityHint={hasError ? `Error: ${error}` : accessibilityHint}
         accessibilityState={{ disabled: !editable }}
         style={[
           styles.input,

@@ -1,62 +1,27 @@
-/**
- * VitalsBanner — calm, non-blocking stale notice for the Vitals screen (CU-067).
- *
- * Surfaces a stale ("waiting on sync") state without alarm. Status is conveyed by
- * both a dot color AND text, never color alone (UX-COLOR-001).
- */
-
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
 
-import { Text, useTheme } from '@primis/design-system';
-
+import { DataStatusBanner } from '../../../components/DataStatusBanner';
 import type { VitalsBannerVm } from '../vitalsModel';
 
 export interface VitalsBannerProps {
-  banner: VitalsBannerVm;
-  testID?: string;
+  readonly banner: VitalsBannerVm;
+  readonly testID?: string;
+  readonly onAction?: () => void;
 }
 
-export function VitalsBanner({ banner, testID }: VitalsBannerProps): React.JSX.Element {
-  const { colors, radius, spacing } = useTheme();
-
+export function VitalsBanner({ banner, testID, onAction }: VitalsBannerProps): React.JSX.Element {
   return (
-    <View
-      testID={testID}
-      accessible
-      accessibilityRole="text"
-      accessibilityLabel={banner.message}
-      style={[
-        styles.banner,
-        {
-          backgroundColor: colors.surfaceElevated,
-          borderColor: colors.borderSubtle,
-          borderRadius: radius.md,
-          padding: spacing.md,
-          gap: spacing.sm,
-        },
-      ]}
-    >
-      <View style={[styles.dot, { backgroundColor: colors.status.low }]} />
-      <Text variant="bodySmall" color="secondary" style={styles.message}>
-        {banner.message}
-      </Text>
-    </View>
+    <DataStatusBanner
+      state={
+        banner.tone === 'stale'
+          ? 'stale_data'
+          : banner.tone === 'provider_unavailable'
+            ? 'provider_unavailable'
+            : 'calculation_failure'
+      }
+      body={banner.message}
+      {...(onAction === undefined ? {} : { onAction })}
+      {...(testID === undefined ? {} : { testID })}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  banner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  message: {
-    flexShrink: 1,
-  },
-});

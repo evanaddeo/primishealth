@@ -27,6 +27,7 @@ import { useTheme } from '../ThemeContext.js';
 import {
   resolveChartStateLabel,
   resolveChartEmptyHint,
+  resolveStageTimelineAccessibilitySummary,
   resolveSegmentFraction,
   STAGE_COLORS,
   STAGE_LABELS,
@@ -204,9 +205,15 @@ export function StageTimeline({
   return (
     <View
       testID={testID}
+      accessible
       accessibilityLabel={
         accessibilityLabel ??
-        `Sleep stage timeline${startTimeLabel != null ? `, ${startTimeLabel}` : ''}${endTimeLabel != null ? ` to ${endTimeLabel}` : ''}`
+        resolveStageTimelineAccessibilitySummary(
+          state,
+          startTimeLabel,
+          endTimeLabel,
+          stageSummaries,
+        )
       }
       accessibilityRole="image"
       style={[styles.container, { padding: isDetailed ? spacing.md : 0 }]}

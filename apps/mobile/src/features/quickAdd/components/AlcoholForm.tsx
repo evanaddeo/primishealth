@@ -63,7 +63,12 @@ export function AlcoholForm({
         </ChipRow>
       </View>
 
-      <Button label="Log" onPress={() => void log()} disabled={controller.pending} />
+      <Button
+        label={controller.pending ? 'Saving drinks…' : 'Log drinks'}
+        onPress={() => void log()}
+        disabled={controller.pending}
+        busy={controller.pending}
+      />
     </View>
   );
 }

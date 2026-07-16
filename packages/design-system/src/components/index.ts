@@ -18,6 +18,9 @@ export type { TextProps } from './Text.js';
 export { Button } from './Button.js';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './Button.js';
 
+export { IconButton } from './IconButton.js';
+export type { IconButtonProps } from './IconButton.js';
+
 export { MetricValue, resolveMetricDisplay } from './MetricValue.js';
 export type { MetricValueProps, MetricValueSize } from './MetricValue.js';
 

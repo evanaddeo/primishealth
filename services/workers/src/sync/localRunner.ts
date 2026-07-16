@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * Local sync runner — executes a mocked Google Health sync job without SQS or EventBridge.
  *
@@ -28,12 +27,15 @@
  */
 
 import type { SyncWindow } from '@primis/core-types';
+import { randomUUID } from 'node:crypto';
+import { classifyError } from '@primis/config';
 
 import { FakeHealthProviderConnector } from '../providers/FakeHealthProviderConnector.js';
 import { LocalRawPayloadArchive } from '../storage/LocalRawPayloadArchive.js';
 import { NoopScoringEnqueuePort } from '../normalization/writeNormalizedRecords.js';
 import { createDb, closeDb } from '../db/client.js';
 import { SyncJobRunner } from './SyncJobRunner.js';
+import { workerLogger } from '../observability/logger.js';
 
 // ---------------------------------------------------------------------------
 // runLocalMockSync
@@ -50,12 +52,6 @@ import { SyncJobRunner } from './SyncJobRunner.js';
  * @param syncWindow - Sync window to simulate (strategy + UTC timestamps).
  */
 export async function runLocalMockSync(userId: string, syncWindow: SyncWindow): Promise<void> {
-  console.log(`[localRunner] Starting local mock sync`);
-  console.log(`[localRunner] user=${userId}`);
-  console.log(
-    `[localRunner] window: ${syncWindow.startUtc.toISOString()} → ${syncWindow.endUtc.toISOString()} (${syncWindow.strategy})`,
-  );
-
   // createDb() calls loadBackendEnv() internally, which will throw a descriptive Zod
   // error if DATABASE_URL is not set — that constitutes "failing gracefully" per CU-045.
   const db = createDb();
@@ -71,30 +67,21 @@ export async function runLocalMockSync(userId: string, syncWindow: SyncWindow): 
   const runner = new SyncJobRunner(db, connector, archive, scoringPort);
 
   try {
-    const result = await runner.runJob({
+    await runner.runJob({
       userId,
       connectionId: `local-mock-conn-${userId}`,
       jobType: 'manual_refresh',
       window: syncWindow,
+      correlationId: `sync_${randomUUID()}`,
     });
-
-    console.log(`[localRunner] ✓ Sync completed`);
-    console.log(`[localRunner]   Job ID:              ${result.jobId}`);
-    console.log(`[localRunner]   Status:              ${result.status}`);
-    console.log(`[localRunner]   Records fetched:     ${result.recordsFetched}`);
-    console.log(`[localRunner]   Records normalized:  ${result.recordsNormalized}`);
-    console.log(`[localRunner]   Payloads archived:   ${result.payloadsArchived}`);
-
-    if (result.errors.length > 0) {
-      console.warn(`[localRunner] ⚠ Non-fatal errors (${result.errors.length}):`);
-      for (const err of result.errors) {
-        const dtSuffix = err.dataType !== undefined ? ` (dataType: ${err.dataType})` : '';
-        console.warn(`[localRunner]   [${err.code}] ${err.message}${dtSuffix}`);
-      }
-    }
   } catch (err) {
-    console.error(`[localRunner] ✗ Sync job failed with a fatal error.`);
-    console.error(`[localRunner]   ${err instanceof Error ? err.message : String(err)}`);
+    const safeError = classifyError(err);
+    workerLogger.emit('worker.sync.failed', {
+      jobType: 'manual_refresh',
+      durationMs: 0,
+      errorClassification: safeError.classification,
+      ...(safeError.code ? { errorCode: safeError.code } : {}),
+    });
     await closeDb();
     process.exit(1);
   }
@@ -130,10 +117,13 @@ if (runningDirectly) {
   };
 
   runLocalMockSync(userId, syncWindow).catch((err: unknown) => {
-    console.error(
-      '[localRunner] Unhandled error:',
-      err instanceof Error ? err.message : String(err),
-    );
+    const safeError = classifyError(err);
+    workerLogger.emit('worker.sync.failed', {
+      jobType: 'manual_refresh',
+      durationMs: 0,
+      errorClassification: safeError.classification,
+      ...(safeError.code ? { errorCode: safeError.code } : {}),
+    });
     process.exit(1);
   });
 }

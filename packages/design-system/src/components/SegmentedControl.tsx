@@ -67,6 +67,7 @@ export function SegmentedControl<T extends string | number>({
               key={String(option.value)}
               accessibilityRole="radio"
               accessibilityLabel={option.label}
+              accessibilityHint="Selects this option"
               accessibilityState={{ selected }}
               onPress={() => onChange(option.value)}
               style={[
@@ -81,8 +82,7 @@ export function SegmentedControl<T extends string | number>({
               <Text
                 variant="bodyMedium"
                 weight={selected ? 'semibold' : 'regular'}
-                style={{ color: selected ? colors.bg : colors.textSecondary }}
-                numberOfLines={1}
+                style={{ color: selected ? colors.bg : colors.textSecondary, textAlign: 'center' }}
               >
                 {option.label}
               </Text>
@@ -97,13 +97,16 @@ export function SegmentedControl<T extends string | number>({
 const styles = StyleSheet.create({
   track: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
   },
   segment: {
     flex: 1,
+    flexBasis: 44,
     minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 8,
+    paddingVertical: 8,
   },
 });

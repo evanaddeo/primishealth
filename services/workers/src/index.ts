@@ -13,4 +13,6 @@
  * package resolves correctly for downstream consumers before any logic is added.
  */
 
-export {};
+export * from './privacy/deletionInventory.js';
+export * from './privacy/deleteUserData.js';
+export * from './observability/logger.js';

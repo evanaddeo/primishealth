@@ -37,6 +37,7 @@ import type {
 import { useQuery } from '@tanstack/react-query';
 
 import { API_ENDPOINTS, ApiClientError, MockModeError, apiClient } from '../../api';
+import { PERFORMANCE_EVENT_CODES, performanceMarks } from '../../performance/performanceMarks';
 import {
   DEFAULT_MOCK_CONNECTION_STATE,
   MOCK_GOOGLE_HEALTH_CAPABILITIES,
@@ -65,6 +66,8 @@ export type ConnectionsPendingAction = 'authorize' | 'disconnect' | 'refresh' | 
 
 export interface ConnectionsController {
   readonly loadStatus: ConnectionsLoadStatus;
+  /** Cached connection data remains visible while a reload is in flight. */
+  readonly isRefreshing: boolean;
   readonly uiState: ConnectionUiState;
   readonly connection: ProviderConnectionDto | null;
   readonly syncStatus: SyncStatusDto | null;
@@ -225,6 +228,7 @@ export function useConnections(): ConnectionsController {
   }, [refetch, query.data?.connection?.id]);
 
   const refresh = useCallback(async (): Promise<void> => {
+    const span = performanceMarks.start(PERFORMANCE_EVENT_CODES.SYNC_PROVIDER_REFRESH);
     setPendingAction('refresh');
     setNotice(null);
     setActionError(null);
@@ -232,13 +236,16 @@ export function useConnections(): ConnectionsController {
       await apiClient.post(API_ENDPOINTS.SYNC_REFRESH, { providerCode: GOOGLE_HEALTH });
       await refetch();
       setNotice('Refresh requested. Your latest data will appear once the sync finishes.');
+      span.finish('completed');
     } catch (err) {
       if (err instanceof MockModeError) {
         mockStateRef.current = 'active';
         await refetch();
         setNotice('Mock mode: queued a refresh and simulated a fresh sync.');
+        span.finish('completed');
       } else {
         setActionError(connectionErrorMessage(err));
+        span.finish('failed');
       }
     } finally {
       setPendingAction(null);
@@ -247,11 +254,9 @@ export function useConnections(): ConnectionsController {
 
   const dismissNotice = useCallback((): void => setNotice(null), []);
 
-  const loadStatus: ConnectionsLoadStatus = query.isError
-    ? 'error'
-    : query.isSuccess
-      ? 'ready'
-      : 'loading';
+  const hasData = query.data !== undefined;
+  const loadStatus: ConnectionsLoadStatus =
+    query.isError && !hasData ? 'error' : hasData ? 'ready' : 'loading';
 
   const now = new Date();
   const connection = query.data?.connection ?? null;
@@ -265,10 +270,11 @@ export function useConnections(): ConnectionsController {
     now,
   });
 
-  const errorMessage = loadStatus === 'error' ? connectionErrorMessage(query.error) : actionError;
+  const errorMessage = query.isError ? connectionErrorMessage(query.error) : actionError;
 
   return {
     loadStatus,
+    isRefreshing: query.isFetching && hasData,
     uiState,
     connection,
     syncStatus,

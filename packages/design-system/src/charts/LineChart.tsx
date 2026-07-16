@@ -20,7 +20,11 @@ import { View, Text as RNText, ActivityIndicator, StyleSheet } from 'react-nativ
 
 import { useTheme } from '../ThemeContext.js';
 import { spacing } from '../tokens/spacing.js';
-import { resolveChartStateLabel, resolveChartEmptyHint } from './chartResolvers.js';
+import {
+  resolveChartAccessibilitySummary,
+  resolveChartStateLabel,
+  resolveChartEmptyHint,
+} from './chartResolvers.js';
 import type { ChartPoint, ChartState } from './types.js';
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -42,6 +46,8 @@ export interface LineChartProps {
    * Required per UX-CHART-003.
    */
   timeRange: string;
+  /** Metric name included in the generated screen-reader summary. */
+  metricLabel?: string;
   /** Content-availability state. Controls loading/empty/error overlays. */
   state: ChartState;
   /** Optional shaded baseline band. Useful for HRV/RHR trend context (UX-CHART-004). */
@@ -79,6 +85,7 @@ export function LineChart({
   data,
   unit,
   timeRange,
+  metricLabel,
   state,
   baselineBand,
   height = CHART_DEFAULT_HEIGHT,
@@ -94,7 +101,19 @@ export function LineChart({
   return (
     <View
       testID={testID}
-      accessibilityLabel={accessibilityLabel ?? `Line chart — ${unit}, ${timeRange}`}
+      accessible
+      accessibilityLabel={
+        accessibilityLabel ??
+        resolveChartAccessibilitySummary({
+          chartType: 'line',
+          ...(metricLabel === undefined ? {} : { metricLabel }),
+          data,
+          unit,
+          timeRange,
+          state,
+          ...(baselineBand === undefined ? {} : { baseline: baselineBand }),
+        })
+      }
       accessibilityRole="image"
       style={[
         styles.container,

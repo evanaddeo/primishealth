@@ -11,7 +11,7 @@
       "distribution": "internal",
       "channel": "dev",
       "env": {
-        "APP_ENV": "development"
+        "APP_ENV": "dev"
       },
       "ios": {
         "resourceClass": "m-medium",
@@ -23,7 +23,7 @@
       "distribution": "internal",
       "channel": "preview",
       "env": {
-        "APP_ENV": "preview"
+        "APP_ENV": "staging"
       },
       "ios": {
         "resourceClass": "m-medium"
@@ -35,7 +35,7 @@
       "channel": "production",
       "autoIncrement": true,
       "env": {
-        "APP_ENV": "production"
+        "APP_ENV": "prod"
       },
       "ios": {
         "resourceClass": "m-medium"

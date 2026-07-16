@@ -22,16 +22,40 @@
 
 import type { TrendSeriesDto } from '@primis/api-contracts';
 
+import type { DataStateKind } from '../../components/dataStateModel';
+
 const EM_DASH = '—';
 
 // ── Local shape (stands in for a future contract DTO) ───────────────────────────
 
 /**
- * Availability state for a body-composition day. Mirrors the spirit of the
- * vitals `ScoreState` but stays local: `not_available` covers "no source
- * connected yet", which is the common case until a scale is linked.
+ * Availability state for a body-composition day. It stays local until a shared
+ * endpoint exists, but preserves the common provider/history/error meanings.
  */
-export type BodyCompositionState = 'available' | 'not_available';
+export type BodyCompositionState =
+  | 'available'
+  | 'empty'
+  | 'provider_disconnected'
+  | 'provider_unavailable'
+  | 'provider_unverified'
+  | 'stale_data'
+  | 'not_enough_history'
+  | 'api_error';
+
+export function dataStateFromBodyCompositionState(state: BodyCompositionState): DataStateKind {
+  switch (state) {
+    case 'available':
+    case 'empty':
+      return 'empty';
+    case 'provider_disconnected':
+    case 'provider_unavailable':
+    case 'provider_unverified':
+    case 'stale_data':
+    case 'not_enough_history':
+    case 'api_error':
+      return state;
+  }
+}
 
 /** The latest body-composition readings; every field is independently nullable. */
 export interface BodyCompositionMetrics {
@@ -88,15 +112,33 @@ export function resolveBodyCompFreshness(
 
 /** True when there is at least one body-composition trend worth charting. */
 export function hasBodyCompositionData(detail: BodyCompositionDetail): boolean {
-  return detail.state === 'available' && detail.trends.some((t) => trendHasData(t.points));
+  return (
+    (detail.state === 'available' ||
+      detail.state === 'stale_data' ||
+      detail.state === 'provider_unverified') &&
+    detail.trends.some((t) => trendHasData(t.points))
+  );
 }
 
 /** Short, non-medical explanation for an empty body-composition state. */
 export function resolveEmptyBodyCompMessage(detail: BodyCompositionDetail): string {
-  if (detail.state === 'not_available') {
-    return 'Connect a smart scale or body-composition source to see weight, body fat, and lean-mass trends here.';
+  switch (detail.state) {
+    case 'provider_disconnected':
+      return 'Connect a smart scale or body-composition source to see weight, body fat, and lean-mass trends here.';
+    case 'provider_unavailable':
+      return 'Your body-composition source is unavailable right now. Saved measurements remain unchanged.';
+    case 'provider_unverified':
+      return 'Body-composition availability has not been confirmed for this source yet.';
+    case 'stale_data':
+      return 'No fresh body-composition measurement has synced yet.';
+    case 'not_enough_history':
+      return 'A few more measurements are needed before Primis can show a useful trend.';
+    case 'api_error':
+      return 'Primis could not load body-composition data right now.';
+    case 'available':
+    case 'empty':
+      return 'No body-composition measurements yet. They’ll appear here once your source syncs a reading.';
   }
-  return 'No body-composition measurements yet. They’ll appear here once your source syncs a reading.';
 }
 
 // ── Current-value summary rows (secondary to the trends) ────────────────────────

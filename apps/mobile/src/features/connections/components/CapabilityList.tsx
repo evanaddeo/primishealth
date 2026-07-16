@@ -17,6 +17,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Card, StatusBadge, Text, useTheme } from '@primis/design-system';
 
+import { DataStatusBanner } from '../../../components/DataStatusBanner';
 import { UNVERIFIED_AVAILABILITY_NOTE, type CapabilityView } from '../connectionState';
 
 export interface CapabilityListProps {
@@ -34,7 +35,7 @@ export function CapabilityList({ capabilities, testID }: CapabilityListProps): R
           Health data Primis reads
         </Text>
         <Text variant="bodySmall" color="secondary">
-          {UNVERIFIED_AVAILABILITY_NOTE}
+          Availability depends on the connected device, permissions, and data recorded.
         </Text>
       </View>
 
@@ -57,10 +58,23 @@ export function CapabilityList({ capabilities, testID }: CapabilityListProps): R
         ))}
       </View>
 
+      {capabilities.some((capability) => !capability.verified) && (
+        <View style={{ marginTop: spacing.md }}>
+          <DataStatusBanner
+            state="provider_unverified"
+            body={UNVERIFIED_AVAILABILITY_NOTE}
+            testID="capabilities-unverified"
+          />
+        </View>
+      )}
+
       {capabilities.length === 0 && (
-        <Text variant="bodyMedium" color="muted" style={{ marginTop: spacing.sm }}>
-          No data types are listed for this provider yet.
-        </Text>
+        <DataStatusBanner
+          state="empty"
+          title="No capabilities listed"
+          body="No data types are listed for this provider yet."
+          testID="capabilities-empty"
+        />
       )}
 
       <View

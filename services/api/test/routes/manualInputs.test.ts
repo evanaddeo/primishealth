@@ -24,25 +24,29 @@ import { Hono } from 'hono';
 // Mock @primis/config so createApp() (which calls createAuthMiddleware via
 // loadBackendEnv) doesn't fail with missing env vars in the test environment.
 // ALLOW_MOCK_AUTH=false makes a request without an Authorization header → 401.
-vi.mock('@primis/config', () => ({
-  loadBackendEnv: vi.fn().mockReturnValue({
-    ALLOW_MOCK_AUTH: false,
-    APP_ENV: 'local',
-    NODE_ENV: 'development',
-    DATABASE_URL: 'postgres://primis:primis@localhost:5432/primis_dev',
-    DATABASE_SSL: false,
-    COGNITO_USER_POOL_ID: 'PLACEHOLDER',
-    COGNITO_CLIENT_ID: 'PLACEHOLDER',
-    COGNITO_REGION: 'us-east-1',
-    GOOGLE_HEALTH_CLIENT_ID: 'PLACEHOLDER',
-    GOOGLE_HEALTH_CLIENT_SECRET: 'PLACEHOLDER',
-    OPENAI_API_KEY: 'PLACEHOLDER',
-    ANTHROPIC_API_KEY: 'PLACEHOLDER',
-    AWS_REGION: 'us-east-1',
-    EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
-    EXPO_PUBLIC_MOCK_MODE: 'true',
-  }),
-}));
+vi.mock('@primis/config', async () => {
+  const actual = await vi.importActual<typeof import('@primis/config')>('@primis/config');
+  return {
+    ...actual,
+    loadBackendEnv: vi.fn().mockReturnValue({
+      ALLOW_MOCK_AUTH: false,
+      APP_ENV: 'local',
+      NODE_ENV: 'development',
+      DATABASE_URL: 'postgres://primis:primis@localhost:5432/primis_dev',
+      DATABASE_SSL: false,
+      COGNITO_USER_POOL_ID: 'PLACEHOLDER',
+      COGNITO_CLIENT_ID: 'PLACEHOLDER',
+      COGNITO_REGION: 'us-east-1',
+      GOOGLE_HEALTH_CLIENT_ID: 'PLACEHOLDER',
+      GOOGLE_HEALTH_CLIENT_SECRET: 'PLACEHOLDER',
+      OPENAI_API_KEY: 'PLACEHOLDER',
+      ANTHROPIC_API_KEY: 'PLACEHOLDER',
+      AWS_REGION: 'us-east-1',
+      EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
+      EXPO_PUBLIC_MOCK_MODE: 'true',
+    }),
+  };
+});
 
 import {
   ManualCheckinDtoSchema,

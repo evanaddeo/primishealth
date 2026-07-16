@@ -20,6 +20,7 @@ import { View } from 'react-native';
 import { BottomSheet, Button, Text, useTheme } from '@primis/design-system';
 
 import { useQuickAdd } from '../../api/hooks/useQuickAdd';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { resolveTimeAnchors, type TimeAnchors } from './quickAddModel';
 import { AlcoholForm } from './components/AlcoholForm';
@@ -34,6 +35,7 @@ import type { QuickAddFormProps } from './components/types';
 export interface QuickAddSheetProps {
   visible: boolean;
   onClose: () => void;
+  returnFocusRef?: React.RefObject<View | null>;
 }
 
 const TITLES: Record<QuickAddCategory, string> = {
@@ -54,7 +56,11 @@ const FORMS: Record<QuickAddCategory, (props: QuickAddFormProps) => React.JSX.El
   digestion: DigestionForm,
 };
 
-export function QuickAddSheet({ visible, onClose }: QuickAddSheetProps): React.JSX.Element {
+export function QuickAddSheet({
+  visible,
+  onClose,
+  returnFocusRef,
+}: QuickAddSheetProps): React.JSX.Element {
   const { spacing } = useTheme();
   const { isReducedMotion } = useReducedMotion();
   const controller = useQuickAdd();
@@ -67,6 +73,7 @@ export function QuickAddSheet({ visible, onClose }: QuickAddSheetProps): React.J
   function handleClose(): void {
     setCategory(null);
     setConfirmation(null);
+    controller.clearError();
     onClose();
   }
 
@@ -84,6 +91,7 @@ export function QuickAddSheet({ visible, onClose }: QuickAddSheetProps): React.J
       onClose={handleClose}
       title={title}
       reducedMotion={isReducedMotion}
+      {...(returnFocusRef === undefined ? {} : { returnFocusRef })}
       testID="quick-add-sheet"
     >
       <View style={{ gap: spacing.lg }}>
@@ -98,11 +106,30 @@ export function QuickAddSheet({ visible, onClose }: QuickAddSheetProps): React.J
           </Text>
         )}
 
+        {controller.errorMessage !== null && (
+          <DataStatusBanner
+            state="api_error"
+            title="Entry not saved"
+            body={controller.errorMessage}
+            testID="quickadd-error"
+          />
+        )}
+
+        {controller.pending && (
+          <DataStatusBanner
+            state="refreshing"
+            title="Saving entry"
+            body="Your input stays in place until saving finishes."
+            testID="quickadd-saving"
+          />
+        )}
+
         {ActiveForm === null ? (
           <QuickAddMenu
             controller={controller}
             onSelect={(c) => {
               setConfirmation(null);
+              controller.clearError();
               setCategory(c);
             }}
           />
@@ -113,7 +140,14 @@ export function QuickAddSheet({ visible, onClose }: QuickAddSheetProps): React.J
               buildAnchors={buildAnchors}
               onLogged={handleLogged}
             />
-            <Button variant="ghost" label="Back" onPress={() => setCategory(null)} />
+            <Button
+              variant="ghost"
+              label="Back"
+              onPress={() => {
+                controller.clearError();
+                setCategory(null);
+              }}
+            />
           </View>
         )}
       </View>

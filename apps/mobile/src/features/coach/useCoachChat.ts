@@ -24,6 +24,11 @@ import { loadPublicEnv } from '@primis/config';
 
 import { streamCoachMessage, type CoachStreamHandle } from '../../api/streamCoachMessage';
 import {
+  PERFORMANCE_EVENT_CODES,
+  performanceMarks,
+  type PerformanceSpan,
+} from '../../performance/performanceMarks';
+import {
   applyStreamEvent,
   createPendingAssistantMessage,
   createUserMessage,
@@ -63,6 +68,7 @@ export function useCoachChat(): CoachChatController {
   const [isStreaming, setIsStreaming] = useState(false);
 
   const handleRef = useRef<CoachStreamHandle | null>(null);
+  const firstTokenSpanRef = useRef<PerformanceSpan | null>(null);
   const conversationIdRef = useRef<string | undefined>(undefined);
   const lastUserTextRef = useRef<string | null>(null);
   const lastOptionsRef = useRef<CoachSendOptions | undefined>(undefined);
@@ -71,11 +77,15 @@ export function useCoachChat(): CoachChatController {
   useEffect(() => {
     return () => {
       handleRef.current?.cancel();
+      firstTokenSpanRef.current?.finish('cancelled');
+      firstTokenSpanRef.current = null;
     };
   }, []);
 
   const runTurn = useCallback((text: string, options: CoachSendOptions | undefined): void => {
     handleRef.current?.cancel();
+    firstTokenSpanRef.current?.finish('cancelled');
+    firstTokenSpanRef.current = performanceMarks.start(PERFORMANCE_EVENT_CODES.COACH_FIRST_TOKEN);
 
     const assistant = createPendingAssistantMessage();
     setMessages((prev) => [...prev, assistant]);
@@ -103,6 +113,16 @@ export function useCoachChat(): CoachChatController {
 
     handleRef.current = streamCoachMessage(request, {
       onEvent: (event) => {
+        if (event.type === 'token') {
+          firstTokenSpanRef.current?.finish('completed');
+          firstTokenSpanRef.current = null;
+        } else if (event.type === 'error') {
+          firstTokenSpanRef.current?.finish('failed');
+          firstTokenSpanRef.current = null;
+        } else if (event.type === 'metadata') {
+          firstTokenSpanRef.current?.finish('not_visible');
+          firstTokenSpanRef.current = null;
+        }
         setMessages((prev) =>
           prev.map((m) => (m.id === assistant.id ? applyStreamEvent(m, event) : m)),
         );

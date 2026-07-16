@@ -14,7 +14,11 @@
  */
 
 import { type Context } from 'hono';
+import { routePath } from 'hono/route';
 import { type ApiErrorCode, makeErrorResponse } from '@primis/api-contracts';
+import { classifyError } from '@primis/config';
+
+import { apiLogger, type ApiLogger } from '../observability/logger.js';
 
 /**
  * Maps a caught error to an `ApiErrorCode`.
@@ -40,19 +44,42 @@ function toErrorCode(err: unknown): ApiErrorCode {
  * @returns A 500 `ApiErrorResponse`; status 400/404/etc. will be added in later CUs
  *          when domain-specific error classes are introduced.
  */
-export function errorHandler(err: Error, c: Context): Response {
-  const code = toErrorCode(err);
+export function createErrorHandler(logger: ApiLogger = apiLogger) {
+  return (err: Error, c: Context): Response => {
+    const code = toErrorCode(err);
 
-  // Preserve the request ID if the requestIdMiddleware already set it.
-  const requestId = c.get('requestId') as string | undefined;
+    // Preserve the request ID if the requestIdMiddleware already set it.
+    const requestId = c.get('requestId') as string | undefined;
+    const safeError = classifyError(err);
 
-  const body = makeErrorResponse(
-    code,
-    'An unexpected error occurred.',
-    undefined,
-    undefined,
-    requestId,
-  );
+    logger.emit(
+      'api.request.failed',
+      {
+        method: c.req.method.toUpperCase() as
+          | 'DELETE'
+          | 'GET'
+          | 'OPTIONS'
+          | 'PATCH'
+          | 'POST'
+          | 'PUT',
+        route: routePath(c, -1),
+        statusCode: 500,
+        errorClassification: safeError.classification,
+        ...(safeError.code ? { errorCode: safeError.code } : {}),
+      },
+      requestId ? { requestId } : {},
+    );
 
-  return c.json(body, 500);
+    const body = makeErrorResponse(
+      code,
+      'An unexpected error occurred.',
+      undefined,
+      undefined,
+      requestId,
+    );
+
+    return c.json(body, 500);
+  };
 }
+
+export const errorHandler = createErrorHandler();

@@ -45,11 +45,11 @@ export function BodyCompTrendCard({
           </Text>
           <LineChart
             data={trend.points}
+            metricLabel={trend.label}
             unit={trend.unit ?? ''}
             timeRange="Recent"
             state={trendHasData(trend.points) ? 'data' : 'empty'}
             reducedMotion={reducedMotion}
-            accessibilityLabel={`${trend.label} across recent weigh-ins, in ${trend.unit ?? 'units'}.`}
           />
         </View>
       ))}

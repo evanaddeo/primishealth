@@ -79,6 +79,8 @@ export function Composer({
         multiline
         editable={!isStreaming}
         accessibilityLabel="Message the coach"
+        accessibilityHint={isStreaming ? 'Wait for the current response to finish' : undefined}
+        accessibilityState={{ disabled: isStreaming, busy: isStreaming }}
         style={[
           styles.input,
           {

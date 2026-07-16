@@ -13,14 +13,21 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  type AccessibilityState,
   type PressableStateCallbackType,
   type StyleProp,
   type TextStyle,
+  type View,
   type ViewStyle,
 } from 'react-native';
 
 import type { Theme } from '../theme.js';
 import { useTheme } from '../ThemeContext.js';
+import {
+  MIN_TOUCH_TARGET,
+  resolveControlAccessibilityHint,
+  resolveControlAccessibilityState,
+} from '../utils/accessibility.js';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -34,6 +41,9 @@ export interface ButtonProps {
   testID?: string;
   accessibilityLabel?: string;
   accessibilityHint?: string;
+  accessibilityState?: AccessibilityState;
+  /** Announces an in-progress action without making the label itself unstable. */
+  busy?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -50,24 +60,29 @@ interface SizeConfig {
 // TODO(design): align paddingHorizontal values with spacing tokens once button
 // size spec is finalised with founder. 28 does not map to any current token.
 const SIZE_CONFIG: Record<ButtonSize, SizeConfig> = {
-  sm: { height: 44, paddingHorizontal: 16, fontSize: 14, lineHeight: 20 },
+  sm: { height: MIN_TOUCH_TARGET, paddingHorizontal: 16, fontSize: 14, lineHeight: 20 },
   md: { height: 52, paddingHorizontal: 24, fontSize: 16, lineHeight: 22 },
   lg: { height: 60, paddingHorizontal: 28, fontSize: 18, lineHeight: 24 },
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function Button({
-  variant = 'primary',
-  label,
-  onPress,
-  disabled = false,
-  size = 'md',
-  testID,
-  accessibilityLabel,
-  accessibilityHint,
-  style,
-}: ButtonProps): React.JSX.Element {
+export const Button = React.forwardRef<View, ButtonProps>(function Button(
+  {
+    variant = 'primary',
+    label,
+    onPress,
+    disabled = false,
+    size = 'md',
+    testID,
+    accessibilityLabel,
+    accessibilityHint,
+    accessibilityState,
+    busy = false,
+    style,
+  },
+  ref,
+): React.JSX.Element {
   const theme = useTheme();
   const cfg = SIZE_CONFIG[size];
 
@@ -80,28 +95,32 @@ export function Button({
 
   return (
     <Pressable
+      ref={ref}
       onPress={disabled ? undefined : onPress}
       disabled={disabled}
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled }}
+      accessibilityHint={resolveControlAccessibilityHint(
+        variant === 'destructive',
+        accessibilityHint,
+      )}
+      accessibilityState={resolveControlAccessibilityState(disabled, busy, accessibilityState)}
       style={containerStyle}
     >
-      <Text style={resolveLabelStyle(variant, theme, cfg)}>{label}</Text>
+      <Text style={[resolveLabelStyle(variant, theme, cfg), styles.label]}>{label}</Text>
     </Pressable>
   );
-}
+});
 
 // ── Style resolvers ───────────────────────────────────────────────────────────
 
 function resolveContainerStyle(variant: ButtonVariant, theme: Theme, cfg: SizeConfig): ViewStyle {
   const { colors, radius } = theme;
   const base: ViewStyle = {
-    minHeight: 44, // UX-BTN-001: never below 44pt touch target
-    height: cfg.height,
+    minHeight: cfg.height, // grows vertically with Dynamic Type; never below 44pt
     paddingHorizontal: cfg.paddingHorizontal,
+    paddingVertical: 8,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -151,5 +170,9 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.38,
+  },
+  label: {
+    flexShrink: 1,
+    textAlign: 'center',
   },
 });

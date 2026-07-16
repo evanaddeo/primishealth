@@ -35,6 +35,7 @@ export interface BodyCompositionController {
   readonly detail: BodyCompositionDetail | null;
   readonly status: BodyCompositionStatus;
   readonly isRefreshing: boolean;
+  readonly hasRefreshError: boolean;
   readonly refetch: () => Promise<void>;
 }
 
@@ -63,6 +64,7 @@ export function useBodyComposition(): BodyCompositionController {
     detail,
     status,
     isRefreshing: query.isFetching && detail !== null,
+    hasRefreshError: query.isError && detail !== null,
     refetch,
   };
 }

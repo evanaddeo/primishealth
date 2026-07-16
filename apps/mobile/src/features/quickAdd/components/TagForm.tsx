@@ -76,6 +76,7 @@ export function TagForm({
           label={`Create & log “${trimmed}”`}
           onPress={() => void createAndLog()}
           disabled={controller.pending}
+          busy={controller.pending}
         />
       )}
     </View>

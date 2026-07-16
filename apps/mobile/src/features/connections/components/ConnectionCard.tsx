@@ -88,6 +88,7 @@ export function ConnectionCard({
             label={primaryLabel(copy, pendingAction)}
             onPress={onAuthorize}
             disabled={busy}
+            busy={pendingAction === 'authorize'}
             accessibilityHint="Opens the Google Health data permission flow"
             {...tid('primary')}
           />
@@ -99,17 +100,21 @@ export function ConnectionCard({
             label={pendingAction === 'refresh' ? 'Refreshing…' : 'Refresh now'}
             onPress={onRefresh}
             disabled={busy}
+            busy={pendingAction === 'refresh'}
+            accessibilityHint="Checks Google Health for newly synced data"
             {...tid('refresh')}
           />
         )}
 
         {copy.canDisconnect && (
           <Button
-            variant="ghost"
+            variant="destructive"
             label={pendingAction === 'disconnect' ? 'Disconnecting…' : 'Disconnect'}
             onPress={onDisconnect}
             disabled={busy}
-            accessibilityHint="Stops Primis from reading new Google Health data"
+            busy={pendingAction === 'disconnect'}
+            accessibilityLabel="Disconnect Google Health"
+            accessibilityHint="Destructive connection action. Stops Primis from reading new Google Health data"
             {...tid('disconnect')}
           />
         )}

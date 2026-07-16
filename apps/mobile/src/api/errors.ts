@@ -15,6 +15,7 @@
 
 import type { ApiErrorCode } from '@primis/api-contracts';
 import { ApiErrorResponseSchema } from '@primis/api-contracts';
+import { sanitizeCorrelationId } from '@primis/config';
 
 // ---------------------------------------------------------------------------
 // ApiClientError
@@ -46,12 +47,16 @@ export class ApiClientError extends Error {
   readonly code: ApiErrorCode;
   /** HTTP status code of the response that triggered this error. */
   readonly status: number;
+  /** Safe backend correlation ID, when the error envelope supplied one. */
+  readonly requestId?: string;
 
-  constructor(code: ApiErrorCode, message: string, status: number) {
+  constructor(code: ApiErrorCode, message: string, status: number, requestId?: string) {
     super(message);
     this.name = 'ApiClientError';
     this.code = code;
     this.status = status;
+    const safeRequestId = sanitizeCorrelationId(requestId);
+    if (safeRequestId !== undefined) this.requestId = safeRequestId;
 
     // Maintain proper prototype chain in transpiled ES5 environments (React Native).
     Object.setPrototypeOf(this, ApiClientError.prototype);
@@ -111,7 +116,12 @@ export class MockModeError extends Error {
 export function parseApiError(status: number, body: unknown): ApiClientError {
   const parsed = ApiErrorResponseSchema.safeParse(body);
   if (parsed.success) {
-    return new ApiClientError(parsed.data.error.code, parsed.data.error.message, status);
+    return new ApiClientError(
+      parsed.data.error.code,
+      parsed.data.error.message,
+      status,
+      parsed.data.requestId,
+    );
   }
 
   // Body did not conform to ApiErrorResponse — use a generic status description.

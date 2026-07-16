@@ -18,24 +18,28 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // Environment mock — must appear before any import that reads process.env
 // ---------------------------------------------------------------------------
 
-vi.mock('@primis/config', () => ({
-  loadBackendEnv: vi.fn().mockReturnValue({
-    DATABASE_URL: 'postgres://primis:primis@localhost:5432/primis_test',
-    DATABASE_SSL: false,
-    NODE_ENV: 'test',
-    APP_ENV: 'local',
-    EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
-    EXPO_PUBLIC_MOCK_MODE: 'true',
-    COGNITO_USER_POOL_ID: 'PLACEHOLDER',
-    COGNITO_CLIENT_ID: 'PLACEHOLDER',
-    COGNITO_REGION: 'us-east-1',
-    GOOGLE_HEALTH_CLIENT_ID: 'PLACEHOLDER',
-    GOOGLE_HEALTH_CLIENT_SECRET: 'PLACEHOLDER',
-    OPENAI_API_KEY: 'PLACEHOLDER',
-    ANTHROPIC_API_KEY: 'PLACEHOLDER',
-    AWS_REGION: 'us-east-1',
-  }),
-}));
+vi.mock('@primis/config', async () => {
+  const actual = await vi.importActual<typeof import('@primis/config')>('@primis/config');
+  return {
+    ...actual,
+    loadBackendEnv: vi.fn().mockReturnValue({
+      DATABASE_URL: 'postgres://primis:primis@localhost:5432/primis_test',
+      DATABASE_SSL: false,
+      NODE_ENV: 'test',
+      APP_ENV: 'local',
+      EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
+      EXPO_PUBLIC_MOCK_MODE: 'true',
+      COGNITO_USER_POOL_ID: 'PLACEHOLDER',
+      COGNITO_CLIENT_ID: 'PLACEHOLDER',
+      COGNITO_REGION: 'us-east-1',
+      GOOGLE_HEALTH_CLIENT_ID: 'PLACEHOLDER',
+      GOOGLE_HEALTH_CLIENT_SECRET: 'PLACEHOLDER',
+      OPENAI_API_KEY: 'PLACEHOLDER',
+      ANTHROPIC_API_KEY: 'PLACEHOLDER',
+      AWS_REGION: 'us-east-1',
+    }),
+  };
+});
 
 // Mock pg.Pool to prevent real TCP connections.
 const mockPoolEnd = vi.fn().mockResolvedValue(undefined);

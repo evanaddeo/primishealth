@@ -79,7 +79,7 @@ export function resolveVitalsFreshness(
 
 // ── Top-level banner + empty states ────────────────────────────────────────────
 
-export type VitalsBannerTone = 'stale' | 'none';
+export type VitalsBannerTone = 'stale' | 'provider_unavailable' | 'calculation_failure';
 
 export interface VitalsBannerVm {
   readonly tone: VitalsBannerTone;
@@ -93,6 +93,18 @@ export interface VitalsBannerVm {
 export function resolveVitalsBanner(detail: VitalsDetailResponseDto): VitalsBannerVm | null {
   if (detail.state === 'stale_data') {
     return { tone: 'stale', message: 'Waiting on a fresh sync to update today’s vitals.' };
+  }
+  if (detail.state === 'provider_unavailable') {
+    return {
+      tone: 'provider_unavailable',
+      message: 'Showing saved vitals while your source is unavailable.',
+    };
+  }
+  if (detail.state === 'calculation_error') {
+    return {
+      tone: 'calculation_failure',
+      message: 'The latest saved vitals remain visible while Primis retries this result.',
+    };
   }
   return null;
 }

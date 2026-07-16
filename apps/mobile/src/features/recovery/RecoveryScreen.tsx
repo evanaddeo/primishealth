@@ -19,12 +19,16 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Animated, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, View } from 'react-native';
 
-import { Button, Card, Screen, Text, useTheme } from '@primis/design-system';
+import { Card, Screen, Text, useTheme } from '@primis/design-system';
 import { useRouter } from 'expo-router';
 
 import { useRecoveryDetail } from '../../api/hooks/useRecoveryDetail';
+import { DataStatePanel } from '../../components/DataStatePanel';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
+import { MissingMetricMessage } from '../../components/MissingMetricMessage';
+import { dataStateFromScoreState } from '../../components/dataStateModel';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { VITALS_ROUTE } from '../vitals/routes';
 import {
@@ -43,10 +47,10 @@ import {
 } from './components';
 
 export function RecoveryScreen(): React.JSX.Element {
-  const { colors, spacing } = useTheme();
+  const { spacing } = useTheme();
   const router = useRouter();
   const { getTimingConfig, isReducedMotion } = useReducedMotion();
-  const { detail, status, refetch } = useRecoveryDetail();
+  const { detail, status, isRefreshing, hasRefreshError, refetch } = useRecoveryDetail();
 
   // Subtle mount fade — token-driven duration, instant under reduced motion.
   const [fade] = useState(() => new Animated.Value(0));
@@ -62,26 +66,12 @@ export function RecoveryScreen(): React.JSX.Element {
   if (detail === null) {
     return (
       <Screen testID="screen-recovery" contentStyle={{ paddingTop: spacing.xl }}>
-        {status === 'error' ? (
-          <Card testID="recovery-error">
-            <View style={{ gap: spacing.sm }}>
-              <Text variant="bodyLarge" weight="semibold">
-                Couldn’t load your recovery
-              </Text>
-              <Text variant="bodyMedium" color="secondary">
-                Pull the latest once you’re back online.
-              </Text>
-              <Button variant="secondary" label="Try again" onPress={() => void refetch()} />
-            </View>
-          </Card>
-        ) : (
-          <View style={[styles.center, { gap: spacing.sm }]} testID="recovery-loading">
-            <ActivityIndicator color={colors.accent} />
-            <Text variant="bodyMedium" color="secondary">
-              Loading today’s recovery…
-            </Text>
-          </View>
-        )}
+        <DataStatePanel
+          state={status === 'error' ? 'api_error' : 'initial_loading'}
+          title={status === 'error' ? 'Couldn’t load your recovery' : 'Loading today’s recovery'}
+          {...(status === 'error' ? { onAction: () => void refetch() } : {})}
+          testID={status === 'error' ? 'recovery-error' : 'recovery-loading'}
+        />
       </Screen>
     );
   }
@@ -99,7 +89,24 @@ export function RecoveryScreen(): React.JSX.Element {
           </Text>
         </View>
 
-        {banner !== null && <RecoveryBanner banner={banner} testID="recovery-banner" />}
+        {isRefreshing && <DataStatusBanner state="refreshing" testID="recovery-refreshing" />}
+        {hasRefreshError && (
+          <DataStatusBanner
+            state="api_error"
+            title="Couldn’t update recovery"
+            body="Showing your latest saved recovery data."
+            onAction={() => void refetch()}
+            testID="recovery-refresh-error"
+          />
+        )}
+
+        {banner !== null && (
+          <RecoveryBanner
+            banner={banner}
+            onAction={() => void refetch()}
+            testID="recovery-banner"
+          />
+        )}
 
         {detail.score !== null && (
           <RecoveryScoreHero
@@ -107,6 +114,14 @@ export function RecoveryScreen(): React.JSX.Element {
             confidence={detail.confidence}
             testID="recovery-hero"
           />
+        )}
+
+        {detail.score !== null && detail.score.missingMetrics.length > 0 && (
+          <View style={{ gap: spacing.sm }} testID="recovery-missing-metrics">
+            {detail.score.missingMetrics.map((metric) => (
+              <MissingMetricMessage key={metric.metricCode} metric={metric} />
+            ))}
+          </View>
         )}
 
         {showDetail ? (
@@ -150,11 +165,15 @@ export function RecoveryScreen(): React.JSX.Element {
             />
           </>
         ) : (
-          <Card testID="recovery-empty">
-            <Text variant="bodyMedium" color="secondary">
-              {resolveEmptyRecoveryMessage(detail.state)}
-            </Text>
-          </Card>
+          <DataStatePanel
+            state={dataStateFromScoreState(detail.state) ?? 'empty'}
+            title="Recovery data unavailable"
+            body={resolveEmptyRecoveryMessage(detail.state)}
+            {...(detail.state === 'provider_unavailable' || detail.state === 'calculation_error'
+              ? { onAction: () => void refetch() }
+              : {})}
+            testID="recovery-empty"
+          />
         )}
 
         <RecoveryAiSummaryCard sourceDate={detail.localDate} testID="recovery-ai-summary" />
@@ -164,11 +183,6 @@ export function RecoveryScreen(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 48,
-  },
   linkPressable: {
     minHeight: 44,
   },

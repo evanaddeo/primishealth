@@ -6,7 +6,8 @@
  * with a single element and no extra wiring.
  */
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { View } from 'react-native';
 
 import { Button } from '@primis/design-system';
 
@@ -25,17 +26,19 @@ export function QuickAddLauncher({
   testID,
 }: QuickAddLauncherProps): React.JSX.Element {
   const [open, setOpen] = useState(false);
+  const launcherRef = useRef<View>(null);
 
   return (
     <>
       <Button
+        ref={launcherRef}
         variant={variant}
         label={label}
         onPress={() => setOpen(true)}
         accessibilityHint="Opens a sheet to log water, caffeine, alcohol, macros, or tags"
         testID={testID ?? 'quick-add-launcher'}
       />
-      <QuickAddSheet visible={open} onClose={() => setOpen(false)} />
+      <QuickAddSheet visible={open} onClose={() => setOpen(false)} returnFocusRef={launcherRef} />
     </>
   );
 }

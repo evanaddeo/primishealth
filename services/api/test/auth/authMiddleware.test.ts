@@ -40,9 +40,13 @@ vi.mock('../../src/repositories/userRepository.js', () => ({
   findUserById: vi.fn(),
 }));
 
-vi.mock('@primis/config', () => ({
-  loadBackendEnv: mocks.loadBackendEnv,
-}));
+vi.mock('@primis/config', async () => {
+  const actual = await vi.importActual<typeof import('@primis/config')>('@primis/config');
+  return {
+    ...actual,
+    loadBackendEnv: mocks.loadBackendEnv,
+  };
+});
 
 // Import after mocks are registered.
 import { createAuthMiddleware, type AuthenticatedUser } from '../../src/auth/authMiddleware.js';
@@ -134,12 +138,10 @@ describe('createAuthMiddleware — production guard', () => {
     );
   });
 
-  it('throws at startup when ALLOW_MOCK_AUTH=true and APP_ENV=dev', () => {
+  it('does NOT throw when ALLOW_MOCK_AUTH=true and APP_ENV=dev', () => {
     mocks.loadBackendEnv.mockReturnValue(mockEnv({ ALLOW_MOCK_AUTH: true, APP_ENV: 'dev' }));
 
-    expect(() => createAuthMiddleware()).toThrow(
-      /ALLOW_MOCK_AUTH=true is not permitted in APP_ENV="dev"/,
-    );
+    expect(() => createAuthMiddleware()).not.toThrow();
   });
 
   it('does NOT throw when ALLOW_MOCK_AUTH=true and APP_ENV=local', () => {
@@ -148,12 +150,14 @@ describe('createAuthMiddleware — production guard', () => {
     expect(() => createAuthMiddleware()).not.toThrow();
   });
 
-  it('does NOT throw when ALLOW_MOCK_AUTH=true and APP_ENV=development', () => {
+  it('throws when a drifted APP_ENV=development value bypasses config typing in a mock', () => {
     mocks.loadBackendEnv.mockReturnValue(
       mockEnv({ ALLOW_MOCK_AUTH: true, APP_ENV: 'development' }),
     );
 
-    expect(() => createAuthMiddleware()).not.toThrow();
+    expect(() => createAuthMiddleware()).toThrow(
+      /ALLOW_MOCK_AUTH=true is not permitted in APP_ENV="development"/,
+    );
   });
 
   it('does NOT throw when ALLOW_MOCK_AUTH=false regardless of APP_ENV', () => {

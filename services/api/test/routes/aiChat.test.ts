@@ -31,15 +31,19 @@ const mocks = vi.hoisted(() => ({
   loadBackendEnv: vi.fn(),
 }));
 
-vi.mock('@primis/config', () => ({
-  loadBackendEnv: mocks.loadBackendEnv,
-  loadPublicEnv: vi.fn().mockReturnValue({
-    NODE_ENV: 'development',
-    APP_ENV: 'local',
-    EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
-    EXPO_PUBLIC_MOCK_MODE: 'true',
-  }),
-}));
+vi.mock('@primis/config', async () => {
+  const actual = await vi.importActual<typeof import('@primis/config')>('@primis/config');
+  return {
+    ...actual,
+    loadBackendEnv: mocks.loadBackendEnv,
+    loadPublicEnv: vi.fn().mockReturnValue({
+      NODE_ENV: 'development',
+      APP_ENV: 'local',
+      EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
+      EXPO_PUBLIC_MOCK_MODE: 'true',
+    }),
+  };
+});
 
 vi.mock('../../src/auth/cognitoJwtVerifier.js', () => ({
   verifyCognitoToken: vi.fn(),
@@ -81,7 +85,9 @@ import {
   type AiChatResponseDto,
 } from '@primis/api-contracts';
 import { AiGateway, AiRequestController, BaseContextPacketAssembler } from '@primis/ai';
+import type { StructuredLogEntry } from '@primis/config';
 import type { AuthenticatedUser } from '../../src/auth/authMiddleware.js';
+import { createApiLogger } from '../../src/observability/logger.js';
 import type {
   AiConversation,
   AiContextSnapshot,
@@ -178,6 +184,37 @@ async function getJson<T>(res: Response): Promise<T> {
 // ---------------------------------------------------------------------------
 
 describe('POST /ai/chat — happy path', () => {
+  it('emits a bounded chat event without message, user, or context content', async () => {
+    const entries: StructuredLogEntry[] = [];
+    const logger = createApiLogger({
+      environment: 'test',
+      sink: (entry) => entries.push(entry),
+      now: () => new Date('2026-07-15T12:00:00.000Z'),
+    });
+    const deps = makeDeps({ logger });
+
+    await postChat(buildApp(deps), {
+      message: 'My HRV was 42. What affected my sleep?',
+    });
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({
+      event: 'ai.chat.completed',
+      requestId: 'test-req-id',
+      metadata: {
+        streamed: false,
+        canned: false,
+        provider: 'mock',
+        model: 'mock-model',
+      },
+    });
+    const serialized = JSON.stringify(entries);
+    expect(serialized).not.toContain(USER_ID);
+    expect(serialized).not.toContain('HRV');
+    expect(serialized).not.toContain('affected my sleep');
+    expect(serialized).not.toContain('contextPacket');
+  });
+
   it('returns 200 with a schema-valid AiChatResponseDto', async () => {
     const res = await postChat(buildApp(makeDeps()), { message: 'How is my recovery today?' });
     expect(res.status).toBe(200);

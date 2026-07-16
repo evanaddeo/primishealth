@@ -3,7 +3,7 @@
  *
  * Authentication flow:
  *   1. Extract the `Authorization: Bearer <token>` header.
- *   2. If `ALLOW_MOCK_AUTH=true` and `APP_ENV` is `local`/`development`:
+ *   2. If `ALLOW_MOCK_AUTH=true` and `APP_ENV` is `local`/`dev`:
  *      accept `Bearer mock-dev-token` and attach the synthetic mock user.
  *   3. Otherwise: verify the JWT via `cognitoJwtVerifier`, look up the
  *      internal user by `cognito_sub` via `userRepository`, and attach the
@@ -12,7 +12,7 @@
  *
  * PRODUCTION GUARD:
  *   If `ALLOW_MOCK_AUTH=true` is set while `APP_ENV` is not `local` or
- *   `development`, the middleware factory throws synchronously at startup
+ *   `dev`, the middleware factory throws synchronously at startup
  *   before any request is handled. This prevents accidental mock bypass in
  *   staging or production environments.
  *
@@ -75,7 +75,7 @@ export interface AuthVariables {
  * The `APP_ENV` values in which `ALLOW_MOCK_AUTH=true` is permitted.
  * Any other environment causes the production guard to throw at startup.
  */
-const MOCK_ALLOWED_ENVS = new Set(['local', 'development']);
+const MOCK_ALLOWED_ENVS = new Set(['local', 'dev']);
 
 // ---------------------------------------------------------------------------
 // Middleware factory
@@ -100,7 +100,7 @@ export function createAuthMiddleware() {
   if (env.ALLOW_MOCK_AUTH && !MOCK_ALLOWED_ENVS.has(env.APP_ENV)) {
     throw new Error(
       `[auth] ALLOW_MOCK_AUTH=true is not permitted in APP_ENV="${env.APP_ENV}". ` +
-        `Mock authentication is only allowed in local or development environments. ` +
+        `Mock authentication is only allowed in local or dev environments. ` +
         `Set ALLOW_MOCK_AUTH=false or correct APP_ENV before starting the service.`,
     );
   }

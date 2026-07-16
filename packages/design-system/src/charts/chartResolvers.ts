@@ -10,7 +10,7 @@
  */
 
 import { accentColors, statusColors } from '../tokens/color.js';
-import type { ChartState, SleepStage } from './types.js';
+import type { ChartPoint, ChartState, SleepStage, SleepStageSummary } from './types.js';
 
 // ── Sleep stage visual language ───────────────────────────────────────────────
 
@@ -116,6 +116,66 @@ export function resolveChartEmptyHint(state: ChartState): string | null {
     default:
       return null;
   }
+}
+
+export interface ChartAccessibilitySummaryInput {
+  chartType: 'line' | 'bar';
+  metricLabel?: string;
+  data: readonly ChartPoint[];
+  unit: string;
+  timeRange: string;
+  state: ChartState;
+  baseline?: { readonly min: number; readonly max: number } | number | null;
+  baselineLabel?: string;
+}
+
+/** Builds a bounded spoken alternative from chart-ready display data. */
+export function resolveChartAccessibilitySummary({
+  chartType,
+  metricLabel,
+  data,
+  unit,
+  timeRange,
+  state,
+  baseline,
+  baselineLabel,
+}: ChartAccessibilitySummaryInput): string {
+  const name = metricLabel ?? `${chartType === 'line' ? 'Line' : 'Bar'} chart`;
+  const prefix = `${name}, ${timeRange}${unit.length > 0 ? `, in ${unit}` : ''}.`;
+  const stateLabel = resolveChartStateLabel(state);
+  if (stateLabel !== null) return `${prefix} ${stateLabel}.`;
+
+  const available = data.filter((point): point is ChartPoint & { y: number } => point.y !== null);
+  const latest = available.at(-1)?.y;
+  const missing = data.length - available.length;
+  const parts = [`${available.length} values`];
+  if (latest !== undefined) parts.push(`Latest ${latest}${unit.length > 0 ? ` ${unit}` : ''}`);
+  if (missing > 0) parts.push(`${missing} missing ${missing === 1 ? 'value' : 'values'}`);
+  if (typeof baseline === 'number') {
+    parts.push(`${baselineLabel ?? 'Baseline'} ${baseline}${unit.length > 0 ? ` ${unit}` : ''}`);
+  } else if (baseline !== null && baseline !== undefined) {
+    parts.push(
+      `Baseline range ${baseline.min} to ${baseline.max}${unit.length > 0 ? ` ${unit}` : ''}`,
+    );
+  }
+  return `${prefix} ${parts.join('. ')}.`;
+}
+
+/** Spoken alternative for a sleep-stage timeline and its text legend. */
+export function resolveStageTimelineAccessibilitySummary(
+  state: ChartState,
+  startTimeLabel?: string,
+  endTimeLabel?: string,
+  summaries: readonly SleepStageSummary[] = [],
+): string {
+  const range =
+    startTimeLabel !== undefined && endTimeLabel !== undefined
+      ? ` from ${startTimeLabel} to ${endTimeLabel}`
+      : '';
+  const stateLabel = resolveChartStateLabel(state);
+  if (stateLabel !== null) return `Sleep stage timeline${range}. ${stateLabel}.`;
+  const stages = summaries.map((summary) => `${STAGE_LABELS[summary.stage]} ${summary.label}`);
+  return `Sleep stage timeline${range}.${stages.length > 0 ? ` ${stages.join('. ')}.` : ''}`;
 }
 
 /**

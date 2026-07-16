@@ -21,6 +21,8 @@ import { Animated, StyleSheet, View } from 'react-native';
 import { Button, Card, Screen, Text, useTheme } from '@primis/design-system';
 
 import { useBedtimePlan } from '../../api/hooks/useBedtimePlan';
+import { DataStatePanel } from '../../components/DataStatePanel';
+import { DataStatusBanner } from '../../components/DataStatusBanner';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 import type { BedtimePlanRequest, TrainingImportance, WakeFlexibility } from './bedtimeContract';
 import { hasWindows, minutesToTime, resolveBedtimeBanner } from './bedtimeModel';
@@ -52,7 +54,7 @@ export function BedtimePlannerScreen(): React.JSX.Element {
     [wakeMinutes, wakeFlexibility, trainingImportance],
   );
 
-  const { plan } = useBedtimePlan(request);
+  const { plan, status, isRefreshing, hasRefreshError, refetch } = useBedtimePlan(request);
 
   // Subtle mount fade — token-driven duration, instant under reduced motion.
   const [fade] = useState(() => new Animated.Value(0));
@@ -92,6 +94,41 @@ export function BedtimePlannerScreen(): React.JSX.Element {
           testID="bedtime-options"
         />
 
+        {isRefreshing && (
+          <DataStatusBanner
+            state="refreshing"
+            title="Updating bedtime windows"
+            testID="bedtime-refreshing"
+          />
+        )}
+
+        {hasRefreshError && (
+          <DataStatusBanner
+            state="api_error"
+            title="Couldn’t update bedtime windows"
+            body="Showing the last prepared windows for this plan."
+            onAction={() => void refetch()}
+            testID="bedtime-refresh-error"
+          />
+        )}
+
+        {status === 'error' && plan === null && (
+          <DataStatePanel
+            state="api_error"
+            title="Couldn’t prepare bedtime windows"
+            onAction={() => void refetch()}
+            testID="bedtime-error"
+          />
+        )}
+
+        {status === 'loading' && plan === null && (
+          <DataStatePanel
+            state="initial_loading"
+            title="Preparing bedtime windows"
+            testID="bedtime-loading"
+          />
+        )}
+
         {banner !== null && (
           <Card
             testID="bedtime-banner"
@@ -116,13 +153,14 @@ export function BedtimePlannerScreen(): React.JSX.Element {
               />
             ))}
           </View>
-        ) : (
-          <Card testID="bedtime-empty">
-            <Text variant="bodyMedium" color="secondary">
-              Pick a target wake time above to see your recommended bedtime windows.
-            </Text>
-          </Card>
-        )}
+        ) : status === 'ready' ? (
+          <DataStatePanel
+            state="empty"
+            title="No bedtime windows available"
+            body="Adjust your target wake time to prepare a new set of recommended windows."
+            testID="bedtime-empty"
+          />
+        ) : null}
 
         {plan !== null && <BedtimeNotesCard plan={plan} testID="bedtime-notes" />}
 

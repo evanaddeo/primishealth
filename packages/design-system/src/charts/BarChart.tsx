@@ -28,6 +28,7 @@ import { useTheme } from '../ThemeContext.js';
 import { spacing } from '../tokens/spacing.js';
 import {
   resolveBarHeightFraction,
+  resolveChartAccessibilitySummary,
   resolveChartStateLabel,
   resolveChartEmptyHint,
 } from './chartResolvers.js';
@@ -42,6 +43,8 @@ export interface BarChartProps {
   unit: string;
   /** Human-readable range label, e.g. '7 days'. Required per UX-CHART-003. */
   timeRange: string;
+  /** Metric name included in the generated screen-reader summary. */
+  metricLabel?: string;
   /** Content-availability state. Controls loading/empty/error overlays. */
   state: ChartState;
   /**
@@ -78,6 +81,7 @@ export function BarChart({
   data,
   unit,
   timeRange,
+  metricLabel,
   state,
   baselineValue = null,
   baselineLabel,
@@ -104,7 +108,20 @@ export function BarChart({
   return (
     <View
       testID={testID}
-      accessibilityLabel={accessibilityLabel ?? `Bar chart — ${unit}, ${timeRange}`}
+      accessible
+      accessibilityLabel={
+        accessibilityLabel ??
+        resolveChartAccessibilitySummary({
+          chartType: 'bar',
+          ...(metricLabel === undefined ? {} : { metricLabel }),
+          data,
+          unit,
+          timeRange,
+          state,
+          baseline: baselineValue,
+          ...(baselineLabel === undefined ? {} : { baselineLabel }),
+        })
+      }
       accessibilityRole="image"
       style={[
         styles.container,

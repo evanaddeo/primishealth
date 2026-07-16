@@ -43,6 +43,7 @@ import {
   type AiChatControllerInput,
   type AiChatRunResult,
 } from '@primis/ai';
+import { classifyError } from '@primis/config';
 
 import type { AuthVariables } from '../auth/authMiddleware.js';
 import {
@@ -61,6 +62,7 @@ import type {
   NewAiMessage,
   NewAiModelInvocation,
 } from '../db/types.js';
+import { apiLogger, type ApiLogger } from '../observability/logger.js';
 
 // ---------------------------------------------------------------------------
 // Dependency injection (mirrors the dashboard route factory pattern)
@@ -93,6 +95,7 @@ export interface AiChatRouteDeps {
   createContextSnapshot: (data: NewAiContextSnapshot) => Promise<AiContextSnapshot>;
   recordModelInvocation: (data: NewAiModelInvocation) => Promise<AiModelInvocation>;
   environment: 'dev' | 'staging' | 'prod';
+  logger?: ApiLogger;
 }
 
 /** Builds the default controller once (mock gateway unless live keys are configured). */
@@ -112,6 +115,7 @@ const DEFAULT_DEPS: AiChatRouteDeps = {
   createContextSnapshot,
   recordModelInvocation,
   environment: resolveEnvironment(process.env),
+  logger: apiLogger,
 };
 
 // ---------------------------------------------------------------------------
@@ -227,8 +231,10 @@ export function createAiChatRouter(
             next.value,
             requestId,
           );
+          emitChatCompleted(deps, next.value, true, requestId);
         },
-        async (_err, stream) => {
+        async (err, stream) => {
+          emitChatFailed(deps, err, true, requestId);
           // Do NOT leak error internals; the client shows a generic retry.
           await stream.writeSSE({
             event: 'error',
@@ -243,14 +249,63 @@ export function createAiChatRouter(
     }
 
     // ── Non-streaming path (single JSON response) ──────────────────────────────
-    const result = await deps.controller.run(controllerInput);
-    await persistTurn(deps, conversation, internalUserId, body.message, result, requestId);
+    let result: AiChatRunResult;
+    try {
+      result = await deps.controller.run(controllerInput);
+      await persistTurn(deps, conversation, internalUserId, body.message, result, requestId);
+    } catch (error) {
+      emitChatFailed(deps, error, false, requestId);
+      throw error;
+    }
+    emitChatCompleted(deps, result, false, requestId);
 
     const validated = AiChatResponseDtoSchema.parse(result.response);
     return c.json(makeSuccessResponse(validated, undefined, requestId), 200);
   });
 
   return router;
+}
+
+function emitChatCompleted(
+  deps: AiChatRouteDeps,
+  result: AiChatRunResult,
+  streamed: boolean,
+  requestId: string | undefined,
+): void {
+  const persistence = result.persistence;
+  (deps.logger ?? apiLogger).emit(
+    'ai.chat.completed',
+    {
+      streamed,
+      canned: persistence.canned,
+      provider: persistence.modelProvider,
+      model: persistence.modelName,
+      ...(persistence.latencyMs !== undefined ? { latencyMs: persistence.latencyMs } : {}),
+      ...(persistence.promptTokens !== undefined ? { promptTokens: persistence.promptTokens } : {}),
+      ...(persistence.completionTokens !== undefined
+        ? { completionTokens: persistence.completionTokens }
+        : {}),
+    },
+    requestId ? { requestId } : {},
+  );
+}
+
+function emitChatFailed(
+  deps: AiChatRouteDeps,
+  error: unknown,
+  streamed: boolean,
+  requestId: string | undefined,
+): void {
+  const safeError = classifyError(error);
+  (deps.logger ?? apiLogger).emit(
+    'ai.chat.failed',
+    {
+      streamed,
+      errorClassification: safeError.classification,
+      ...(safeError.code ? { errorCode: safeError.code } : {}),
+    },
+    requestId ? { requestId } : {},
+  );
 }
 
 // ---------------------------------------------------------------------------

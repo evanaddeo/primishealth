@@ -119,7 +119,15 @@ export function MacrosForm({
         Saved as a manual estimate — no food database needed.
       </Text>
 
-      <Button label="Log meal" onPress={() => void log()} disabled={empty || controller.pending} />
+      <Button
+        label={controller.pending ? 'Saving meal…' : 'Log meal'}
+        onPress={() => void log()}
+        disabled={empty || controller.pending}
+        busy={controller.pending}
+        {...(empty
+          ? { accessibilityHint: 'Enter a meal type or at least one nutrition value' }
+          : {})}
+      />
     </View>
   );
 }

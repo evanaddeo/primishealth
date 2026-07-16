@@ -65,6 +65,7 @@ export * from './safety/index.js';
 
 // Prompt composition + output contracts (CU-081)
 export * from './prompts/index.js';
+export * from './observability/logger.js';
 
 // Chat orchestration (CU-082)
 export { AiRequestController, aggregateConfidence, chunkText } from './AiRequestController.js';
@@ -100,4 +101,5 @@ export type {
   AiProviderResponse,
   AiStreamChunk,
   AiInvocationTelemetry,
+  AiInvocationFailureTelemetry,
 } from './types.js';

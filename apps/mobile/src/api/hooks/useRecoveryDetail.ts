@@ -43,6 +43,7 @@ export interface RecoveryDetailController {
   readonly status: RecoveryDetailStatus;
   /** True while a background refresh is in flight (cached content stays shown). */
   readonly isRefreshing: boolean;
+  readonly hasRefreshError: boolean;
   readonly refetch: () => Promise<void>;
 }
 
@@ -77,6 +78,7 @@ export function useRecoveryDetail(): RecoveryDetailController {
     detail,
     status,
     isRefreshing: query.isFetching && detail !== null,
+    hasRefreshError: query.isError && detail !== null,
     refetch,
   };
 }

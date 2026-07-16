@@ -7,16 +7,16 @@
  * `MockModeError`, which we catch and satisfy from `src/mocks/*` by echoing a
  * schema-valid DTO. A later phase swaps to the live routes with no screen change.
  *
- * Local-first (ADR-008 client side): each successful log optimistically folds the
- * new entry into the cached `lifestyle-day` / `nutrition-day` query via the pure
- * `quickAddModel` folders, so a just-logged value shows instantly. The durable
- * server projection reconciles on the next read.
+ * Local-first (ADR-008 client side): after server acknowledgement, each successful
+ * log folds the new entry into the cached `lifestyle-day` / `nutrition-day` query
+ * via the pure `quickAddModel` folders. The durable server projection reconciles
+ * on the next read; CU-092 measures this existing post-ack cache-commit boundary.
  *
  * @see apps/mobile/src/features/quickAdd/quickAddModel.ts — request builders + folders
  * @see docs/decisions/ADR-008-manual-input-daily-aggregation-and-freshness.md
  */
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import type {
   AlcoholEntryDto,
@@ -59,6 +59,11 @@ import {
   appendNutritionEntry,
   resolveLocalDate,
 } from '../../features/quickAdd/quickAddModel';
+import {
+  PERFORMANCE_EVENT_CODES,
+  performanceMarks,
+  type PerformanceSpan,
+} from '../../performance/performanceMarks';
 
 const MOCK_MODE = loadPublicEnv().EXPO_PUBLIC_MOCK_MODE === 'true';
 
@@ -148,6 +153,9 @@ export interface QuickAddController {
   readonly tags: readonly CustomTagDto[];
   /** True while any quick-add write is in flight. */
   readonly pending: boolean;
+  /** Calm user-facing failure copy; forms retain their local input. */
+  readonly errorMessage: string | null;
+  readonly clearError: () => void;
 
   readonly logWater: (req: CreateHydrationRequestDto) => Promise<boolean>;
   readonly logCaffeine: (req: CreateCaffeineRequestDto) => Promise<boolean>;
@@ -162,6 +170,7 @@ export function useQuickAdd(): QuickAddController {
   const qc = useQueryClient();
   const timezone = getDeviceTimezone();
   const localDate = resolveLocalDate(new Date(), timezone);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const lifestyleQuery = useQuery<LifestyleDayResponseDto>({
     queryKey: lifestyleKey(localDate),
@@ -183,41 +192,69 @@ export function useQuickAdd(): QuickAddController {
 
   // ── Mutations ──────────────────────────────────────────────────────────────────
 
-  const hydrationM = useMutation<HydrationEntryDto, Error, CreateHydrationRequestDto>({
+  const hydrationM = useMutation<
+    HydrationEntryDto,
+    Error,
+    CreateHydrationRequestDto,
+    PerformanceSpan
+  >({
     mutationFn: (req) => postOrMock(API_ENDPOINTS.HYDRATION, req, mockCreatedHydration),
-    onSuccess: (entry, req) => {
+    onMutate: () =>
+      performanceMarks.start(PERFORMANCE_EVENT_CODES.NUTRITION_MANUAL_LOG_CACHE_COMMIT),
+    onSuccess: (entry, req, span) => {
       const key = lifestyleKey(req.localDate);
       const prev = qc.getQueryData<LifestyleDayResponseDto>(key);
       if (prev) qc.setQueryData(key, appendHydration(prev, entry));
+      span?.finish(prev ? 'completed' : 'not_visible');
     },
+    onError: (_error, _req, span) => span?.finish('failed'),
   });
 
-  const caffeineM = useMutation<CaffeineEntryDto, Error, CreateCaffeineRequestDto>({
-    mutationFn: (req) => postOrMock(API_ENDPOINTS.CAFFEINE, req, mockCreatedCaffeine),
-    onSuccess: (entry, req) => {
-      const key = lifestyleKey(req.localDate);
-      const prev = qc.getQueryData<LifestyleDayResponseDto>(key);
-      if (prev) qc.setQueryData(key, appendCaffeine(prev, entry));
+  const caffeineM = useMutation<CaffeineEntryDto, Error, CreateCaffeineRequestDto, PerformanceSpan>(
+    {
+      mutationFn: (req) => postOrMock(API_ENDPOINTS.CAFFEINE, req, mockCreatedCaffeine),
+      onMutate: () =>
+        performanceMarks.start(PERFORMANCE_EVENT_CODES.NUTRITION_MANUAL_LOG_CACHE_COMMIT),
+      onSuccess: (entry, req, span) => {
+        const key = lifestyleKey(req.localDate);
+        const prev = qc.getQueryData<LifestyleDayResponseDto>(key);
+        if (prev) qc.setQueryData(key, appendCaffeine(prev, entry));
+        span?.finish(prev ? 'completed' : 'not_visible');
+      },
+      onError: (_error, _req, span) => span?.finish('failed'),
     },
-  });
+  );
 
-  const alcoholM = useMutation<AlcoholEntryDto, Error, CreateAlcoholRequestDto>({
+  const alcoholM = useMutation<AlcoholEntryDto, Error, CreateAlcoholRequestDto, PerformanceSpan>({
     mutationFn: (req) => postOrMock(API_ENDPOINTS.ALCOHOL, req, mockCreatedAlcohol),
-    onSuccess: (entry, req) => {
+    onMutate: () =>
+      performanceMarks.start(PERFORMANCE_EVENT_CODES.NUTRITION_MANUAL_LOG_CACHE_COMMIT),
+    onSuccess: (entry, req, span) => {
       const key = lifestyleKey(req.localDate);
       const prev = qc.getQueryData<LifestyleDayResponseDto>(key);
       if (prev) qc.setQueryData(key, appendAlcohol(prev, entry));
+      span?.finish(prev ? 'completed' : 'not_visible');
     },
+    onError: (_error, _req, span) => span?.finish('failed'),
   });
 
-  const macrosM = useMutation<NutritionEntryDto, Error, CreateNutritionEntryRequestDto>({
+  const macrosM = useMutation<
+    NutritionEntryDto,
+    Error,
+    CreateNutritionEntryRequestDto,
+    PerformanceSpan
+  >({
     mutationFn: (req) =>
       postOrMock(API_ENDPOINTS.NUTRITION_ENTRIES, req, mockCreatedNutritionEntry),
-    onSuccess: (entry, req) => {
+    onMutate: () =>
+      performanceMarks.start(PERFORMANCE_EVENT_CODES.NUTRITION_MANUAL_LOG_CACHE_COMMIT),
+    onSuccess: (entry, req, span) => {
       const key = nutritionKey(req.localDate);
       const prev = qc.getQueryData<NutritionDayResponseDto>(key);
       if (prev) qc.setQueryData(key, appendNutritionEntry(prev, entry));
+      span?.finish(prev ? 'completed' : 'not_visible');
     },
+    onError: (_error, _req, span) => span?.finish('failed'),
   });
 
   const digestionM = useMutation<BowelEntryDto, Error, CreateDigestionRequestDto>({
@@ -244,23 +281,28 @@ export function useQuickAdd(): QuickAddController {
     async <TReq, TRes>(mutateAsync: (req: TReq) => Promise<TRes>, req: TReq): Promise<boolean> => {
       try {
         await mutateAsync(req);
+        setErrorMessage(null);
         return true;
       } catch {
+        setErrorMessage('Couldn’t save this entry just now. Your input is still here.');
         return false;
       }
     },
-    [],
+    [setErrorMessage],
   );
 
   const createTag = useCallback(
     async (req: CreateTagRequestDto): Promise<CustomTagDto | null> => {
       try {
-        return await createTagM.mutateAsync(req);
+        const tag = await createTagM.mutateAsync(req);
+        setErrorMessage(null);
+        return tag;
       } catch {
+        setErrorMessage('Couldn’t save this tag just now. Your input is still here.');
         return null;
       }
     },
-    [createTagM],
+    [createTagM, setErrorMessage],
   );
 
   const pending =
@@ -279,6 +321,8 @@ export function useQuickAdd(): QuickAddController {
     nutrition: nutritionQuery.data ?? null,
     tags: tagsQuery.data ?? [],
     pending,
+    errorMessage,
+    clearError: () => setErrorMessage(null),
     logWater: (req) => runBool(hydrationM.mutateAsync, req),
     logCaffeine: (req) => runBool(caffeineM.mutateAsync, req),
     logAlcohol: (req) => runBool(alcoholM.mutateAsync, req),
