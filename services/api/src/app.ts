@@ -41,6 +41,11 @@
  *   GET    /api/v1/digestion?from=&to=                          — list digestion entries by date (CU-071)
  *   POST   /api/v1/nutrition/entries                            — log a manual macro entry (CU-072)
  *   GET    /api/v1/nutrition?date=                              — daily macro summary + entries (CU-072)
+ *   GET    /api/v1/foods?q=                                     — food catalog + private food search (CU-096)
+ *   POST   /api/v1/foods/user                                  — create a private user food (CU-096)
+ *   GET    /api/v1/foods/user/:id                              — read a private user food (CU-096)
+ *   PATCH  /api/v1/foods/user/:id                              — update a private user food (CU-096)
+ *   DELETE /api/v1/foods/user/:id                              — hide a private user food (CU-096)
  *   POST   /api/v1/tags                                        — create-or-upsert a custom tag (CU-073)
  *   GET    /api/v1/tags                                        — list active custom tags (CU-073)
  *   POST   /api/v1/tags/events                                 — log a tag event (CU-073)
@@ -70,6 +75,7 @@ import { aiChatRouter } from './routes/aiChat.js';
 import { aiSummariesRouter } from './routes/aiSummaries.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { digestionRouter } from './routes/digestion.js';
+import { foodRouter } from './routes/foods.js';
 import { healthRouter } from './routes/health.js';
 import { lifestyleLogRouter } from './routes/lifestyleLogs.js';
 import { manualInputRouter } from './routes/manualInputs.js';
@@ -208,6 +214,12 @@ export function createApp(options: CreateAppOptions = {}): Hono<{ Variables: App
   //   POST /api/v1/nutrition/entries — log a manual macro entry
   //   GET  /api/v1/nutrition?date=   — precomputed daily macro summary + entries
   app.route('/api/v1/nutrition', nutritionRouter);
+
+  // Food catalog + private user foods (CU-096): bounded, source-aware search
+  // over the CU-095 catalog plus the private user-food lifecycle.
+  //   GET    /api/v1/foods?q=&scope=&source=&dataType=&page=&pageSize=
+  //   POST   /api/v1/foods/user | GET/PATCH/DELETE /api/v1/foods/user/:id
+  app.route('/api/v1/foods', foodRouter);
 
   // Custom tag routes (CU-073): user-owned behavior/event markers for future
   // correlations and AI context (Phase I) — no correlations are made here.

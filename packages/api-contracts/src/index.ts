@@ -127,6 +127,7 @@ export * from './recovery.js';
 export * from './sleep.js';
 export * from './envelope.js';
 export * from './errors.js';
+export * from './foods.js';
 export * from './lifestyleLogs.js';
 export * from './manualInputs.js';
 export * from './nutrition.js';
