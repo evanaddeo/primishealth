@@ -112,7 +112,7 @@ describe('AiContextPacketSchema — required fields', () => {
 describe('AiContextPacketSchema — userIdHash guard', () => {
   it('rejects a raw email as userIdHash', () => {
     const bad = clone(AI_CONTEXT_PACKET_FIXTURE) as Record<string, unknown>;
-    bad.userIdHash = 'evanaddeo@gmail.com';
+    bad.userIdHash = 'real.user@gmail.com';
     expect(AiContextPacketSchema.safeParse(bad).success).toBe(false);
   });
 
