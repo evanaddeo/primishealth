@@ -16,6 +16,8 @@
  *   POST   /api/v1/me/onboarding/consent                       — record consent event (CU-033)
  *   GET    /api/v1/provider-connections/google/authorize        — request Google Health auth URL (CU-037)
  *   GET    /api/v1/provider-connections/google/callback         — handle Google Health OAuth callback (CU-037)
+ *   POST   /api/v1/me/providers/healthkit                       — HealthKit consent + connection enable (CU-098)
+ *   POST   /api/v1/me/providers/healthkit/uploads               — local-health batch upload (CU-098)
  *   GET    /api/v1/me/providers                                 — list provider connections (CU-046)
  *   GET    /api/v1/me/providers/:connectionId/capabilities      — static capabilities for provider (CU-046)
  *   DELETE /api/v1/me/providers/:connectionId                   — disconnect a provider (CU-046)
@@ -77,6 +79,7 @@ import { dashboardRouter } from './routes/dashboard.js';
 import { digestionRouter } from './routes/digestion.js';
 import { foodRouter } from './routes/foods.js';
 import { healthRouter } from './routes/health.js';
+import { healthKitRouter } from './routes/healthkit.js';
 import { lifestyleLogRouter } from './routes/lifestyleLogs.js';
 import { manualInputRouter } from './routes/manualInputs.js';
 import { meRouter } from './routes/me.js';
@@ -156,6 +159,13 @@ export function createApp(options: CreateAppOptions = {}): Hono<{ Variables: App
   // TODO(phase-z): Replace with createProviderConnectionsRouter(realGoogleHealthConnector)
   //   once OAuth credentials are configured in GOOGLE_HEALTH_CLIENT_ID/SECRET env vars.
   app.route('/api/v1/provider-connections', providerConnectionsRouter);
+
+  // HealthKit enable + local-health upload routes (CU-098):
+  //   POST /api/v1/me/providers/healthkit         — consent grant + tokenless
+  //                                                 connection create/reactivate
+  //   POST /api/v1/me/providers/healthkit/uploads — bounded, retry-safe batch
+  //                                                 upload via writeNormalizedRecords
+  app.route('/api/v1/me/providers/healthkit', healthKitRouter);
 
   // ME providers routes (CU-046):
   //   GET    /api/v1/me/providers                            — list connections
