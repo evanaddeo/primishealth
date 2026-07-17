@@ -1,0 +1,25 @@
+fdc_id,description,food_category,nutrient_id,nutrient_name,nutrient_unit,nutrient_amount
+1000001,"Synthetic Beans, canned, drained",Legume Test Products,1008,Energy,KCAL,110
+1000001,"Synthetic Beans, canned, drained",Legume Test Products,1003,Protein,G,7.5
+1000001,"Synthetic Beans, canned, drained",Legume Test Products,1005,"Carbohydrate, by difference",G,19.2
+1000001,"Synthetic Beans, canned, drained",Legume Test Products,1004,Total lipid (fat),G,0.5
+1000001,"Synthetic Beans, canned, drained",Legume Test Products,1079,"Fiber, total dietary",G,6.3
+1000001,"Synthetic Beans, canned, drained",Legume Test Products,2000,"Sugars, total including NLEA",G,0.4
+1000001,"Synthetic Beans, canned, drained",Legume Test Products,1093,"Sodium, Na",MG,240
+1000002,Synthetic Oat Cereal,,1008,Energy,KCAL,380
+1000002,Synthetic Oat Cereal,,1003,Protein,G,13
+1000002,Synthetic Oat Cereal,,1104,"Vitamin A, IU",IU,10
+1000002,Synthetic Oat Cereal,,1093,"Sodium, Na",G,0.005
+malformed,row
+1000003,Synthetic Salmon Fillet,Fish Test Products,1008,Energy,KJ,460
+1000003,Synthetic Salmon Fillet,Fish Test Products,1003,Protein,G,20
+1000004,Synthetic Spring Water,Beverage Test Products,,,,
+ABC123,Synthetic Broken Id Food,Test Products,1008,Energy,KCAL,100
+1000006,,Test Products,1008,Energy,KCAL,100
+1000007,Synthetic Rice Cake,Grain Test Products,1003,Protein,G,abc
+1000007,Synthetic Rice Cake,Grain Test Products,1008,Energy,KCAL,35
+1000008,Synthetic Yogurt Cup,Dairy Test Products,1003,Protein,G,10
+1000008,Synthetic Yogurt Cup,Dairy Test Products,1003,Protein,G,12
+1000008,Synthetic Yogurt Cup,Dairy Test Products,1008,Energy,KCAL,200
+1000001,"Synthetic Beans, canned, drained",Legume Test Products,1008,Energy,KCAL,115
+1000001,"Synthetic Beans, canned, drained",Legume Test Products,1003,Protein,G,7.6

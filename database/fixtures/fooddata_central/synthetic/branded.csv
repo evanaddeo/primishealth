@@ -1,0 +1,13 @@
+fdc_id,description,food_category,brand_owner,brand_name,serving_size,serving_size_unit,household_serving_fulltext,nutrient_id,nutrient_name,nutrient_unit,nutrient_amount
+2000001,"Synthetic Protein Bar, Chocolate",Snack Test Products,Synthetic Foods Co,SynthBar,60,g,1 bar,1008,Energy,KCAL,230
+2000001,"Synthetic Protein Bar, Chocolate",Snack Test Products,Synthetic Foods Co,SynthBar,60,g,1 bar,1003,Protein,G,20
+2000001,"Synthetic Protein Bar, Chocolate",Snack Test Products,Synthetic Foods Co,SynthBar,60,g,1 bar,2000,"Sugars, total including NLEA",G,12
+2000001,"Synthetic Protein Bar, Chocolate",Snack Test Products,Synthetic Foods Co,SynthBar,60,g,1 bar,1093,"Sodium, Na",MG,180
+2000002,Synthetic Sparkling Drink,Beverage Test Products,Synthetic Beverages LLC,,-5,ml,,1008,Energy,KCAL,45
+2000003,Synthetic Frozen Peas,,,,,,,1008,Energy,KCAL,90
+2000003,Synthetic Frozen Peas,,,,,,,1005,"Carbohydrate, by difference",G,22
+malformed,row,too,short
+2000004,Synthetic Cheese Slice,Dairy Test Products,Synthetic Dairy Co,SynthCheese,21,g,1 slice,1110,"Vitamin D (D2 + D3), International Units",IU,80
+2000004,Synthetic Cheese Slice,Dairy Test Products,Synthetic Dairy Co,SynthCheese,21,g,1 slice,1004,Total lipid (fat),G,9
+2000001,"Synthetic Protein Bar, Chocolate",Snack Test Products,Synthetic Foods Co,SynthBar,60,g,1 bar,1008,Energy,KCAL,235
+2000001,"Synthetic Protein Bar, Chocolate",Snack Test Products,Synthetic Foods Co,SynthBar,60,g,1 bar,1003,Protein,G,21

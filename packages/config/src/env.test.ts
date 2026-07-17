@@ -24,6 +24,7 @@ const VALID_PUBLIC: NodeJS.ProcessEnv = {
   APP_ENV: 'local',
   EXPO_PUBLIC_API_BASE_URL: 'http://localhost:3000',
   EXPO_PUBLIC_MOCK_MODE: 'true',
+  EXPO_PUBLIC_HEALTHKIT_ENABLED: 'false',
 };
 
 /** Full set of valid backend env vars (mirrors .env.example placeholder values). */
@@ -53,6 +54,7 @@ describe('loadPublicEnv', () => {
     expect(env.APP_ENV).toBe('local');
     expect(env.EXPO_PUBLIC_API_BASE_URL).toBe('http://localhost:3000');
     expect(env.EXPO_PUBLIC_MOCK_MODE).toBe('true');
+    expect(env.EXPO_PUBLIC_HEALTHKIT_ENABLED).toBe('false');
   });
 
   it('applies default NODE_ENV when absent', () => {
@@ -115,6 +117,21 @@ describe('loadPublicEnv', () => {
   it('accepts EXPO_PUBLIC_MOCK_MODE "false"', () => {
     const env = loadPublicEnv({ ...VALID_PUBLIC, EXPO_PUBLIC_MOCK_MODE: 'false' });
     expect(env.EXPO_PUBLIC_MOCK_MODE).toBe('false');
+  });
+
+  it('defaults EXPO_PUBLIC_HEALTHKIT_ENABLED to "false"', () => {
+    const env = loadPublicEnv(without(VALID_PUBLIC, 'EXPO_PUBLIC_HEALTHKIT_ENABLED'));
+    expect(env.EXPO_PUBLIC_HEALTHKIT_ENABLED).toBe('false');
+  });
+
+  it('accepts only explicit boolean strings for EXPO_PUBLIC_HEALTHKIT_ENABLED', () => {
+    expect(
+      loadPublicEnv({ ...VALID_PUBLIC, EXPO_PUBLIC_HEALTHKIT_ENABLED: 'true' })
+        .EXPO_PUBLIC_HEALTHKIT_ENABLED,
+    ).toBe('true');
+    expect(() =>
+      loadPublicEnv({ ...VALID_PUBLIC, EXPO_PUBLIC_HEALTHKIT_ENABLED: 'yes' }),
+    ).toThrowError('[config] Invalid public environment variables');
   });
 });
 

@@ -16,6 +16,8 @@
  *   POST   /api/v1/me/onboarding/consent                       — record consent event (CU-033)
  *   GET    /api/v1/provider-connections/google/authorize        — request Google Health auth URL (CU-037)
  *   GET    /api/v1/provider-connections/google/callback         — handle Google Health OAuth callback (CU-037)
+ *   POST   /api/v1/me/providers/healthkit                       — HealthKit consent + connection enable (CU-098)
+ *   POST   /api/v1/me/providers/healthkit/uploads               — local-health batch upload (CU-098)
  *   GET    /api/v1/me/providers                                 — list provider connections (CU-046)
  *   GET    /api/v1/me/providers/:connectionId/capabilities      — static capabilities for provider (CU-046)
  *   DELETE /api/v1/me/providers/:connectionId                   — disconnect a provider (CU-046)
@@ -41,6 +43,11 @@
  *   GET    /api/v1/digestion?from=&to=                          — list digestion entries by date (CU-071)
  *   POST   /api/v1/nutrition/entries                            — log a manual macro entry (CU-072)
  *   GET    /api/v1/nutrition?date=                              — daily macro summary + entries (CU-072)
+ *   GET    /api/v1/foods?q=                                     — food catalog + private food search (CU-096)
+ *   POST   /api/v1/foods/user                                  — create a private user food (CU-096)
+ *   GET    /api/v1/foods/user/:id                              — read a private user food (CU-096)
+ *   PATCH  /api/v1/foods/user/:id                              — update a private user food (CU-096)
+ *   DELETE /api/v1/foods/user/:id                              — hide a private user food (CU-096)
  *   POST   /api/v1/tags                                        — create-or-upsert a custom tag (CU-073)
  *   GET    /api/v1/tags                                        — list active custom tags (CU-073)
  *   POST   /api/v1/tags/events                                 — log a tag event (CU-073)
@@ -70,7 +77,9 @@ import { aiChatRouter } from './routes/aiChat.js';
 import { aiSummariesRouter } from './routes/aiSummaries.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { digestionRouter } from './routes/digestion.js';
+import { foodRouter } from './routes/foods.js';
 import { healthRouter } from './routes/health.js';
+import { healthKitRouter } from './routes/healthkit.js';
 import { lifestyleLogRouter } from './routes/lifestyleLogs.js';
 import { manualInputRouter } from './routes/manualInputs.js';
 import { meRouter } from './routes/me.js';
@@ -151,6 +160,13 @@ export function createApp(options: CreateAppOptions = {}): Hono<{ Variables: App
   //   once OAuth credentials are configured in GOOGLE_HEALTH_CLIENT_ID/SECRET env vars.
   app.route('/api/v1/provider-connections', providerConnectionsRouter);
 
+  // HealthKit enable + local-health upload routes (CU-098):
+  //   POST /api/v1/me/providers/healthkit         — consent grant + tokenless
+  //                                                 connection create/reactivate
+  //   POST /api/v1/me/providers/healthkit/uploads — bounded, retry-safe batch
+  //                                                 upload via writeNormalizedRecords
+  app.route('/api/v1/me/providers/healthkit', healthKitRouter);
+
   // ME providers routes (CU-046):
   //   GET    /api/v1/me/providers                            — list connections
   //   GET    /api/v1/me/providers/:connectionId/capabilities — static capabilities
@@ -208,6 +224,12 @@ export function createApp(options: CreateAppOptions = {}): Hono<{ Variables: App
   //   POST /api/v1/nutrition/entries — log a manual macro entry
   //   GET  /api/v1/nutrition?date=   — precomputed daily macro summary + entries
   app.route('/api/v1/nutrition', nutritionRouter);
+
+  // Food catalog + private user foods (CU-096): bounded, source-aware search
+  // over the CU-095 catalog plus the private user-food lifecycle.
+  //   GET    /api/v1/foods?q=&scope=&source=&dataType=&page=&pageSize=
+  //   POST   /api/v1/foods/user | GET/PATCH/DELETE /api/v1/foods/user/:id
+  app.route('/api/v1/foods', foodRouter);
 
   // Custom tag routes (CU-073): user-owned behavior/event markers for future
   // correlations and AI context (Phase I) — no correlations are made here.
