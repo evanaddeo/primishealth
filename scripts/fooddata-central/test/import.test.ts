@@ -3,10 +3,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { sql, type Kysely } from 'kysely';
+import pg from 'pg';
+import { Kysely, PostgresDialect, sql } from 'kysely';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createDb } from '../../../services/api/src/db/client.js';
 import type { Database } from '../../../services/api/src/db/types.js';
 import { createKyselyImportPersistence, runImport, writeChunk } from '../import.js';
 import {
@@ -205,7 +205,14 @@ describe.skipIf(!TEST_DATABASE_URL)('PostgreSQL importer integration', () => {
 
   beforeAll(() => {
     if (!TEST_DATABASE_URL) return;
-    db = createDb({ databaseUrl: TEST_DATABASE_URL, ssl: false });
+    // Plain Kysely/pg pool (same convention as the CU-096/CU-098 DB suites):
+    // createDb() would demand the full backend env, which integration runs
+    // configured with only TEST_DATABASE_URL do not have.
+    db = new Kysely<Database>({
+      dialect: new PostgresDialect({
+        pool: new pg.Pool({ connectionString: TEST_DATABASE_URL, max: 2 }),
+      }),
+    });
   });
 
   beforeEach(deleteIntegrationFoods);
